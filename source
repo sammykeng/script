@@ -2809,7 +2809,7 @@ G2L_MODULES[G2L["6"]] = {
 G2L_MODULES[G2L["7"]] = {
 	Closure = function()
 		local script = G2L["7"];return {
-			["Version"] = "v0.0.4",
+			["Version"] = "v0.0.5",
 			["Booleans"] = {
 				["PrintOutTables"] = {["Value"] = false},
 				["Gui"] = {
@@ -4732,8 +4732,9 @@ G2L_MODULES[G2L["ba"]] = {
 	end;
 };
 G2L_MODULES[G2L["fb"]] = {
-	Closure = function()
-		local script = G2L["fb"];local BA_ = {
+    Closure = function()
+        local script = G2L["fb"]
+        local BA_ = {
 			["Catwalk Glam Animation"] = {
 				climb = {
 					ClimbAnim = "http://www.roblox.com/asset/?id=119377220967554",
@@ -5160,7 +5161,7 @@ G2L_MODULES[G2L["fb"]] = {
 					WalkAnim = "http://www.roblox.com/asset/?id=10921283326",
 				},
 			},
-			["adidas Sports Animation"] = {
+			["adidas Sports Animation Pack"] = {
 				run = {
 					RunAnim = "http://www.roblox.com/asset/?id=18537384940",
 				},
@@ -5757,8 +5758,37 @@ G2L_MODULES[G2L["fb"]] = {
 					WalkAnim = "http://www.roblox.com/asset/?id=913402848",
 				},
 			},
+			["Adidas Community"] = {
+  				climb = {
+    				ClimbAnim = "rbxassetid://88763136693023",
+  				},
+  				fall = {
+   					FallAnim = "rbxassetid://98600215928904",
+  				},
+  				idle = {
+    				Animation2 = "rbxassetid://102357151005774",
+    				Animation1 = "rbxassetid://122257458498464",
+ 				},
+				pose = {
+					StylishPose = "rbxassetid://89262795687364"--
+				},
+  				jump = {
+    				JumpAnim = "rbxassetid://75290611992385",--
+  				},
+  				run = {
+    				RunAnim = "rbxassetid://82598234841035",--
+  				},
+  				swim = {
+    				Swim = "rbxassetid://133308483266208",--
+  				},
+  				swimidle = {
+    				SwimIdle = "rbxassetid://109346520324160",--
+  				},
+  				walk = {
+  		  			WalkAnim = "rbxassetid://122150855457006",--
+  				},
+			},
 		}
-
 		return BA_
 	end;
 };
