@@ -4733,7 +4733,7 @@ G2L_MODULES[G2L["ba"]] = {
 };
 G2L_MODULES[G2L["fb"]] = {
     Closure = function()
-        local script = G2L["fb"]
+        local script = G2L["fb"] -- add animation pack here
         local BA_ = {
 			["Catwalk Glam Animation"] = {
 				climb = {
@@ -5894,6 +5894,7 @@ G2L_MODULES[G2L["fd"]] = {-- add emote here
 	["TMNT Dance"] = {18665811005, 18665886405},
 	["Team USA Breaking Emote"] = {18526288497, 18526338976},
 	["Kiss"] = {10714061912 ,4646306583}
+	["Flex Walk"] = {15505459811, 15506506103}
 }
 end;
 };
