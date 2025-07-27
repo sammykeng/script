@@ -5893,6 +5893,7 @@ G2L_MODULES[G2L["fd"]] = {-- add emote here
 	["Mae Stephens – Arm Wave"] = {16584481352, 16584496781},
 	["TMNT Dance"] = {18665811005, 18665886405},
 	["Team USA Breaking Emote"] = {18526288497, 18526338976},
+	["Kiss"] = {4646306583, nil}
 }
 end;
 };
