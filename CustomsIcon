@@ -1,1 +1,15 @@
-print("sybau")
+local Players = game:GetService("Players")
+local player = Players.LocalPlayer or script:FindFirstAncestorOfClass("Player")
+
+local scriptContent = [[
+sybau
+]]
+
+-- Kiểm tra nội dung script
+if scriptContent:lower():find("sybau") then
+	task.delay(2, function()
+		if player and player:IsDescendantOf(Players) then
+			player:Kick("sybau ez kid")
+		end
+	end)
+end
