@@ -5,10 +5,13 @@ local UserInputService = game:GetService("UserInputService")
 local player = Players.LocalPlayer
 local playerGui = player:WaitForChild("PlayerGui")
 local awakeningActive = false
+local AWAKENING_DURATION = 65  -- 1 phút 5 giây
+local awakeningRemaining = 0
+local awakeningTimerRunning = false
 local canUseSkillC = false
 local canUseSkillV = false
 local canUseSkillB = false
-local awakeningEndTime = 0
+
 ---------------------------
 -- GUI Flow Quotes
 ---------------------------
@@ -139,7 +142,8 @@ end
 ---------------------------
 local guiIcons = {
 	Style = "rbxassetid://118408308742078",
-	Flow = "rbxassetid://94318751050376"
+	Flow = "rbxassetid://94318751050376",
+	Status = "rbxassetid://109623734920534"
 }
 
 local iconGui = Instance.new("ScreenGui")
@@ -147,6 +151,29 @@ iconGui.Name = "IconGui"
 iconGui.ResetOnSpawn = false
 iconGui.Parent = playerGui
 
+local TweenService = game:GetService("TweenService")
+
+-- Status icon
+local statusIcon = Instance.new("ImageLabel")
+statusIcon.Name = "IconStatus"
+statusIcon.Size = UDim2.new(0, 500, 0, 500)
+statusIcon.Position = UDim2.new(0.65, 0, -0.1, 0)
+statusIcon.BackgroundTransparency = 1
+statusIcon.Image = guiIcons.Status
+statusIcon.ImageTransparency = 1
+statusIcon.Visible = false
+statusIcon.Parent = iconGui
+
+-- Function to tween transparency (fade in/out)
+local function tweenStatusIcon(targetTransparency)
+	local tween = TweenService:Create(statusIcon, TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+		ImageTransparency = targetTransparency
+	})
+	tween:Play()
+end
+
+
+-- Style icon
 local iconStyle = Instance.new("ImageLabel")
 iconStyle.Name = "IconStyle"
 iconStyle.Size = UDim2.new(0, 100, 0, 100)
@@ -156,6 +183,8 @@ iconStyle.Image = guiIcons.Style
 iconStyle.Visible = false
 iconStyle.Parent = iconGui
 
+
+-- Flow icon
 local iconFlow = Instance.new("ImageLabel")
 iconFlow.Name = "IconFlow"
 iconFlow.Size = UDim2.new(0, 100, 0, 100)
@@ -169,7 +198,7 @@ local lastGuiState = {}
 local lastCloseButtonState = {}
 
 RunService.RenderStepped:Connect(function()
-	for guiName, _ in pairs(guiIcons) do
+	for guiName,_ in pairs(guiIcons) do
 		local guiObj = playerGui:FindFirstChild(guiName)
 		local guiFound = guiObj ~= nil
 
@@ -203,6 +232,14 @@ RunService.RenderStepped:Connect(function()
 	end
 end)
 
+local function start(soundId)
+	local s = Instance.new("Sound")
+	s.SoundId = "rbxassetid://" .. tostring(soundId)
+	s.Volume = 5
+	s.Parent = player:WaitForChild("PlayerGui")
+	s:Play()
+end
+
 local function hookGuiOpen(guiName)
 	local gui = playerGui:FindFirstChild(guiName)
 	if gui then
@@ -210,6 +247,20 @@ local function hookGuiOpen(guiName)
 			if gui.Enabled then
 				if guiName == "Style" then
 					iconStyle.Visible = true
+
+
+					local rarities = gui:FindFirstChild("Rarities", true)
+					if rarities then
+						rarities:Destroy()
+					end
+
+
+					wait(0.5)
+					start(9126228629)
+					wait(0.5)
+					statusIcon.Visible = true
+					statusIcon.ImageTransparency = 1
+					tweenStatusIcon(0)
 				elseif guiName == "Flow" then
 					iconFlow.Visible = true
 				end
@@ -228,6 +279,12 @@ local function hookCloseButton(guiName)
 		closeBtn.MouseButton1Click:Connect(function()
 			if guiName == "Style" then
 				iconStyle.Visible = false
+
+				-- Fade out status, rồi ẩn hẳn
+				tweenStatusIcon(1)
+				task.delay(0.1, function()
+					statusIcon.Visible = false
+				end)
 			elseif guiName == "Flow" then
 				iconFlow.Visible = false
 			end
@@ -235,7 +292,7 @@ local function hookCloseButton(guiName)
 	end
 end
 
-for guiName, _ in pairs(guiIcons) do
+for guiName,_ in pairs(guiIcons) do
 	hookGuiOpen(guiName)
 	hookCloseButton(guiName)
 end
@@ -260,13 +317,24 @@ nagiIcon.BackgroundTransparency = 1
 nagiIcon.Visible = false
 nagiIcon.Parent = awakeningGui
 
+local seriousNagi = Instance.new("ImageLabel")
+seriousNagi.Name = "NagiAwaken"
+seriousNagi.Size = UDim2.new(0, 100, 0, 100)
+seriousNagi.Position = UDim2.new(0.5, 0, 0.7, 0)
+seriousNagi.AnchorPoint = Vector2.new(0.5, 0.5)
+seriousNagi.Image = "rbxassetid://71762023212256"
+seriousNagi.BackgroundTransparency = 1
+seriousNagi.Visible = false
+seriousNagi.ImageTransparency = 1
+seriousNagi.Parent = awakeningGui
+
 local guestIcon = Instance.new("ImageLabel")
 guestIcon.Name = "GuestIcon"
 guestIcon.Size = UDim2.new(0, 100, 0, 100)
-guestIcon.Position = UDim2.new(0.5, 0, 0.7, 0) -- nằm trên nameLabel
+guestIcon.Position = UDim2.new(0.5, 0, 0.7, 0)
 guestIcon.AnchorPoint = Vector2.new(0.5, 0.5)
 guestIcon.BackgroundTransparency = 1
-guestIcon.Image = "rbxassetid://89651425333154" -- ID icon bạn đưa
+guestIcon.Image = "rbxassetid://89651425333154"
 guestIcon.Visible = false
 guestIcon.Parent = awakeningGui
 
@@ -329,13 +397,50 @@ local function showWord(text, offset, color)
 	return label
 end
 
+local function playSound(soundId)
+	local s = Instance.new("Sound")
+	s.SoundId = "rbxassetid://" .. tostring(soundId)
+	s.Volume = 5
+	s.Parent = player:WaitForChild("PlayerGui")
+	s:Play()
+	game.Debris:AddItem(s, 5) -- tự động xóa sau 5 giây
+end
+
+local function startAwakening()
+	awakeningRemaining = AWAKENING_DURATION
+	awakeningActive = true
+	awakeningTimerRunning = true
+
+	task.spawn(function()
+		while awakeningActive and awakeningRemaining > 0 do
+			if awakeningTimerRunning then
+				awakeningRemaining = awakeningRemaining - 1
+				print("[DEBUG] thời gian Awakening còn:", awakeningRemaining)
+				if awakeningRemaining <= 0 then
+					-- HẾT THỜI GIAN
+					print("[DEBUG] Awakening kết thúc")
+					awakeningGui.Enabled = false
+					nagiIcon.Visible = false
+					nameLabel.Visible = false
+					textLabel.Visible = false
+					canUseSkillC = false
+					canUseSkillV = false
+					canUseSkillB = false
+					awakeningActive = false
+				end
+			end
+			wait(1)
+		end
+	end)
+end
+
 
 local function shakeLetters(text, color, basePos)
 	local labels = {} -- lưu label để tween sau
 
 	local baseX = basePos and basePos.X.Scale or 0.5
 	local baseY = basePos and basePos.Y.Scale or 0.8
-	local spacing = 10
+	local spacing = 12
 
 	for i = 1, #text do
 		local c = text:sub(i, i)
@@ -447,47 +552,32 @@ local function awakeningSequence()
 	canUseSkillC = true
 	canUseSkillV = true
     canUseSkillB = true
-	awakeningEndTime = tick() + 45
+	awakeningEndTime = tick() + 60
 end
 
 UserInputService.InputBegan:Connect(function(input, gameProcessed, gpe)
 	if gameProcessed then return end
 
 	if input.KeyCode == Enum.KeyCode.G then
-		if not HasBall() then
-			print("[DEBUG] Không thể kích hoạt Awakening vì không có bóng")
+	if not HasBall() then
+		print("[DEBUG] Không thể kích hoạt Awakening vì không có bóng")
 		return
 	end
 
-		print("[DEBUG] Nhấn G - awakeningSequence bắt đầu")
-
-		canUseSkillC = true
-		canUseSkillV = true
-		canUseSkillB = true
-
-		awakeningActive = true
-		awakeningEndTime = tick() + 60
-
-		delay(60, function()
-			if awakeningActive and tick() >= awakeningEndTime then
-				print("[DEBUG] Awakening kết thúc")
-				awakeningGui.Enabled = false
-				nagiIcon.Visible = false
-				nameLabel.Visible = false
-				textLabel.Visible = false
-				canUseSkillC = false
-				canUseSkillV = false
-                canUseSkillB = false
-				awakeningActive = false
-			end
-		end)
-	end
+	print("[DEBUG] Nhấn G - awakeningSequence bắt đầu")
+	awakeningSequence()
+	canUseSkillC = true
+	canUseSkillV = true
+	canUseSkillB = true
+	startAwakening()
+end
 
 	if input.KeyCode == Enum.KeyCode.C then
 	print("[DEBUG] Nhấn C")
 	if awakeningActive and canUseSkillC then
 		print("[DEBUG] C hợp lệ - Bắt đầu hiệu ứng skill C")
 		canUseSkillC = false
+		awakeningTimerRunning = false
 
 		task.spawn(function()
 			local hasBall = HasBall()
@@ -500,92 +590,96 @@ UserInputService.InputBegan:Connect(function(input, gameProcessed, gpe)
 			end
 
 			awakeningGui.Enabled = true
-			nagiIcon.Visible = true
+			seriousNagi.Visible = true
 			nameLabel.Visible = true
 			textLabel.Visible = true
 			nameLabel.Text = player.Name
 
 			if hasBall then
-			TweenService:Create(nagiIcon, TweenInfo.new(0.5), {ImageTransparency = 1}):Play()
+			TweenService:Create(seriousNagi, TweenInfo.new(0.5), {ImageTransparency = 1}):Play()
 			TweenService:Create(nameLabel, TweenInfo.new(0.5), {TextTransparency = 1}):Play()
-wait(3)
-
--- Lời thoại 1: "I will devour that light…"
-local label1a = showWord("I will devour that", -100)
-local lightLabels = shakeLetters("light...", Color3.fromRGB(0, 80, 255), UDim2.new(0.55, 0, 0.8, 0))
-local label1c = showWord("", 50)
-TweenService:Create(nameLabel, TweenInfo.new(0.5), {TextTransparency = 0}):Play()
-TweenService:Create(nagiIcon, TweenInfo.new(0.5), {ImageTransparency = 0}):Play()
-wait(2)
+			TweenService:Create(textLabel, TweenInfo.new(0.5), {TextTransparency = 1}):Play()
+			wait(3)
+			playSound(86173940737704)
+			local label1a = showWord("I will devour that", -100)
+			local lightLabels = shakeLetters("light...", Color3.fromRGB(0, 80, 255), UDim2.new(0.55, 0, 0.8, 0))
+			local label1c = showWord("", 50)
+			TweenService:Create(nameLabel, TweenInfo.new(0.5), {TextTransparency = 0}):Play()
+			TweenService:Create(seriousNagi, TweenInfo.new(0.5), {ImageTransparency = 0}):Play()
+			wait(1)
 
 -- Ẩn đoạn 1
-TweenService:Create(label1a, TweenInfo.new(0.3), {TextTransparency = 1}):Play()
-TweenService:Create(label1c, TweenInfo.new(0.3), {TextTransparency = 1}):Play()
-for _, lbl in ipairs(lightLabels) do
-    TweenService:Create(lbl, TweenInfo.new(0.3), {TextTransparency = 1}):Play()
-end
-wait(0.3)
-label1a:Destroy()
-label1c:Destroy()
-for _, lbl in ipairs(lightLabels) do lbl:Destroy() end
+			TweenService:Create(label1a, TweenInfo.new(0.3), {TextTransparency = 1}):Play()
+			TweenService:Create(label1c, TweenInfo.new(0.3), {TextTransparency = 1}):Play()
+			for _, lbl in ipairs(lightLabels) do
+    			TweenService:Create(lbl, TweenInfo.new(0.3), {TextTransparency = 1}):Play()
+			end
+			wait(0.1)
+			label1a:Destroy()
+			label1c:Destroy()
+			for _, lbl in ipairs(lightLabels) do lbl:Destroy() end
 
 -- Lời thoại 2: “…even if I must be the villain.”
-wait(1)
-local villainStart = showWord("…even if I must be the", -120)
-local villainWord = shakeLetters("villain.", Color3.fromRGB(255, 0, 0), UDim2.new(0.56, 0, 0.8, 0))
-local villainEnd = showWord("", 120)
-TweenService:Create(nameLabel, TweenInfo.new(0.5), {TextTransparency = 0}):Play()
-TweenService:Create(nagiIcon, TweenInfo.new(0.5), {ImageTransparency = 0}):Play()
-wait(3)
+			wait(1)
+			playSound(80818728562256)
+			local villainStart = showWord("…even if I must be the", -120)
+			local villainWord = shakeLetters("villain.", Color3.fromRGB(255, 0, 0), UDim2.new(0.56, 0, 0.8, 0))
+			local villainEnd = showWord("", 120)
+			TweenService:Create(nameLabel, TweenInfo.new(0.5), {TextTransparency = 0}):Play()
+			TweenService:Create(seriousNagi, TweenInfo.new(0.5), {ImageTransparency = 0}):Play()
+			wait(3)
 
 -- Ẩn đoạn 2
-TweenService:Create(villainStart, TweenInfo.new(0.3), {TextTransparency = 1}):Play()
-TweenService:Create(villainEnd, TweenInfo.new(0.3), {TextTransparency = 1}):Play()
-for _, lbl in ipairs(villainWord) do
-    TweenService:Create(lbl, TweenInfo.new(0.3), {TextTransparency = 1}):Play()
-end
-wait(0.3)
-villainStart:Destroy()
-villainEnd:Destroy()
-for _, lbl in ipairs(villainWord) do lbl:Destroy() end
+			TweenService:Create(villainStart, TweenInfo.new(0.3), {TextTransparency = 1}):Play()
+			TweenService:Create(villainEnd, TweenInfo.new(0.3), {TextTransparency = 1}):Play()
+			for _, lbl in ipairs(villainWord) do
+    			TweenService:Create(lbl, TweenInfo.new(0.3), {TextTransparency = 1}):Play()
+			end
+			wait(0.3)
+			villainStart:Destroy()
+			villainEnd:Destroy()
+			for _, lbl in ipairs(villainWord) do lbl:Destroy() end
 
 -- Lời thoại 3: “I’m the GOD of this field !”
-wait(0.5)
-local godStart = shakeLetters("I'm", Color3.fromRGB(1, 1, 1), UDim2.new(0.41, 0, 0.8, 0))
-local godWord = shakeLetters("G O D", Color3.fromRGB(255, 0, 0), UDim2.new(0.44, 0, 0.8, 0))
-local godEnd = showWord("of this field !", 44)
-TweenService:Create(nameLabel, TweenInfo.new(0.5), {TextTransparency = 0}):Play()
-TweenService:Create(nagiIcon, TweenInfo.new(0.5), {ImageTransparency = 0}):Play()
-wait(2)
+			wait(1)
+			playSound(105645268767399)
+			local godStart = shakeLetters("I'm ", Color3.fromRGB(1, 1, 1), UDim2.new(0.41, 0, 0.8, 0))
+			local godWord = shakeLetters("GOD", Color3.fromRGB(255, 0, 0), UDim2.new(0.44, 0, 0.8, 0))
+			local godEnd = showWord("of this field !", 44)
+			TweenService:Create(nameLabel, TweenInfo.new(0.5), {TextTransparency = 0}):Play()
+			TweenService:Create(seriousNagi, TweenInfo.new(0.5), {ImageTransparency = 0}):Play()
+			wait(2)
 
 -- Ẩn đoạn 3
-for _, lbl in ipairs(godStart) do
-    TweenService:Create(lbl, TweenInfo.new(0.3), {TextTransparency = 1}):Play()
-end
-for _, lbl in ipairs(godWord) do
-    TweenService:Create(lbl, TweenInfo.new(0.3), {TextTransparency = 1}):Play()
-end
-TweenService:Create(godEnd, TweenInfo.new(0.3), {TextTransparency = 1}):Play()
-wait(0.3)
-for _, lbl in ipairs(godStart) do lbl:Destroy() end
-for _, lbl in ipairs(godWord) do lbl:Destroy() end
-godEnd:Destroy()
-wait(0.2)
-textLabel.Text = ""  -- reset lần cuối
+			for _, lbl in ipairs(godStart) do
+    			TweenService:Create(lbl, TweenInfo.new(0.3), {TextTransparency = 1}):Play()
 			end
+			for _, lbl in ipairs(godWord) do
+   			 TweenService:Create(lbl, TweenInfo.new(0.3), {TextTransparency = 1}):Play()
+			end
+			TweenService:Create(godEnd, TweenInfo.new(0.3), {TextTransparency = 1}):Play()
+			wait(0.3)
+			for _, lbl in ipairs(godStart) do lbl:Destroy() end
+			for _, lbl in ipairs(godWord) do lbl:Destroy() end
+			godEnd:Destroy()
+			wait(0.2)
+			textLabel.Text = ""  -- reset lần cuối
+		end
 
 			-- Tắt Awakening GUI
 			textLabel.TextTransparency = 1
 			nameLabel.TextTransparency = 1
-			nagiIcon.Visible = false
+			seriousNagi.Visible = false
 			textLabel.Visible = false
 			nameLabel.Visible = false
 
+			wait(10)
 			-- Hiện lại các GUI đã ẩn
 			for _, gui in ipairs(hiddenGuis) do
 				gui.Enabled = true
 			end
 			awakeningGui.Enabled = false
+			awakeningTimerRunning = true
 		end)
 	else
 		print("[DEBUG] Không thể dùng C vì chưa awakening")
@@ -610,19 +704,19 @@ textLabel.Text = ""  -- reset lần cuối
 			end
 
 			awakeningGui.Enabled = true
-			nagiIcon.Visible = true
+			seriousNagi.Visible = true
 			nameLabel.Visible = true
 			textLabel.Visible = true
 			nameLabel.Text = player.Name
 
 			if not hasBall then
-            TweenService:Create(nagiIcon, TweenInfo.new(0.5), {ImageTransparency = 1}):Play()
+            TweenService:Create(seriousNagi, TweenInfo.new(0.5), {ImageTransparency = 1}):Play()
             wait(4)
 
             textLabel.Visible = false
             nameLabel.Text = player.Name
-            nagiIcon.ImageTransparency = 0
-            nagiIcon.Visible = true
+            seriousNagi.ImageTransparency = 0
+            seriousNagi.Visible = true
 
             local l1 = showWord("I'll", -50)
             wait(1)
@@ -637,7 +731,7 @@ end
 for _, letterLabel in ipairs(l2) do
 	TweenService:Create(letterLabel, TweenInfo.new(0.3), {TextTransparency = 1}):Play()
 end
-TweenService:Create(nagiIcon, TweenInfo.new(0.5), {ImageTransparency = 1}):Play()
+TweenService:Create(seriousNagi, TweenInfo.new(0.5), {ImageTransparency = 1}):Play()
 TweenService:Create(nameLabel, TweenInfo.new(0.5), {TextTransparency = 1}):Play()
 wait(0.5)
 
@@ -646,18 +740,18 @@ l3:Destroy()
 for _, lbl in ipairs(l2) do lbl:Destroy() end
 
 			else
-				TweenService:Create(nagiIcon, TweenInfo.new(0.5), {ImageTransparency = 1}):Play()
+				TweenService:Create(seriousNagi, TweenInfo.new(0.5), {ImageTransparency = 1}):Play()
 				wait(3)
 				textLabel.RichText = true
 				textLabel.Text = 'Thank you, <font color="rgb(0, 162, 255)">Isagi</font>'
 				textLabel.Position = UDim2.new(0.5, 0, 0.8, 0)
 				textLabel.AnchorPoint = Vector2.new(0.5, 0.5)
 				textLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-				TweenService:Create(nagiIcon, TweenInfo.new(0.5), {ImageTransparency = 0}):Play()
+				TweenService:Create(seriousNagi, TweenInfo.new(0.5), {ImageTransparency = 0}):Play()
 				TweenService:Create(nameLabel, TweenInfo.new(0.5), {TextTransparency = 0}):Play()
 				TweenService:Create(textLabel, TweenInfo.new(0.2), {TextTransparency = 0}):Play()
 				wait(2)
-				TweenService:Create(nagiIcon, TweenInfo.new(0.5), {ImageTransparency = 1}):Play()
+				TweenService:Create(seriousNagi, TweenInfo.new(0.5), {ImageTransparency = 1}):Play()
 				TweenService:Create(nameLabel, TweenInfo.new(0.5), {TextTransparency = 1}):Play()
 				TweenService:Create(textLabel, TweenInfo.new(0.2), {TextTransparency = 1}):Play()
 				wait(0.2)
@@ -668,11 +762,11 @@ for _, lbl in ipairs(l2) do lbl:Destroy() end
 				textLabel.Position = UDim2.new(0.5, 0, 0.8, 0)
 				textLabel.AnchorPoint = Vector2.new(0.5, 0.5)
 				textLabel.TextColor3 = Color3.new(1, 1, 1)
-				TweenService:Create(nagiIcon, TweenInfo.new(0.5), {ImageTransparency = 0}):Play()
+				TweenService:Create(seriousNagi, TweenInfo.new(0.5), {ImageTransparency = 0}):Play()
 				TweenService:Create(nameLabel, TweenInfo.new(0.5), {TextTransparency = 0}):Play()
 				TweenService:Create(textLabel, TweenInfo.new(0.2), {TextTransparency = 0}):Play()
 				wait(0.4)
-				TweenService:Create(nagiIcon, TweenInfo.new(0.5), {ImageTransparency = 0}):Play()
+				TweenService:Create(seriousNagi, TweenInfo.new(0.5), {ImageTransparency = 0}):Play()
 				TweenService:Create(nameLabel, TweenInfo.new(0.5), {TextTransparency = 1}):Play()
 				TweenService:Create(textLabel, TweenInfo.new(0.5), {TextTransparency = 1}):Play()
 				wait(0.2)
@@ -680,61 +774,67 @@ for _, lbl in ipairs(l2) do lbl:Destroy() end
 
 				wait(0.4)
 				local volleyLabels = shakeLetters("Volley!", Color3.new(1,0,0), UDim2.new(0.5,0,0.8,0))
-textLabel.Position = UDim2.new(0.5,0,0.8,0)
-textLabel.AnchorPoint = Vector2.new(0.5,0.5)
-TweenService:Create(textLabel, TweenInfo.new(0.5), {TextTransparency = 0}):Play()
-TweenService:Create(nameLabel, TweenInfo.new(0.5), {TextTransparency = 0}):Play()
-TweenService:Create(nagiIcon, TweenInfo.new(0.5), {ImageTransparency = 0}):Play()
-wait(2)
+				textLabel.Position = UDim2.new(0.5,0,0.8,0)
+				textLabel.AnchorPoint = Vector2.new(0.5,0.5)
+				TweenService:Create(textLabel, TweenInfo.new(0.5), {TextTransparency = 0}):Play()
+				TweenService:Create(nameLabel, TweenInfo.new(0.5), {TextTransparency = 0}):Play()
+				TweenService:Create(seriousNagi, TweenInfo.new(0.5), {ImageTransparency = 0}):Play()
+				wait(2)
 
 -- Ẩn textLabel + nameLabel + icon
-TweenService:Create(textLabel, TweenInfo.new(0.5), {TextTransparency = 1}):Play()
-TweenService:Create(nameLabel, TweenInfo.new(0.5), {TextTransparency = 1}):Play()
-TweenService:Create(nagiIcon, TweenInfo.new(0.5), {ImageTransparency = 1}):Play()
+				TweenService:Create(textLabel, TweenInfo.new(0.5), {TextTransparency = 1}):Play()
+				TweenService:Create(nameLabel, TweenInfo.new(0.5), {TextTransparency = 1}):Play()
+				TweenService:Create(seriousNagi, TweenInfo.new(0.5), {ImageTransparency = 1}):Play()
 
 -- Xoá tất cả letter‐label của “Volley!”
-for _, lbl in ipairs(volleyLabels) do
-    lbl:Destroy()
-end
+				for _, lbl in ipairs(volleyLabels) do
+    				lbl:Destroy()
+				end
 
-wait(0.2)
-textLabel.Text = ""  -- reset
+				wait(0.2)
+				textLabel.Text = ""  -- reset
 
 				wait(8)
 				local ahLabels = shakeLetters("A H H H H H H H H", Color3.new(1,0,0), UDim2.new(0.5,0,0.8,0))
-textLabel.Position = UDim2.new(0.5,0,0.8,0)
-textLabel.AnchorPoint = Vector2.new(0.5,0.5)
-TweenService:Create(textLabel, TweenInfo.new(0.2), {TextTransparency = 0}):Play()
-TweenService:Create(nameLabel, TweenInfo.new(0.5), {TextTransparency = 0}):Play()
-TweenService:Create(nagiIcon, TweenInfo.new(0.5), {ImageTransparency = 0}):Play()
-wait(5)
+				textLabel.Position = UDim2.new(0.5,0,0.8,0)
+				textLabel.AnchorPoint = Vector2.new(0.5,0.5)
+				TweenService:Create(textLabel, TweenInfo.new(0.2), {TextTransparency = 0}):Play()
+				TweenService:Create(nameLabel, TweenInfo.new(0.5), {TextTransparency = 0}):Play()
+				TweenService:Create(seriousNagi, TweenInfo.new(0.5), {ImageTransparency = 0}):Play()
+				wait(5)
 
 -- Ẩn textLabel + nameLabel + icon
-TweenService:Create(textLabel, TweenInfo.new(0.2), {TextTransparency = 1}):Play()
-TweenService:Create(nameLabel, TweenInfo.new(0.5), {TextTransparency = 1}):Play()
-TweenService:Create(nagiIcon, TweenInfo.new(0.2), {ImageTransparency = 1}):Play()
+				TweenService:Create(textLabel, TweenInfo.new(0.2), {TextTransparency = 1}):Play()
+				TweenService:Create(nameLabel, TweenInfo.new(0.5), {TextTransparency = 1}):Play()
+				TweenService:Create(seriousNagi, TweenInfo.new(0.2), {ImageTransparency = 1}):Play()
 
 -- Xoá letter‐label của “AHHHHHHHH”
-for _, lbl in ipairs(ahLabels) do
-    lbl:Destroy()
-end
+				for _, lbl in ipairs(ahLabels) do
+    				lbl:Destroy()
+				end
 
-wait(0.2)
-textLabel.Text = ""  -- reset lần cuối
+				wait(0.2)
+				textLabel.Text = ""  -- reset lần cuối
 			end
 
 			-- Tắt Awakening GUI
 			textLabel.TextTransparency = 1
 			nameLabel.TextTransparency = 1
-			nagiIcon.Visible = false
+			seriousNagi.Visible = false
 			textLabel.Visible = false
 			nameLabel.Visible = false
 
+			if hasBall then
+			wait(17)
+			else
+			wait(16)
 			-- Hiện lại các GUI đã ẩn
 			for _, gui in ipairs(hiddenGuis) do
 				gui.Enabled = true
 			end
 			awakeningGui.Enabled = false
+			awakeningTimerRunning = true
+			end
 		end)
 	else
 		print("[DEBUG] Không thể dùng V vì chưa awakening")
@@ -747,6 +847,7 @@ textLabel.Text = ""  -- reset lần cuối
 	if awakeningActive and canUseSkillB then
 		print("[DEBUG] B hợp lệ - Bắt đầu hiệu ứng skill B")
 		canUseSkillB = false
+		awakeningTimerRunning = false
 
 		task.spawn(function()
 			local hasBall = HasBall()
@@ -759,7 +860,7 @@ textLabel.Text = ""  -- reset lần cuối
 			end
 
 			awakeningGui.Enabled = true
-			nagiIcon.Visible = true
+			seriousNagi.Visible = true
 			nameLabel.Visible = true
 			textLabel.Visible = true
 			nameLabel.Text = player.Name
@@ -768,144 +869,150 @@ textLabel.Text = ""  -- reset lần cuối
 				local TweenService = game:GetService("TweenService")
 
 -- Reset và thiết lập ban đầu
-TweenService:Create(nameLabel, TweenInfo.new(0.5), {TextTransparency = 1}):Play()
-TweenService:Create(nagiIcon, TweenInfo.new(0.5), {ImageTransparency = 1}):Play()
-wait(10)
-textLabel.Text = "So <font color='rgb(0, 162, 255)'>tired..</font>"
-textLabel.RichText = true
-textLabel.TextTransparency = 0
-textLabel.Position = UDim2.new(0.5, 0, 0.7, 0) -- giữa màn hình (bạn chỉnh theo GUI)
-textLabel.AnchorPoint = Vector2.new(0.5, 0.5) -- để tween trục giữa
+				TweenService:Create(nameLabel, TweenInfo.new(0.5), {TextTransparency = 1}):Play()
+				TweenService:Create(seriousNagi, TweenInfo.new(0.5), {ImageTransparency = 1}):Play()
+				wait(10)
+				textLabel.Text = "So <font color='rgb(0, 162, 255)'>tired..</font>"
+				textLabel.RichText = true
+				textLabel.TextTransparency = 0
+				textLabel.Position = UDim2.new(0.5, 0, 0.7, 0) -- giữa màn hình (bạn chỉnh theo GUI)
+				textLabel.AnchorPoint = Vector2.new(0.5, 0.5) -- để tween trục giữa
 -- Tween dịch chuyển chữ xuống và làm mờ dần
-local tweenInfo = TweenInfo.new(2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
-local tween = TweenService:Create(textLabel, tweenInfo, {
-    Position = textLabel.Position + UDim2.new(0, 0, 0.1, 0), -- dịch xuống
-    TextTransparency = 1 -- mờ dần
-})
-tween:Play()
-TweenService:Create(nameLabel, TweenInfo.new(0.5), {TextTransparency = 0}):Play()
-TweenService:Create(nagiIcon, TweenInfo.new(0.5), {ImageTransparency = 0}):Play()
-TweenService:Create(textLabel, TweenInfo.new(0.5), {TextTransparency = 0}):Play()
+				local tweenInfo = TweenInfo.new(2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+				local tween = TweenService:Create(textLabel, tweenInfo, {
+    				Position = textLabel.Position + UDim2.new(0, 0, 0.1, 0), -- dịch xuống
+    				TextTransparency = 1 -- mờ dần
+				})
+				tween:Play()
+				TweenService:Create(nameLabel, TweenInfo.new(0.5), {TextTransparency = 0}):Play()
+				TweenService:Create(seriousNagi, TweenInfo.new(0.5), {ImageTransparency = 0}):Play()
+				TweenService:Create(textLabel, TweenInfo.new(0.5), {TextTransparency = 0}):Play()
 -- Sau tween thì xóa chữ
-wait(3)
+				wait(3)
 
-TweenService:Create(nameLabel, TweenInfo.new(0.5), {TextTransparency = 1}):Play()
-TweenService:Create(nagiIcon, TweenInfo.new(0.5), {ImageTransparency = 1}):Play()
-TweenService:Create(textLabel, TweenInfo.new(0.5), {TextTransparency = 1}):Play()
+				TweenService:Create(nameLabel, TweenInfo.new(0.5), {TextTransparency = 1}):Play()
+				TweenService:Create(seriousNagi, TweenInfo.new(0.5), {ImageTransparency = 1}):Play()
+				TweenService:Create(textLabel, TweenInfo.new(0.5), {TextTransparency = 1}):Play()
 
-tween.Completed:Connect(function()
-    textLabel.Text = ""
-end)
+				tween.Completed:Connect(function()
+    				textLabel.Text = ""
+				end)
 
 			else
-				TweenService:Create(nagiIcon, TweenInfo.new(0.5), {ImageTransparency = 1}):Play()
-wait(3)
+				TweenService:Create(seriousNagi, TweenInfo.new(0.5), {ImageTransparency = 1}):Play()
+				wait(3)
 
 -- Show: "This fire.."
-local thisLabel1 = showWord("This", -50)
-local fireLabels = shakeLetters("f i r e..", Color3.new(1, 0, 0), UDim2.new(0.51, 0, 0.8, 0))
-local dotLabel1 = showWord("", 50)
-TweenService:Create(nameLabel, TweenInfo.new(0.5), {TextTransparency = 0}):Play()
-TweenService:Create(nagiIcon, TweenInfo.new(0.5), {ImageTransparency = 0}):Play()
-wait(1)
+				local thisLabel1 = showWord("This", -50)
+				local fireLabels = shakeLetters("fire..", Color3.new(1, 0, 0), UDim2.new(0.51, 0, 0.8, 0))
+				local dotLabel1 = showWord("", 50)
+				TweenService:Create(nameLabel, TweenInfo.new(0.5), {TextTransparency = 0}):Play()
+				TweenService:Create(seriousNagi, TweenInfo.new(0.5), {ImageTransparency = 0}):Play()
+				wait(1)
 
 -- Hide and cleanup
-TweenService:Create(thisLabel1, TweenInfo.new(0.3), {TextTransparency = 1}):Play()
-TweenService:Create(dotLabel1, TweenInfo.new(0.3), {TextTransparency = 1}):Play()
-TweenService:Create(nameLabel, TweenInfo.new(0.5), {TextTransparency = 1}):Play()
-TweenService:Create(nagiIcon, TweenInfo.new(0.5), {ImageTransparency = 1}):Play()
-for _, lbl in ipairs(fireLabels) do
-	TweenService:Create(lbl, TweenInfo.new(0.3), {TextTransparency = 1}):Play()
-end
-wait(0.3)
-thisLabel1:Destroy()
-dotLabel1:Destroy()
-for _, lbl in ipairs(fireLabels) do lbl:Destroy() end
+				TweenService:Create(thisLabel1, TweenInfo.new(0.3), {TextTransparency = 1}):Play()
+				TweenService:Create(dotLabel1, TweenInfo.new(0.3), {TextTransparency = 1}):Play()
+				TweenService:Create(nameLabel, TweenInfo.new(0.5), {TextTransparency = 1}):Play()
+				TweenService:Create(seriousNagi, TweenInfo.new(0.5), {ImageTransparency = 1}):Play()
+				for _, lbl in ipairs(fireLabels) do
+					TweenService:Create(lbl, TweenInfo.new(0.3), {TextTransparency = 1}):Play()
+				end
+				wait(0.3)
+				thisLabel1:Destroy()
+				dotLabel1:Destroy()
+				for _, lbl in ipairs(fireLabels) do lbl:Destroy() end
 
-wait(0.5)
+				wait(0.5)
 
 -- Show: "This pleasure.."
-local thisLabel2 = showWord("This", -80)
-local pleasureLabels = shakeLetters("p l e a s u r e..", Color3.new(1, 0, 0), UDim2.new(0.52, 0, 0.8, 0))
-local dotLabel2 = showWord("", 80)
-TweenService:Create(nameLabel, TweenInfo.new(0.5), {TextTransparency = 0}):Play()
-TweenService:Create(nagiIcon, TweenInfo.new(0.5), {ImageTransparency = 0}):Play()
-wait(1)
+				local thisLabel2 = showWord("This", -80)
+				local pleasureLabels = shakeLetters("pleasure..", Color3.new(1, 0, 0), UDim2.new(0.52, 0, 0.8, 0))
+				local dotLabel2 = showWord("", 80)
+				TweenService:Create(nameLabel, TweenInfo.new(0.5), {TextTransparency = 0}):Play()
+				TweenService:Create(seriousNagi, TweenInfo.new(0.5), {ImageTransparency = 0}):Play()
+				wait(1)
 
 -- Hide and cleanup
-TweenService:Create(thisLabel2, TweenInfo.new(0.3), {TextTransparency = 1}):Play()
-TweenService:Create(dotLabel2, TweenInfo.new(0.3), {TextTransparency = 1}):Play()
-TweenService:Create(nameLabel, TweenInfo.new(0.5), {TextTransparency = 1}):Play()
-TweenService:Create(nagiIcon, TweenInfo.new(0.5), {ImageTransparency = 1}):Play()
-for _, lbl in ipairs(pleasureLabels) do
-	TweenService:Create(lbl, TweenInfo.new(0.3), {TextTransparency = 1}):Play()
-end
-wait(0.3)
-thisLabel2:Destroy()
-dotLabel2:Destroy()
-for _, lbl in ipairs(pleasureLabels) do lbl:Destroy() end
+				TweenService:Create(thisLabel2, TweenInfo.new(0.3), {TextTransparency = 1}):Play()
+				TweenService:Create(dotLabel2, TweenInfo.new(0.3), {TextTransparency = 1}):Play()
+				TweenService:Create(nameLabel, TweenInfo.new(0.5), {TextTransparency = 1}):Play()
+				TweenService:Create(seriousNagi, TweenInfo.new(0.5), {ImageTransparency = 1}):Play()
+				for _, lbl in ipairs(pleasureLabels) do
+					TweenService:Create(lbl, TweenInfo.new(0.3), {TextTransparency = 1}):Play()
+				end
+				wait(0.3)
+				thisLabel2:Destroy()
+				dotLabel2:Destroy()
+				for _, lbl in ipairs(pleasureLabels) do lbl:Destroy() end
 
-wait(5)
-TweenService:Create(nameLabel, TweenInfo.new(0.5), {TextTransparency = 0}):Play()
-TweenService:Create(nagiIcon, TweenInfo.new(0.5), {ImageTransparency = 0}):Play()
-textLabel.RichText = true
-textLabel.Text = "Nice to meet you, <font color='rgb(0, 162, 255)'>Japan</font>"
-TweenService:Create(textLabel, TweenInfo.new(0.2), {TextTransparency = 0}):Play()
-wait(2)
-TweenService:Create(textLabel, TweenInfo.new(0.5), {TextTransparency = 1}):Play()
-TweenService:Create(nameLabel, TweenInfo.new(0.5), {TextTransparency = 1}):Play()
-TweenService:Create(nagiIcon, TweenInfo.new(0.5), {ImageTransparency = 1}):Play()
+				wait(5)
+				TweenService:Create(nameLabel, TweenInfo.new(0.5), {TextTransparency = 0}):Play()
+				TweenService:Create(seriousNagi, TweenInfo.new(0.5), {ImageTransparency = 0}):Play()
+				textLabel.RichText = true
+				textLabel.Text = "Nice to meet you, <font color='rgb(0, 162, 255)'>Japan</font>"
+				TweenService:Create(textLabel, TweenInfo.new(0.2), {TextTransparency = 0}):Play()
+				wait(2)
+				TweenService:Create(textLabel, TweenInfo.new(0.5), {TextTransparency = 1}):Play()
+				TweenService:Create(nameLabel, TweenInfo.new(0.5), {TextTransparency = 1}):Play()
+				TweenService:Create(seriousNagi, TweenInfo.new(0.5), {ImageTransparency = 1}):Play()
 
 
 
 -- Hiện "I am..." trước
-wait(0.2)
-TweenService:Create(nameLabel, TweenInfo.new(0.5), {TextTransparency = 0}):Play()
-TweenService:Create(nagiIcon, TweenInfo.new(0.5), {ImageTransparency = 0}):Play()
+				wait(0.1)
+				TweenService:Create(nameLabel, TweenInfo.new(0.5), {TextTransparency = 0}):Play()
+				TweenService:Create(seriousNagi, TweenInfo.new(0.5), {ImageTransparency = 0}):Play()
 
 -- Phát âm thanh "I am..."
-local iamSound = Instance.new("Sound", workspace)
-iamSound.SoundId = "rbxassetid://131893459741305"
-iamSound.Volume = 5
-iamSound:Play()
+				local iamSound = Instance.new("Sound", workspace)
+				iamSound.SoundId = "rbxassetid://131893459741305"
+				iamSound.Volume = 5
+				iamSound:Play()
 
 -- Hiện chữ "I am..."
-local iamLabel = showWord("I am...", -100)
-wait(2)
+				local iamLabel = showWord("I am...", -100)
+				wait(2)
 
 -- Phát âm thanh "Nagi Seishiro!!"
-local nagiSound = Instance.new("Sound", workspace)
-nagiSound.SoundId = "rbxassetid://132902933347622"
-nagiSound.Volume = 5
-nagiSound:Play()
+				local nagiSound = Instance.new("Sound", workspace)
+				nagiSound.SoundId = "rbxassetid://132902933347622"
+				nagiSound.Volume = 5
+				nagiSound:Play()
 
 -- Hiện chữ "Nagi Seishiro!!"
-local nagiLabel = showWord("Nagi Seishirō!!", 100, Color3.fromRGB(0, 162, 255))
-wait(2)
+				local nagiLabel = showWord("Nagi Seishirō!!", 100, Color3.fromRGB(0, 162, 255))
+				wait(2)
 
 -- Fade out cả hai
-TweenService:Create(iamLabel, TweenInfo.new(0.3), {TextTransparency = 1}):Play()
-TweenService:Create(nagiLabel, TweenInfo.new(0.3), {TextTransparency = 1}):Play()
-TweenService:Create(nameLabel, TweenInfo.new(0.5), {TextTransparency = 1}):Play()
-TweenService:Create(nagiIcon, TweenInfo.new(0.5), {ImageTransparency = 1}):Play()
-wait(0.5)
+				TweenService:Create(iamLabel, TweenInfo.new(0.3), {TextTransparency = 1}):Play()
+				TweenService:Create(nagiLabel, TweenInfo.new(0.3), {TextTransparency = 1}):Play()
+				TweenService:Create(nameLabel, TweenInfo.new(0.5), {TextTransparency = 1}):Play()
+				TweenService:Create(seriousNagi, TweenInfo.new(0.5), {ImageTransparency = 1}):Play()
+				wait(0.5)
 
-iamLabel:Destroy()
-nagiLabel:Destroy()
-textLabel.Text = ""
-
+				iamLabel:Destroy()
+				nagiLabel:Destroy()
+				textLabel.Text = ""
 			end
 
 			textLabel.TextTransparency = 1
 			nameLabel.TextTransparency = 1
-			nagiIcon.Visible = false
+			seriousNagi.Visible = false
 			textLabel.Visible = false
 			nameLabel.Visible = false
+
+			if hasBall then
+			wait(13)
+			else
+			wait(31)
 
 			for _, gui in ipairs(hiddenGuis) do
 				gui.Enabled = true
 			end
 			awakeningGui.Enabled = false
+			awakeningTimerRunning = true
+			end
 		end)
 	else
 		print("[DEBUG] Không thể dùng B vì chưa awakening")
