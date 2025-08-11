@@ -1,0 +1,203 @@
+-------------------------------------------------
+-- DANH SÁCH HÀNH ĐỘNG TOY
+-------------------------------------------------
+local toyActions = {}
+
+toyActions["FakeBomb"] = function()
+    -- 1. Yêu cầu server spawn FakeBomb
+    local args = { "FakeBomb" }
+    local success, err = pcall(function()
+        ReplicatedStorage:WaitForChild("Remotes"):WaitForChild("Extras"):WaitForChild("ReplicateToy"):InvokeServer(unpack(args))
+    end)
+    if not success then
+        warn("❌ Lỗi spawn FakeBomb:", err)
+        return
+    end
+    print("✅ Đã yêu cầu server spawn FakeBomb")
+
+    -- 2. Chờ xuất hiện rồi ném
+    task.spawn(function()
+        for _ = 1, 50 do
+            task.wait(0.1)
+            local bomb = LocalPlayer.Character:FindFirstChild("FakeBomb")
+            if bomb and bomb:FindFirstChild("Remote") then
+                print("📦 FakeBomb đã spawn")
+                task.wait(0.5)
+                local hrp = LocalPlayer.Character:WaitForChild("HumanoidRootPart")
+                local throwArgs = {
+                    hrp.CFrame * CFrame.new(0, 0, -2),
+                    50
+                }
+                bomb.Remote:FireServer(unpack(throwArgs))
+                print("💣 Đã ném FakeBomb")
+                break
+            end
+        end
+    end)
+end
+
+toyActions["BeachBall2023"] = function()
+    local args = { "BeachBall2023" }
+    local success, err = pcall(function()
+        ReplicatedStorage:WaitForChild("Remotes"):WaitForChild("Extras"):WaitForChild("ReplicateToy"):InvokeServer(unpack(args))
+    end)
+    if not success then
+        warn("❌ Lỗi spawn BeachBall2023:", err)
+        return
+    end
+    print("✅ Đã yêu cầu server spawn BeachBall2023")
+
+    task.spawn(function()
+        for _ = 1, 50 do
+            task.wait(0.1)
+            local beachBall = LocalPlayer.Character:FindFirstChild("BeachBall2023")
+            if beachBall then
+                print("🏐 BeachBall2023 đã spawn")
+                task.wait(0.5)
+
+                -- Hàm tìm RemoteEvent trong nil
+                local function getNil(name, class)
+                    for _, v in next, getnilinstances() do
+                        if v.ClassName == class and v.Name == name then
+                            return v
+                        end
+                    end
+                end
+
+                local remote = getNil("Remote", "RemoteEvent")
+                if remote then
+                    local hrp = LocalPlayer.Character:WaitForChild("HumanoidRootPart")
+                    local targetPos = hrp.Position + hrp.CFrame.LookVector * 5
+                    local args = { Vector3.new(targetPos.X, targetPos.Y, targetPos.Z) }
+                    remote:FireServer(unpack(args))
+                    print("🎯 Đã ném BeachBall2023")
+                else
+                    warn("❌ Không tìm thấy RemoteEvent cho BeachBall2023")
+                end
+                break
+            end
+        end
+    end)
+end
+
+toyActions["WaterBalloon2024"] = function()
+    -- 1. Spawn từ server
+    local args = { "WaterBalloon2024" }
+    local success, err = pcall(function()
+        ReplicatedStorage:WaitForChild("Remotes"):WaitForChild("Extras"):WaitForChild("ReplicateToy"):InvokeServer(unpack(args))
+    end)
+    if not success then
+        warn("❌ Lỗi spawn WaterBalloon2024:", err)
+        return
+    end
+    print("✅ Đã yêu cầu server spawn WaterBalloon2024")
+
+    task.spawn(function()
+        for _ = 1, 50 do
+            task.wait(0.1)
+            local balloon = LocalPlayer.Character:FindFirstChild("WaterBalloon2024")
+            if balloon and balloon:FindFirstChild("Remote") then
+                print("💦 WaterBalloon2024 đã spawn")
+                task.wait(0.3)
+
+                local hrp = LocalPlayer.Character:WaitForChild("HumanoidRootPart")
+                local startPos = hrp.Position + hrp.CFrame.LookVector * 3
+                local endPos = startPos + Vector3.new(0, -3, 0) -- điểm rơi thấp hơn
+
+                local args = { startPos, endPos }
+                balloon.Remote:FireServer(unpack(args))
+                print("🎯 Đã ném WaterBalloon2024")
+                break
+            end
+        end
+    end)
+end
+
+toyActions["Fireflies"] = function()
+    -- 1. Spawn từ server
+    local args = { "Fireflies" }
+    local success, err = pcall(function()
+        ReplicatedStorage:WaitForChild("Remotes"):WaitForChild("Extras"):WaitForChild("ReplicateToy"):InvokeServer(unpack(args))
+    end)
+    if not success then
+        warn("❌ Lỗi spawn Fireflies:", err)
+        return
+    end
+    print("✅ Đã yêu cầu server spawn Fireflies")
+
+    -- 2. Chờ toy spawn và InvokeServer
+    task.spawn(function()
+        local char = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
+        local fireflies = char:WaitForChild("Fireflies", 5)
+        if fireflies then
+            local remote = fireflies:WaitForChild("Remote", 5)
+            if remote and remote:IsA("RemoteFunction") then
+                remote:InvokeServer("Button1Down")
+                print("✨ Đã kích hoạt Fireflies")
+            else
+                warn("❌ Không tìm thấy RemoteFunction của Fireflies")
+            end
+        else
+            warn("❌ Không tìm thấy tool Fireflies")
+        end
+    end)
+end
+
+toyActions["SandBucket2024"] = function()
+    -- 1. Spawn toy từ server
+    local args = { "SandBucket2024" }
+    local success, err = pcall(function()
+        game:GetService("ReplicatedStorage")
+            :WaitForChild("Remotes")
+            :WaitForChild("Extras")
+            :WaitForChild("ReplicateToy")
+            :InvokeServer(unpack(args))
+    end)
+    if not success then
+        warn("❌ Lỗi spawn SandBucket2024:", err)
+        return
+    end
+    print("✅ Đã yêu cầu server spawn SandBucket2024")
+
+    -- 2. Chờ tool xuất hiện trong nhân vật và fire remote
+    task.spawn(function()
+        local char = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
+        local bucket = char:WaitForChild("SandBucket2024", 5)
+        if bucket then
+            -- Lấy danh sách part hợp lệ
+            local allParts = {}
+            for _, obj in ipairs(workspace:GetDescendants()) do
+                if obj:IsA("BasePart") and obj:IsDescendantOf(workspace.Lobby) then
+                    table.insert(allParts, obj)
+                end
+            end
+
+            if #allParts == 0 then
+                warn("❌ Không tìm thấy part hợp lệ cho SandBucket2024")
+                return
+            end
+
+            -- Chọn part ngẫu nhiên
+            local targetPart = allParts[math.random(1, #allParts)]
+
+            -- Tạo targetPos ngẫu nhiên quanh part
+            local randomOffset = Vector3.new(
+                math.random(-3, 3),  -- ±3 studs X
+                0,
+                math.random(-3, 3)   -- ±3 studs Z
+            )
+            local targetPos = targetPart.Position + randomOffset
+
+            -- Gửi lệnh FireServer
+            local remote = bucket:FindFirstChildWhichIsA("RemoteEvent", true)
+            if remote then
+                remote:FireServer(targetPart, targetPos)
+                print(("🏖️ Đã sử dụng SandBucket2024 tại %s"):format(tostring(targetPos)))
+            else
+                warn("❌ Không tìm thấy RemoteEvent trong SandBucket2024")
+            end
+        else
+            warn("❌ Không tìm thấy tool SandBucket2024 trong nhân vật")
+        end
+    end)
+end
