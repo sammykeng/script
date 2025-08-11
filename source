@@ -1,3 +1,69 @@
+local Players = game:GetService("Players")
+local UserInputService = game:GetService("UserInputService")
+local LocalPlayer = Players.LocalPlayer
+
+-- Đợi Backpack và folder Toys
+local backpack = LocalPlayer:WaitForChild("Backpack")
+local toysFolder = backpack:WaitForChild("Toys")
+
+-- Hàm in danh sách toys
+local function printToys()
+    print("===== Toys In Backpack Allowed To Spawn =====")
+    for _, item in ipairs(toysFolder:GetChildren()) do
+        print("- " .. item.Name)
+    end
+end
+printToys()
+
+-- Tạo GUI
+local screenGui = Instance.new("ScreenGui")
+screenGui.Parent = LocalPlayer:WaitForChild("PlayerGui")
+
+local frame = Instance.new("Frame")
+frame.Size = UDim2.new(0, 250, 0, 100)
+frame.Position = UDim2.new(0.4, 0, 0.4, 0)
+frame.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+frame.Active = true
+frame.Draggable = true
+frame.Parent = screenGui
+
+local textBox = Instance.new("TextBox")
+textBox.Size = UDim2.new(1, -20, 0, 30)
+textBox.Position = UDim2.new(0, 10, 0, 10)
+textBox.PlaceholderText = "Type Name Toy..."
+textBox.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+textBox.TextColor3 = Color3.fromRGB(255, 255, 255)
+textBox.Parent = frame
+
+local submitBtn = Instance.new("TextButton")
+submitBtn.Size = UDim2.new(1, -20, 0, 30)
+submitBtn.Position = UDim2.new(0, 10, 0, 50)
+submitBtn.Text = "Spawn Toy"
+submitBtn.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
+submitBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+submitBtn.Parent = frame
+
+-- Hàm duplicate toy
+local function duplicateToy(toyName)
+    local toy = toysFolder:FindFirstChild(toyName)
+    if toy and toy:IsA("Tool") then
+        local clone = toy:Clone()
+        clone.Parent = LocalPlayer.Character
+        print("✅ Spawned ", toyName)
+    else
+        warn("❌ Does Not Exist, The Right Name Is: ", toyName)
+    end
+end
+
+-- Sự kiện click nút Duplicate
+submitBtn.MouseButton1Click:Connect(function()
+    local name = textBox.Text
+    if name and name ~= "" then
+        duplicateToy(name)
+    end
+end)
+
+
 -- Bong bóng hình ảnh to dần, bật/tắt bằng phím L, có âm thanh
 local player = game.Players.LocalPlayer
 local gui = player:WaitForChild("PlayerGui"):FindFirstChildWhichIsA("ScreenGui")
