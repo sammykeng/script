@@ -1,66 +1,169 @@
 local Players = game:GetService("Players")
 local UserInputService = game:GetService("UserInputService")
+local TweenService = game:GetService("TweenService")
 local LocalPlayer = Players.LocalPlayer
 
--- Đợi Backpack và folder Toys
-local backpack = LocalPlayer:WaitForChild("Backpack")
-local toysFolder = backpack:WaitForChild("Toys")
+local guiVisible = true
+local frame
+local toyListFrame
 
--- Hàm in danh sách toys
-local function printToys()
-    print("===== Toys In Backpack Allowed To Spawn =====")
+-- In danh sách toys ra console
+local function printToys(toysFolder)
+    print("===== Toys In Backpack Allowed Duplicate =====")
     for _, item in ipairs(toysFolder:GetChildren()) do
         print("- " .. item.Name)
     end
 end
-printToys()
 
--- Tạo GUI
-local screenGui = Instance.new("ScreenGui")
-screenGui.Parent = LocalPlayer:WaitForChild("PlayerGui")
-
-local frame = Instance.new("Frame")
-frame.Size = UDim2.new(0, 250, 0, 100)
-frame.Position = UDim2.new(0.4, 0, 0.4, 0)
-frame.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
-frame.Active = true
-frame.Draggable = true
-frame.Parent = screenGui
-
-local textBox = Instance.new("TextBox")
-textBox.Size = UDim2.new(1, -20, 0, 30)
-textBox.Position = UDim2.new(0, 10, 0, 10)
-textBox.PlaceholderText = "Type Name Toy..."
-textBox.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
-textBox.TextColor3 = Color3.fromRGB(255, 255, 255)
-textBox.Parent = frame
-
-local submitBtn = Instance.new("TextButton")
-submitBtn.Size = UDim2.new(1, -20, 0, 30)
-submitBtn.Position = UDim2.new(0, 10, 0, 50)
-submitBtn.Text = "Spawn Toy"
-submitBtn.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
-submitBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-submitBtn.Parent = frame
-
--- Hàm duplicate toy
-local function duplicateToy(toyName)
+local function duplicateToy(toyName, toysFolder)
     local toy = toysFolder:FindFirstChild(toyName)
     if toy and toy:IsA("Tool") then
         local clone = toy:Clone()
+        for _, obj in ipairs(toy:GetDescendants()) do
+            obj.Archivable = true
+        end
         clone.Parent = LocalPlayer.Character
-        print("✅ Spawned ", toyName)
+        print("✅ Duplicated full toy:", toyName)
     else
-        warn("❌ Does Not Exist, The Right Name Is: ", toyName)
+        warn("❌ Không tìm thấy toy:", toyName)
     end
 end
 
--- Sự kiện click nút Duplicate
-submitBtn.MouseButton1Click:Connect(function()
-    local name = textBox.Text
-    if name and name ~= "" then
-        duplicateToy(name)
+
+-- Hàm fade in/out toàn bộ GUI
+local function tweenFade(object, targetTransparency, duration)
+    for _, obj in ipairs(object:GetDescendants()) do
+        if obj:IsA("TextLabel") or obj:IsA("TextButton") or obj:IsA("TextBox") then
+            TweenService:Create(obj, TweenInfo.new(duration), {
+                TextTransparency = targetTransparency,
+                BackgroundTransparency = targetTransparency
+            }):Play()
+        elseif obj:IsA("Frame") or obj:IsA("ScrollingFrame") then
+            TweenService:Create(obj, TweenInfo.new(duration), {
+                BackgroundTransparency = targetTransparency
+            }):Play()
+        end
     end
+    TweenService:Create(object, TweenInfo.new(duration), {
+        BackgroundTransparency = targetTransparency
+    }):Play()
+end
+
+UserInputService.InputBegan:Connect(function(input, gp)
+    if input.KeyCode == Enum.KeyCode.F and not UserInputService:GetFocusedTextBox() then
+        print("Người dùng đã nhấn F") -- debug
+
+        if frame then
+            guiVisible = not guiVisible
+            if guiVisible then
+                print("GUI đang hiện")
+                frame.Visible = true
+                tweenFade(frame, 0, 0.3)
+            else
+                print("GUI đang ẩn")
+                tweenFade(frame, 1, 0.3)
+                task.delay(0.3, function()
+                    if not guiVisible then
+                        frame.Visible = false
+                    end
+                end)
+            end
+        end
+    end
+end)
+
+-- Tạo GUI
+local function createGUI(toysFolder)
+    local screenGui = Instance.new("ScreenGui")
+    screenGui.Name = "ToyDuplicatorGUI"
+    screenGui.ResetOnSpawn = false
+    screenGui.Parent = LocalPlayer:WaitForChild("PlayerGui")
+
+    frame = Instance.new("Frame")
+    frame.Size = UDim2.new(0, 250, 0, 220) -- tăng chiều cao để thêm note
+    frame.Position = UDim2.new(0.4, 0, 0.3, 0)
+    frame.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+    frame.Active = true
+    frame.Draggable = true
+    frame.Parent = screenGui
+
+    -- Note title
+    local titleLabel = Instance.new("TextLabel")
+    titleLabel.Size = UDim2.new(1, 0, 0, 20)
+    titleLabel.Position = UDim2.new(0, 0, 0, 0)
+    titleLabel.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+    titleLabel.Text = "Spawn Toy MM2 Script"
+    titleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+    titleLabel.TextScaled = true
+    titleLabel.Font = Enum.Font.SourceSansBold
+    titleLabel.Parent = frame
+
+    -- Khung danh sách toy (ScrollingFrame)
+    toyListFrame = Instance.new("ScrollingFrame")
+    toyListFrame.Size = UDim2.new(1, -20, 1, -30) -- trừ chiều cao title
+    toyListFrame.Position = UDim2.new(0, 10, 0, 25)
+    toyListFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+    toyListFrame.BorderSizePixel = 0
+    toyListFrame.ScrollBarThickness = 6
+    toyListFrame.CanvasSize = UDim2.new(0, 0, 0, 0)
+    toyListFrame.Parent = frame
+
+    local uiListLayout = Instance.new("UIListLayout")
+    uiListLayout.SortOrder = Enum.SortOrder.LayoutOrder
+    uiListLayout.Padding = UDim.new(0, 2)
+    uiListLayout.Parent = toyListFrame
+
+    uiListLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+        toyListFrame.CanvasSize = UDim2.new(0, 0, 0, uiListLayout.AbsoluteContentSize.Y)
+    end)
+
+    -- Hàm cập nhật danh sách toy
+    local function updateToyList()
+        for _, child in ipairs(toyListFrame:GetChildren()) do
+            if child:IsA("TextButton") then
+                child:Destroy()
+            end
+        end
+
+        for _, toy in ipairs(toysFolder:GetChildren()) do
+            if toy:IsA("Tool") then
+                local btn = Instance.new("TextButton")
+                btn.Size = UDim2.new(1, 0, 0, 25)
+                btn.Text = toy.Name
+                btn.BackgroundColor3 = Color3.fromRGB(70, 70, 70)
+                btn.TextColor3 = Color3.fromRGB(255, 255, 255)
+                btn.Parent = toyListFrame
+
+                btn.MouseButton1Click:Connect(function()
+                    duplicateToy(toy.Name, toysFolder)
+                end)
+            end
+        end
+    end
+
+    toysFolder.ChildAdded:Connect(updateToyList)
+    toysFolder.ChildRemoved:Connect(updateToyList)
+
+    updateToyList()
+end
+
+
+-- Setup ban đầu
+local function setup()
+    local backpack = LocalPlayer:WaitForChild("Backpack")
+    local toysFolder = backpack:WaitForChild("Toys")
+    printToys(toysFolder)
+    createGUI(toysFolder)
+end
+
+setup()
+
+-- Khi respawn
+LocalPlayer.CharacterAdded:Connect(function()
+    task.wait(1)
+    local backpack = LocalPlayer:WaitForChild("Backpack")
+    local toysFolder = backpack:WaitForChild("Toys")
+    printToys(toysFolder)
 end)
 
 
