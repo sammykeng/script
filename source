@@ -288,9 +288,6 @@ end
 
 -- Input toggle
 UserInputService.InputBegan:Connect(function(input, gp)
-    -- debug print to ensure InputBegan fires (must be LocalScript)
-    print("DEBUG: Key pressed =", input.KeyCode, " gameProcessed =", gp)
-    if gp then return end
     if input.KeyCode == Enum.KeyCode.F and not UserInputService:GetFocusedTextBox() then
         print("Người dùng đã nhấn F")
         if frame then
