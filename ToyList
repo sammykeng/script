@@ -201,3 +201,47 @@ toyActions["SandBucket2024"] = function()
         end
     end)
 end
+
+toyActions["VolleyBall2025"] = function()
+    -- 1. Spawn từ server
+    local args = { "VolleyBall2025" }
+    local success, err = pcall(function()
+        game:GetService("ReplicatedStorage")
+            :WaitForChild("Remotes")
+            :WaitForChild("Extras")
+            :WaitForChild("ReplicateToy")
+            :InvokeServer(unpack(args))
+    end)
+    if not success then
+        warn("❌ Lỗi spawn VolleyBall2025:", err)
+        return
+    end
+    print("🏐 Đã yêu cầu server spawn VolleyBall2025")
+
+    -- 2. Chờ tool trong nhân vật và fire remote
+    task.spawn(function()
+        local char = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
+        local ball = char:WaitForChild("VolleyBall2025", 5)
+        if ball then
+            -- Random một vị trí quanh nhân vật
+            local hrp = char:WaitForChild("HumanoidRootPart")
+            local randomOffset = Vector3.new(
+                math.random(-10, 10), -- X
+                math.random(0, 5),    -- Y
+                math.random(-10, 10)  -- Z
+            )
+            local targetPos = hrp.Position + randomOffset
+
+            -- FireServer
+            local remote = ball:FindFirstChild("Remote")
+            if remote and remote:IsA("RemoteEvent") then
+                remote:FireServer(targetPos)
+                print(("✅ Đã ném VolleyBall2025 tới %s"):format(tostring(targetPos)))
+            else
+                warn("❌ Không tìm thấy RemoteEvent trong VolleyBall2025")
+            end
+        else
+            warn("❌ Không tìm thấy tool VolleyBall2025 trong nhân vật")
+        end
+    end)
+end
