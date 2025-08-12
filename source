@@ -1,78 +1,315 @@
+-- LocalScript (put under StarterGui or StarterPlayerScripts)
 local Players = game:GetService("Players")
 local UserInputService = game:GetService("UserInputService")
 local TweenService = game:GetService("TweenService")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local LocalPlayer = Players.LocalPlayer
+local workspace = workspace
 
+math.randomseed(tick())
+
+-- Helpers ------------------------------------------------
+local function normalizeArg(a)
+    -- convert Vector3 -> vector.create(...) if available (exploit environments)
+    local ok = false
+    if typeof and typeof(a) == "Vector3" then
+        ok = pcall(function() return vector.create end)
+        if ok then
+            local suc, v = pcall(vector.create, a.X, a.Y, a.Z)
+            if suc then return v end
+        end
+    end
+    return a
+end
+
+local function safeFire(remote, ...)
+    if not remote then
+        warn("safeFire: remote is nil")
+        return
+    end
+    local args = {...}
+    for i = 1, #args do args[i] = normalizeArg(args[i]) end
+    local ok, err = pcall(function() remote:FireServer(unpack(args)) end)
+    if not ok then warn("safeFire failed:", err) end
+end
+
+local function safeInvoke(remote, ...)
+    if not remote then
+        warn("safeInvoke: remote is nil")
+        return nil
+    end
+    local args = {...}
+    for i = 1, #args do args[i] = normalizeArg(args[i]) end
+    local ok, res = pcall(function() return remote:InvokeServer(unpack(args)) end)
+    if not ok then
+        warn("safeInvoke failed:", res)
+        return nil
+    end
+    return res
+end
+
+local function requestReplicateToy(name)
+    local success, res = pcall(function()
+        local rems = ReplicatedStorage:WaitForChild("Remotes", 2)
+        if not rems then error("Remotes folder not found") end
+        local extras = rems:WaitForChild("Extras", 2)
+        if not extras then error("Extras not found") end
+        local replicate = extras:WaitForChild("ReplicateToy", 2)
+        if not replicate then error("ReplicateToy remote not found") end
+        return replicate:InvokeServer(name)
+    end)
+    if not success then
+        warn("requestReplicateToy failed:", res)
+        return false
+    end
+    return true
+end
+
+-- Toy actions (you provided) ---------------------------
+local toyActions = {}
+
+toyActions["FakeBomb"] = function()
+    if not requestReplicateToy("FakeBomb") then return end
+    print("✅ Đã yêu cầu server spawn FakeBomb")
+    task.spawn(function()
+        for _ = 1, 50 do
+            task.wait(0.1)
+            local bomb = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("FakeBomb")
+            if bomb and bomb:FindFirstChild("Remote") then
+                print("📦 FakeBomb đã spawn")
+                task.wait(0.5)
+                local hrp = LocalPlayer.Character:WaitForChild("HumanoidRootPart")
+                local throwArgs = { hrp.CFrame * CFrame.new(0, 0, -2), 50 }
+                safeFire(bomb:FindFirstChild("Remote"), unpack(throwArgs))
+                print("💣 Đã ném FakeBomb")
+                break
+            end
+        end
+    end)
+end
+
+toyActions["BeachBall2023"] = function()
+    if not requestReplicateToy("BeachBall2023") then return end
+    print("✅ Đã yêu cầu server spawn BeachBall2023")
+    task.spawn(function()
+        for _ = 1, 50 do
+            task.wait(0.1)
+            local beachBall = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("BeachBall2023")
+            if beachBall then
+                print("🏐 BeachBall2023 đã spawn")
+                task.wait(0.5)
+                -- tìm remote trong nil instances (exploit-only)
+                local function getNil(name, class)
+                    if not getnilinstances then return nil end
+                    for _, v in next, getnilinstances() do
+                        if v.ClassName == class and v.Name == name then return v end
+                    end
+                end
+                local remote = getNil("Remote", "RemoteEvent")
+                if remote then
+                    local hrp = LocalPlayer.Character:WaitForChild("HumanoidRootPart")
+                    local targetPos = hrp.Position + hrp.CFrame.LookVector * 5
+                    safeFire(remote, Vector3.new(targetPos.X, targetPos.Y, targetPos.Z))
+                    print("🎯 Đã ném BeachBall2023")
+                else
+                    warn("❌ Không tìm thấy RemoteEvent cho BeachBall2023")
+                end
+                break
+            end
+        end
+    end)
+end
+
+toyActions["WaterBalloon2024"] = function()
+    if not requestReplicateToy("WaterBalloon2024") then return end
+    print("✅ Đã yêu cầu server spawn WaterBalloon2024")
+    task.spawn(function()
+        for _ = 1, 50 do
+            task.wait(0.1)
+            local balloon = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("WaterBalloon2024")
+            if balloon and balloon:FindFirstChild("Remote") then
+                print("💦 WaterBalloon2024 đã spawn")
+                task.wait(0.3)
+                local hrp = LocalPlayer.Character:WaitForChild("HumanoidRootPart")
+                local startPos = hrp.Position + hrp.CFrame.LookVector * 3
+                local endPos = startPos + Vector3.new(0, -3, 0)
+                safeFire(balloon:FindFirstChild("Remote"), startPos, endPos)
+                print("🎯 Đã ném WaterBalloon2024")
+                break
+            end
+        end
+    end)
+end
+
+toyActions["Fireflies"] = function()
+    if not requestReplicateToy("Fireflies") then return end
+    print("✅ Đã yêu cầu server spawn Fireflies")
+    task.spawn(function()
+        local char = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
+        local fireflies = char:WaitForChild("Fireflies", 5)
+        if fireflies then
+            local remote = fireflies:FindFirstChild("Remote")
+            if remote and remote:IsA("RemoteFunction") then
+                safeInvoke(remote, "Button1Down")
+                print("✨ Đã kích hoạt Fireflies")
+            else
+                warn("❌ Không tìm thấy RemoteFunction của Fireflies")
+            end
+        else
+            warn("❌ Không tìm thấy tool Fireflies")
+        end
+    end)
+end
+
+toyActions["SandBucket2024"] = function()
+    if not requestReplicateToy("SandBucket2024") then return end
+    print("✅ Đã yêu cầu server spawn SandBucket2024")
+    task.spawn(function()
+        local char = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
+        local bucket = char:WaitForChild("SandBucket2024", 5)
+        if bucket then
+            -- collect candidate parts in Lobby build model
+            local allParts = {}
+            if workspace:FindFirstChild("Lobby") then
+                for _, obj in ipairs(workspace.Lobby:GetDescendants()) do
+                    if obj:IsA("BasePart") then table.insert(allParts, obj) end
+                end
+            else
+                for _, obj in ipairs(workspace:GetDescendants()) do
+                    if obj:IsA("BasePart") then table.insert(allParts, obj) end
+                end
+            end
+            if #allParts == 0 then warn("❌ Không tìm thấy part hợp lệ cho SandBucket2024"); return end
+            local targetPart = allParts[math.random(1, #allParts)]
+            local randomOffset = Vector3.new(math.random(-3,3), 0, math.random(-3,3))
+            local targetPos = targetPart.Position + randomOffset
+            local remote = bucket:FindFirstChildWhichIsA("RemoteEvent", true)
+            if remote then
+                safeFire(remote, targetPart, targetPos)
+                print(("🏖️ Đã sử dụng SandBucket2024 tại %s"):format(tostring(targetPos)))
+            else
+                warn("❌ Không tìm thấy RemoteEvent trong SandBucket2024")
+            end
+        else
+            warn("❌ Không tìm thấy tool SandBucket2024 trong nhân vật")
+        end
+    end)
+end
+
+toyActions["VolleyBall2025"] = function()
+    if not requestReplicateToy("VolleyBall2025") then return end
+    print("🏐 Đã yêu cầu server spawn VolleyBall2025")
+    task.spawn(function()
+        local char = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
+        local ball = char:WaitForChild("VolleyBall2025", 5)
+        if ball then
+            local hrp = char:WaitForChild("HumanoidRootPart")
+            local randomOffset = Vector3.new(math.random(-10,10), math.random(0,5), math.random(-10,10))
+            local targetPos = hrp.Position + randomOffset
+            local remote = ball:FindFirstChild("Remote")
+            if remote and remote:IsA("RemoteEvent") then
+                safeFire(remote, targetPos)
+                print(("✅ Đã ném VolleyBall2025 tới %s"):format(tostring(targetPos)))
+            else
+                warn("❌ Không tìm thấy RemoteEvent trong VolleyBall2025")
+            end
+        else
+            warn("❌ Không tìm thấy tool VolleyBall2025 trong nhân vật")
+        end
+    end)
+end
+
+-- GUI + main logic -------------------------------------
 local guiVisible = true
 local frame
 local toyListFrame
 
--- In danh sách toys ra console
 local function printToys(toysFolder)
-    print("===== Toys In Backpack Allowed Duplicate =====")
+    print("===== Toys In Backpack =====")
     for _, item in ipairs(toysFolder:GetChildren()) do
         print("- " .. item.Name)
     end
 end
 
-local function duplicateToy(toyName, toysFolder)
-    local toy = toysFolder:FindFirstChild(toyName)
-    if toy and toy:IsA("Tool") then
-        local clone = toy:Clone()
-        for _, obj in ipairs(toy:GetDescendants()) do
-            obj.Archivable = true
-        end
-        clone.Parent = LocalPlayer.Character
-        print("✅ Duplicated full toy:", toyName)
+local function executeToyAction(toyName)
+    local fn = toyActions[toyName]
+    if fn then
+        local ok, err = pcall(fn)
+        if not ok then warn("Toy action errored:", err) end
     else
-        warn("❌ Không tìm thấy toy:", toyName)
+        -- fallback: try server replicate, else clone local toy
+        local ok = requestReplicateToy(toyName)
+        if ok then
+            print("Spawned toy via ReplicateToy:", toyName)
+        else
+            -- fallback to clone if exists in Backpack/Toys
+            local backpack = LocalPlayer:FindFirstChild("Backpack")
+            if backpack then
+                local toysFolder = backpack:FindFirstChild("Toys")
+                if toysFolder then
+                    local toy = toysFolder:FindFirstChild(toyName)
+                    if toy and toy:IsA("Tool") then
+                        local clone = toy:Clone()
+                        clone.Parent = LocalPlayer.Character
+                        print("Fallback clone spawned toy:", toyName)
+                    else
+                        warn("Không thể spawn toy:", toyName)
+                    end
+                end
+            end
+        end
     end
 end
 
-
--- Hàm fade in/out toàn bộ GUI
+-- Fade util
 local function tweenFade(object, targetTransparency, duration)
     for _, obj in ipairs(object:GetDescendants()) do
         if obj:IsA("TextLabel") or obj:IsA("TextButton") or obj:IsA("TextBox") then
-            TweenService:Create(obj, TweenInfo.new(duration), {
-                TextTransparency = targetTransparency,
-                BackgroundTransparency = targetTransparency
-            }):Play()
+            pcall(function()
+                TweenService:Create(obj, TweenInfo.new(duration), {
+                    TextTransparency = targetTransparency,
+                    BackgroundTransparency = targetTransparency
+                }):Play()
+            end)
         elseif obj:IsA("Frame") or obj:IsA("ScrollingFrame") then
-            TweenService:Create(obj, TweenInfo.new(duration), {
-                BackgroundTransparency = targetTransparency
-            }):Play()
+            pcall(function()
+                TweenService:Create(obj, TweenInfo.new(duration), {
+                    BackgroundTransparency = targetTransparency
+                }):Play()
+            end)
         end
     end
-    TweenService:Create(object, TweenInfo.new(duration), {
-        BackgroundTransparency = targetTransparency
-    }):Play()
+    pcall(function()
+        TweenService:Create(object, TweenInfo.new(duration), {
+            BackgroundTransparency = targetTransparency
+        }):Play()
+    end)
 end
 
+-- Input toggle
 UserInputService.InputBegan:Connect(function(input, gp)
+    -- debug print to ensure InputBegan fires (must be LocalScript)
+    print("DEBUG: Key pressed =", input.KeyCode, " gameProcessed =", gp)
+    if gp then return end
     if input.KeyCode == Enum.KeyCode.F and not UserInputService:GetFocusedTextBox() then
-        print("Người dùng đã nhấn F") -- debug
-
+        print("Người dùng đã nhấn F")
         if frame then
             guiVisible = not guiVisible
             if guiVisible then
                 print("GUI đang hiện")
                 frame.Visible = true
-                tweenFade(frame, 0, 0.3)
+                tweenFade(frame, 0, 0.25)
             else
                 print("GUI đang ẩn")
-                tweenFade(frame, 1, 0.3)
-                task.delay(0.3, function()
-                    if not guiVisible then
-                        frame.Visible = false
-                    end
+                tweenFade(frame, 1, 0.25)
+                task.delay(0.25, function()
+                    if not guiVisible and frame then frame.Visible = false end
                 end)
             end
         end
     end
 end)
 
--- Tạo GUI
 local function createGUI(toysFolder)
     local screenGui = Instance.new("ScreenGui")
     screenGui.Name = "ToyDuplicatorGUI"
@@ -80,75 +317,63 @@ local function createGUI(toysFolder)
     screenGui.Parent = LocalPlayer:WaitForChild("PlayerGui")
 
     frame = Instance.new("Frame")
-    frame.Size = UDim2.new(0, 250, 0, 220) -- tăng chiều cao để thêm note
+    frame.Size = UDim2.new(0, 300, 0, 260)
     frame.Position = UDim2.new(0.4, 0, 0.3, 0)
-    frame.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+    frame.BackgroundColor3 = Color3.fromRGB(40,40,40)
     frame.Active = true
     frame.Draggable = true
     frame.Parent = screenGui
 
-    -- Note title
-    local titleLabel = Instance.new("TextLabel")
-    titleLabel.Size = UDim2.new(1, 0, 0, 20)
-    titleLabel.Position = UDim2.new(0, 0, 0, 0)
-    titleLabel.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
-    titleLabel.Text = "Spawn Toy MM2 Script"
-    titleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-    titleLabel.TextScaled = true
-    titleLabel.Font = Enum.Font.SourceSansBold
-    titleLabel.Parent = frame
+    local title = Instance.new("TextLabel", frame)
+    title.Size = UDim2.new(1,0,0,24)
+    title.Position = UDim2.new(0,0,0,0)
+    title.BackgroundColor3 = Color3.fromRGB(60,60,60)
+    title.Text = "Spawn Toy MM2 Script"
+    title.TextColor3 = Color3.new(1,1,1)
+    title.Font = Enum.Font.SourceSansBold
+    title.TextScaled = true
 
-    -- Khung danh sách toy (ScrollingFrame)
-    toyListFrame = Instance.new("ScrollingFrame")
-    toyListFrame.Size = UDim2.new(1, -20, 1, -30) -- trừ chiều cao title
-    toyListFrame.Position = UDim2.new(0, 10, 0, 25)
-    toyListFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+    toyListFrame = Instance.new("ScrollingFrame", frame)
+    toyListFrame.Position = UDim2.new(0,10,0,30)
+    toyListFrame.Size = UDim2.new(1,-20,1,-40)
+    toyListFrame.BackgroundColor3 = Color3.fromRGB(30,30,30)
     toyListFrame.BorderSizePixel = 0
     toyListFrame.ScrollBarThickness = 6
-    toyListFrame.CanvasSize = UDim2.new(0, 0, 0, 0)
-    toyListFrame.Parent = frame
+    toyListFrame.CanvasSize = UDim2.new(0,0,0,0)
 
-    local uiListLayout = Instance.new("UIListLayout")
-    uiListLayout.SortOrder = Enum.SortOrder.LayoutOrder
-    uiListLayout.Padding = UDim.new(0, 2)
-    uiListLayout.Parent = toyListFrame
-
-    uiListLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
-        toyListFrame.CanvasSize = UDim2.new(0, 0, 0, uiListLayout.AbsoluteContentSize.Y)
+    local layout = Instance.new("UIListLayout", toyListFrame)
+    layout.SortOrder = Enum.SortOrder.LayoutOrder
+    layout.Padding = UDim.new(0,4)
+    layout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+        toyListFrame.CanvasSize = UDim2.new(0,0,0, layout.AbsoluteContentSize.Y + 8)
     end)
 
-    -- Hàm cập nhật danh sách toy
-    local function updateToyList()
+    local function update()
         for _, child in ipairs(toyListFrame:GetChildren()) do
-            if child:IsA("TextButton") then
-                child:Destroy()
-            end
+            if child:IsA("TextButton") then child:Destroy() end
         end
-
         for _, toy in ipairs(toysFolder:GetChildren()) do
             if toy:IsA("Tool") then
                 local btn = Instance.new("TextButton")
-                btn.Size = UDim2.new(1, 0, 0, 25)
+                btn.Size = UDim2.new(1,0,0,28)
                 btn.Text = toy.Name
-                btn.BackgroundColor3 = Color3.fromRGB(70, 70, 70)
-                btn.TextColor3 = Color3.fromRGB(255, 255, 255)
+                btn.BackgroundColor3 = Color3.fromRGB(70,70,70)
+                btn.TextColor3 = Color3.new(1,1,1)
                 btn.Parent = toyListFrame
-
                 btn.MouseButton1Click:Connect(function()
-                    duplicateToy(toy.Name, toysFolder)
+                    print("Clicked toy:", toy.Name)
+                    executeToyAction(toy.Name)
                 end)
             end
         end
     end
 
-    toysFolder.ChildAdded:Connect(updateToyList)
-    toysFolder.ChildRemoved:Connect(updateToyList)
-
-    updateToyList()
+    toysFolder.ChildAdded:Connect(update)
+    toysFolder.ChildRemoved:Connect(update)
+    update()
 end
 
-
--- Setup ban đầu
+-- Setup initial
 local function setup()
     local backpack = LocalPlayer:WaitForChild("Backpack")
     local toysFolder = backpack:WaitForChild("Toys")
@@ -158,14 +383,12 @@ end
 
 setup()
 
--- Khi respawn
 LocalPlayer.CharacterAdded:Connect(function()
     task.wait(1)
     local backpack = LocalPlayer:WaitForChild("Backpack")
     local toysFolder = backpack:WaitForChild("Toys")
     printToys(toysFolder)
 end)
-
 
 -- Bong bóng hình ảnh to dần, bật/tắt bằng phím L, có âm thanh
 local player = game.Players.LocalPlayer
