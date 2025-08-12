@@ -307,6 +307,33 @@ UserInputService.InputBegan:Connect(function(input, gp)
     end
 end)
 
+-- Hàm cập nhật GUI toys dựa trên folder Toys mới
+local function updateToysGUI(toysFolder)
+    if not toyListFrame then return end
+    -- Xóa nút cũ
+    for _, child in ipairs(toyListFrame:GetChildren()) do
+        if child:IsA("TextButton") then
+            child:Destroy()
+        end
+    end
+    -- Tạo nút mới
+    for _, toy in ipairs(toysFolder:GetChildren()) do
+        if toy:IsA("Tool") then
+            local btn = Instance.new("TextButton")
+            btn.Size = UDim2.new(1,0,0,28)
+            btn.Text = toy.Name
+            btn.BackgroundColor3 = Color3.fromRGB(70,70,70)
+            btn.TextColor3 = Color3.new(1,1,1)
+            btn.Parent = toyListFrame
+            btn.MouseButton1Click:Connect(function()
+                print("Clicked toy:", toy.Name)
+                executeToyAction(toy.Name)
+            end)
+        end
+    end
+end
+
+-- Sửa lại createGUI để dùng updateToysGUI
 local function createGUI(toysFolder)
     local screenGui = Instance.new("ScreenGui")
     screenGui.Name = "ToyDuplicatorGUI"
@@ -345,32 +372,15 @@ local function createGUI(toysFolder)
         toyListFrame.CanvasSize = UDim2.new(0,0,0, layout.AbsoluteContentSize.Y + 8)
     end)
 
-    local function update()
-        for _, child in ipairs(toyListFrame:GetChildren()) do
-            if child:IsA("TextButton") then child:Destroy() end
-        end
-        for _, toy in ipairs(toysFolder:GetChildren()) do
-            if toy:IsA("Tool") then
-                local btn = Instance.new("TextButton")
-                btn.Size = UDim2.new(1,0,0,28)
-                btn.Text = toy.Name
-                btn.BackgroundColor3 = Color3.fromRGB(70,70,70)
-                btn.TextColor3 = Color3.new(1,1,1)
-                btn.Parent = toyListFrame
-                btn.MouseButton1Click:Connect(function()
-                    print("Clicked toy:", toy.Name)
-                    executeToyAction(toy.Name)
-                end)
-            end
-        end
-    end
+    -- Kết nối sự kiện khi toysFolder thay đổi
+    toysFolder.ChildAdded:Connect(function() updateToysGUI(toysFolder) end)
+    toysFolder.ChildRemoved:Connect(function() updateToysGUI(toysFolder) end)
 
-    toysFolder.ChildAdded:Connect(update)
-    toysFolder.ChildRemoved:Connect(update)
-    update()
+    -- Tạo danh sách nút ban đầu
+    updateToysGUI(toysFolder)
 end
 
--- Setup initial
+-- Setup ban đầu
 local function setup()
     local backpack = LocalPlayer:WaitForChild("Backpack")
     local toysFolder = backpack:WaitForChild("Toys")
@@ -380,11 +390,13 @@ end
 
 setup()
 
+-- Khi nhân vật thay đổi (reset hoặc spawn mới), cập nhật lại toysFolder và cập nhật GUI
 LocalPlayer.CharacterAdded:Connect(function()
     task.wait(1)
     local backpack = LocalPlayer:WaitForChild("Backpack")
     local toysFolder = backpack:WaitForChild("Toys")
     printToys(toysFolder)
+    updateToysGUI(toysFolder)
 end)
 
 -- Bong bóng hình ảnh to dần, bật/tắt bằng phím L, có âm thanh
