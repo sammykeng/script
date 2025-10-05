@@ -52,7 +52,7 @@ local OldNamecall; OldNamecall = hookmetamethod(game, "__namecall", newcclosure(
 	local self, message = ...
 	local method = getnamecallmethod()
 	
-	if ((getgenv().ED_AntiKick.CheckCaller and not checkcaller()) or true) and CompareInstances(self, LocalPlayer) and gsub(method, "^%l", string.upper) == "Kick" and ED_AntiKick.Enabled then
+	if ((getgenv().ED_AntiKick.CheckCaller and not checkcaller()) or true) and CompareInstances(self, LocalPlayer) and gsub(method, "^%l", string.upper) == "Kick" and ED_AntiKick.Enabled and method == 'Kick' or method == 'kick' then
 		if CanCastToSTDString(message) then
 			if getgenv().ED_AntiKick.SendNotifications then
 				SetCore(StarterGui, "SendNotification", {
