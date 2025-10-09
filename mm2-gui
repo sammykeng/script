@@ -11,9 +11,9 @@ G2L["2"] = Instance.new("LocalScript", G2L["1"]);
 G2L["2"]["Name"] = [[DraggableGui]];
 
 
--- StarterGui.Sam_LOL.check
+-- StarterGui.Sam_LOL.loadingScript
 G2L["3"] = Instance.new("LocalScript", G2L["1"]);
-G2L["3"]["Name"] = [[check]];
+G2L["3"]["Name"] = [[loadingScript]];
 
 
 -- StarterGui.Sam_LOL.KeepGui
@@ -3264,6 +3264,11 @@ G2L["191"]["Rotation"] = 20;
 G2L["191"]["Color"] = ColorSequence.new{ColorSequenceKeypoint.new(0.000, Color3.fromRGB(0, 0, 0)),ColorSequenceKeypoint.new(1.000, Color3.fromRGB(40, 40, 40))};
 
 
+-- StarterGui.Sam_LOL.check
+G2L["192"] = Instance.new("LocalScript", G2L["1"]);
+G2L["192"]["Name"] = [[check]];
+
+
 -- StarterGui.Sam_LOL.DraggableGui
 local function C_2()
 local script = G2L["2"];
@@ -3318,7 +3323,7 @@ local script = G2L["2"];
 	
 end;
 task.spawn(C_2);
--- StarterGui.Sam_LOL.check
+-- StarterGui.Sam_LOL.loadingScript
 local function C_3()
 local script = G2L["3"];
 	local player = game:GetService("Players").LocalPlayer
@@ -3369,7 +3374,6 @@ local script = G2L["3"];
 	    loading.Visible = false
 	    outline.Visible = true
 	end)
-	
 	
 end;
 task.spawn(C_3);
@@ -6110,5 +6114,17 @@ local script = G2L["18d"];
 	end)
 end;
 task.spawn(C_18d);
+-- StarterGui.Sam_LOL.check
+local function C_192()
+local script = G2L["192"];
+	local player = game.Players.LocalPlayer
+	
+	task.wait(3)
+	if not game.PlaceId ~= 142823291 then 
+		player:Kick("wrong game bruh, this script for mm2")
+		return
+	end 
+end;
+task.spawn(C_192);
 
 return G2L["1"], require;
