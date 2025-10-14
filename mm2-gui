@@ -3575,6 +3575,11 @@ G2L["1b5"] = Instance.new("LocalScript", G2L["1"]);
 G2L["1b5"]["Name"] = [[KeepGui]];
 
 
+-- StarterGui.ScreenGui.check
+G2L["1b6"] = Instance.new("LocalScript", G2L["1"]);
+G2L["1b6"]["Name"] = [[check]];
+
+
 -- Require G2L wrapper
 local G2L_REQUIRE = require;
 local G2L_MODULES = {};
@@ -4880,7 +4885,6 @@ task.spawn(C_ae);
 -- StarterGui.ScreenGui.outline.main.ContainerFrame.ESPTab.ScrollingFrame.espMurd.button.murd
 local function C_b3()
 local script = G2L["b3"];
-	-- LocalScript đặt dưới button "MurdererESPButton"
 	local button = script.Parent
 	local Players = game:GetService("Players")
 	local LocalPlayer = Players.LocalPlayer
@@ -4890,7 +4894,6 @@ local script = G2L["b3"];
 	local espActive = false
 	local espObjects = {}
 	
-	-- 🧹 Xóa ESP của 1 người
 	local function removeESP(plr)
 		if espObjects[plr] then
 			for _, obj in ipairs(espObjects[plr]) do
@@ -4900,7 +4903,6 @@ local script = G2L["b3"];
 		end
 	end
 	
-	-- 🧹 Xóa tất cả ESP
 	local function removeAllESP()
 		for _, objs in pairs(espObjects) do
 			for _, obj in ipairs(objs) do
@@ -4910,7 +4912,6 @@ local script = G2L["b3"];
 		table.clear(espObjects)
 	end
 	
-	-- 🎯 Tạo ESP cho Murderer
 	local function addESP(plr)
 		if not plr.Character or espObjects[plr] then return end
 		local char = plr.Character
@@ -4945,14 +4946,12 @@ local script = G2L["b3"];
 		espObjects[plr] = {highlight, billboard}
 	end
 	
-	-- 🔍 Kiểm tra người chơi có Knife không
 	local function hasKnife(plr)
 		if not plr.Character then return false end
 		local bp = plr:FindFirstChild("Backpack")
 		return (bp and bp:FindFirstChild("Knife")) or plr.Character:FindFirstChild("Knife")
 	end
 	
-	-- 🔄 Cập nhật ESP khi có thay đổi
 	local function updateESP()
 		if not espActive then return end
 	
@@ -4966,11 +4965,9 @@ local script = G2L["b3"];
 			end
 		end
 	
-		-- ❌ Nếu không ai có Knife → xóa hết ESP
 		if #murderers == 0 then
 			removeAllESP()
 		else
-			-- Xóa ESP của ai không còn Knife nữa
 			for plr, _ in pairs(espObjects) do
 				if not table.find(murderers, plr) then
 					removeESP(plr)
@@ -4979,7 +4976,6 @@ local script = G2L["b3"];
 		end
 	end
 	
-	-- 👀 Theo dõi khi người chơi thay đổi trạng thái
 	local function trackPlayer(plr)
 		if plr == LocalPlayer then return end
 	
@@ -4993,7 +4989,6 @@ local script = G2L["b3"];
 			updateESP()
 		end)
 	
-		-- Theo dõi Backpack (nhặt hoặc bỏ Knife)
 		local bp = plr:WaitForChild("Backpack")
 		bp.ChildAdded:Connect(function(item)
 			if item.Name == "Knife" then updateESP() end
@@ -5003,7 +4998,6 @@ local script = G2L["b3"];
 		end)
 	end
 	
-	-- 🟢 Toggle Button
 	button.MouseButton1Click:Connect(function()
 		espActive = not espActive
 		if espActive then
@@ -5028,7 +5022,6 @@ task.spawn(C_b3);
 -- StarterGui.ScreenGui.outline.main.ContainerFrame.ESPTab.ScrollingFrame.espSheriff.button.sheriff
 local function C_b9()
 local script = G2L["b9"];
-	-- LocalScript trong GUI Button "SheriffButton"
 	local button = script.Parent
 	local Players = game:GetService("Players")
 	local LocalPlayer = Players.LocalPlayer
@@ -5038,7 +5031,6 @@ local script = G2L["b9"];
 	local espActive = false
 	local espObjects = {}
 	
-	-- 🧹 Xóa ESP của 1 người
 	local function removeESP(plr)
 		if espObjects[plr] then
 			for _, obj in ipairs(espObjects[plr]) do
@@ -5048,7 +5040,6 @@ local script = G2L["b9"];
 		end
 	end
 	
-	-- 🧹 Xóa tất cả ESP
 	local function removeAllESP()
 		for _, objs in pairs(espObjects) do
 			for _, obj in ipairs(objs) do
@@ -5058,7 +5049,6 @@ local script = G2L["b9"];
 		table.clear(espObjects)
 	end
 	
-	-- 🎯 Tạo ESP cho Sheriff
 	local function addESP(plr)
 		if not plr.Character or espObjects[plr] then return end
 		local char = plr.Character
@@ -5094,14 +5084,12 @@ local script = G2L["b9"];
 		espObjects[plr] = {highlight, billboard}
 	end
 	
-	-- 🔍 Kiểm tra player có Gun không
 	local function hasGun(plr)
 		if not plr.Character then return false end
 		local bp = plr:FindFirstChild("Backpack")
 		return (bp and bp:FindFirstChild("Gun")) or plr.Character:FindFirstChild("Gun")
 	end
 	
-	-- 🔄 Cập nhật ESP theo trạng thái Gun
 	local function updateESP()
 		if not espActive then return end
 	
@@ -5115,11 +5103,9 @@ local script = G2L["b9"];
 			end
 		end
 	
-		-- Nếu không ai có súng thì xoá hết ESP
 		if #gunHolders == 0 then
 			removeAllESP()
 		else
-			-- Xóa ESP của ai không còn cầm súng nữa
 			for plr, _ in pairs(espObjects) do
 				if not table.find(gunHolders, plr) then
 					removeESP(plr)
@@ -5128,7 +5114,6 @@ local script = G2L["b9"];
 		end
 	end
 	
-	-- 🧠 Theo dõi player thay đổi
 	local function trackPlayer(plr)
 		if plr == LocalPlayer then return end
 	
@@ -5151,7 +5136,6 @@ local script = G2L["b9"];
 		end)
 	end
 	
-	-- 🟢 Toggle Button
 	button.MouseButton1Click:Connect(function()
 		espActive = not espActive
 		if espActive then
@@ -5178,7 +5162,6 @@ task.spawn(C_b9);
 -- StarterGui.ScreenGui.outline.main.ContainerFrame.ESPTab.ScrollingFrame.espInnocent.button.innocent
 local function C_bf()
 local script = G2L["bf"];
-	-- LocalScript đặt trong GUI Button "InnocentButton"
 	local button = script.Parent
 	local Players = game:GetService("Players")
 	local LocalPlayer = Players.LocalPlayer
@@ -5189,7 +5172,6 @@ local script = G2L["bf"];
 	local InnocentESPEnabled = false
 	local espInnocent = {}
 	
-	-- 🟩 Tạo ESP cho người chơi
 	local function AddESP(plr)
 		if not plr.Character or espInnocent[plr] then return end
 		local char = plr.Character
@@ -5223,7 +5205,6 @@ local script = G2L["bf"];
 		espInnocent[plr] = {highlight, billboard}
 	end
 	
-	-- 🔴 Xóa ESP
 	local function RemoveESP(plr)
 		if espInnocent[plr] then
 			for _, obj in ipairs(espInnocent[plr]) do
@@ -5233,7 +5214,6 @@ local script = G2L["bf"];
 		end
 	end
 	
-	-- 🧠 Kiểm tra có phải Innocent
 	local function IsInnocent(plr)
 		if not plr.Character then return false end
 		local bp, char = plr:FindFirstChild("Backpack"), plr.Character
@@ -5242,7 +5222,6 @@ local script = G2L["bf"];
 		return not (hasKnife or hasGun)
 	end
 	
-	-- 🌀 Cập nhật ESP cho player
 	local function UpdateESP(plr)
 		if InnocentESPEnabled then
 			if IsInnocent(plr) then
@@ -5259,7 +5238,6 @@ local script = G2L["bf"];
 		end
 	end
 	
-	-- 🔄 Theo dõi thay đổi của mỗi player
 	local function TrackPlayer(plr)
 		plr.CharacterAdded:Connect(function()
 			plr.Character:WaitForChild("HumanoidRootPart", 5)
@@ -5270,7 +5248,6 @@ local script = G2L["bf"];
 			RemoveESP(plr)
 		end)
 	
-		-- Khi người chơi nhặt/đánh rơi tool
 		plr.Backpack.ChildAdded:Connect(function()
 			UpdateESP(plr)
 		end)
@@ -5313,7 +5290,6 @@ task.spawn(C_bf);
 -- StarterGui.ScreenGui.outline.main.ContainerFrame.ESPTab.ScrollingFrame.espGun.button.LocalScript
 local function C_c5()
 local script = G2L["c5"];
-	-- LocalScript trong nút GunDropBtn
 	local button = script.Parent
 	local espEnabled = false
 	local gunConn
@@ -5370,9 +5346,7 @@ local script = G2L["cb"];
 	local notifEnabled = false
 	local lastMurderer, lastSheriff = nil, nil
 	
-	-- 🧩 Hàm hiện thông báo
 	local function showNotif(player, role, color, yOffset)
-		-- Tạo GUI cho thông báo
 		local gui = Instance.new("ScreenGui")
 		gui.Name = "Notif_" .. role
 		gui.Parent = PlayerGui
@@ -5428,7 +5402,6 @@ local script = G2L["cb"];
 		gui:Destroy()
 	end
 	
-	-- 🧠 Hàm kiểm tra vai trò mới
 	local function checkRoles()
 		for _, plr in pairs(Players:GetPlayers()) do
 			if plr ~= LocalPlayer then
@@ -5450,7 +5423,6 @@ local script = G2L["cb"];
 		end
 	end
 	
-	-- 🖱 Khi nhấn nút bật / tắt
 	button.MouseButton1Click:Connect(function()
 		notifEnabled = not notifEnabled
 		if notifEnabled then
@@ -5458,7 +5430,6 @@ local script = G2L["cb"];
 			task.spawn(function()
 				while notifEnabled do
 					checkRoles()
-					task.wait(2) -- kiểm tra mỗi 2 giây để phát hiện thay đổi nhanh
 				end
 			end)
 		else
@@ -5472,7 +5443,6 @@ task.spawn(C_cb);
 -- StarterGui.ScreenGui.outline.main.ContainerFrame.ESPTab.ScrollingFrame.notifyGunDrop.button.LocalScript
 local function C_d1()
 local script = G2L["d1"];
-	-- LocalScript trong nút GunDropNotifBtn
 	local button = script.Parent
 	local Workspace = game:GetService("Workspace")
 	local notifEnabled = false
@@ -5510,7 +5480,6 @@ task.spawn(C_d6);
 -- StarterGui.ScreenGui.outline.main.ContainerFrame.CombatTab.ScrollingFrame.KillAll.button.LocalScript
 local function C_db()
 local script = G2L["db"];
-	-- LocalScript gắn vào nút "Kill All"
 	local Notify = require(script:FindFirstAncestorOfClass("ScreenGui"):WaitForChild("NotifyModule"))
 	local Players = game:GetService("Players")
 	local LocalPlayer = Players.LocalPlayer
@@ -5525,31 +5494,28 @@ local script = G2L["db"];
 		end
 	
 		if findMurderer() ~= LocalPlayer then
-			Notify:Notify("Bạn không phải Murderer!")
+			Notify:Notify("you're Not Murderer!")
 			return
 		end
 	
-		-- Equip dao nếu chưa
 		if not LocalPlayer.Character:FindFirstChild("Knife") and LocalPlayer.Backpack:FindFirstChild("Knife") then
 			LocalPlayer.Character.Humanoid:EquipTool(LocalPlayer.Backpack:FindFirstChild("Knife"))
 			task.wait(0.2)
 		end
 	
-		-- Dịch chuyển mọi người lại gần
 		for _, player in ipairs(Players:GetPlayers()) do
 			if player ~= LocalPlayer and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
 				player.Character.HumanoidRootPart.CFrame = LocalPlayer.Character.HumanoidRootPart.CFrame + Vector3.new(0, 0, -2)
 			end
 		end
 	
-		-- Slash
 		local knife = LocalPlayer.Character:FindFirstChild("Knife")
 		if knife and knife:FindFirstChild("Stab") then
 			for i = 1, 5 do
 				knife.Stab:FireServer("Slash")
 				task.wait(0.2)
 			end
-			Notify:Notify("Đã kill tất cả!")
+			Notify:Notify("Kill All Successful!!")
 		end
 	end)
 	
@@ -5558,7 +5524,6 @@ task.spawn(C_db);
 -- StarterGui.ScreenGui.outline.main.ContainerFrame.CombatTab.ScrollingFrame.KillSheriff.button.LocalScript
 local function C_e1()
 local script = G2L["e1"];
-	-- LocalScript gắn vào nút "Kill Sheriff"
 	local Players = game:GetService("Players")
 	local LocalPlayer = Players.LocalPlayer
 	local Notify = require(script:FindFirstAncestorOfClass("ScreenGui"):WaitForChild("NotifyModule"))
@@ -5573,7 +5538,7 @@ local script = G2L["e1"];
 		end
 	
 		if not target then
-			Notify:Notify("Không tìm thấy Sheriff!")
+			Notify:Notify("Sheriff not found!")
 			return
 		end
 	
@@ -5690,7 +5655,6 @@ task.spawn(C_e7);
 -- StarterGui.ScreenGui.outline.main.ContainerFrame.CombatTab.ScrollingFrame.autoKillAll.button.LocalScript
 local function C_ed()
 local script = G2L["ed"];
-	-- LocalScript gắn vào ToggleButton
 	local Players = game:GetService("Players")
 	local RunService = game:GetService("RunService")
 	local StarterGui = game:GetService("StarterGui")
@@ -5711,7 +5675,6 @@ local script = G2L["ed"];
 			connection = RunService.Heartbeat:Connect(function()
 				if not LocalPlayer.Character or not LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then return end
 	
-				-- Trang bị Knife nếu chưa
 				if not (LocalPlayer.Backpack:FindFirstChild("Knife") or LocalPlayer.Character:FindFirstChild("Knife")) then return end
 				if not LocalPlayer.Character:FindFirstChild("Knife") then
 					local knife = LocalPlayer.Backpack:FindFirstChild("Knife")
@@ -5725,7 +5688,6 @@ local script = G2L["ed"];
 					if player ~= LocalPlayer and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
 						local targetRoot = player.Character.HumanoidRootPart
 	
-						-- Tắt va chạm tạm thời để đi xuyên qua nhau
 						for _, part in ipairs(LocalPlayer.Character:GetDescendants()) do
 							if part:IsA("BasePart") then
 								part.CanCollide = false
@@ -5737,15 +5699,12 @@ local script = G2L["ed"];
 							end
 						end
 	
-						-- Teleport người chơi lại gần
 						targetRoot.CFrame = root.CFrame * CFrame.new(0, 0, -2)
 	
-						-- Slash (stab)
 						if knife and knife:FindFirstChild("Stab") then
 							knife.Stab:FireServer("Slash")
 						end
 	
-						-- Đợi một chút để đảm bảo stab xong, rồi bật lại va chạm
 						task.wait(0.2)
 						for _, part in ipairs(LocalPlayer.Character:GetDescendants()) do
 							if part:IsA("BasePart") then
@@ -5775,21 +5734,19 @@ task.spawn(C_ed);
 -- StarterGui.ScreenGui.outline.main.ContainerFrame.CombatTab.ScrollingFrame.KillPlayer.Frame.TextBox.LocalScript
 local function C_f4()
 local script = G2L["f4"];
-	-- LocalScript gắn vào TextBox
 	local Players = game:GetService("Players")
 	local LocalPlayer = Players.LocalPlayer
 	local StarterGui = game:GetService("StarterGui")
 	local Notify = require(script:FindFirstAncestorOfClass("ScreenGui"):WaitForChild("NotifyModule"))
 	
-	local inputBox = script.Parent  -- TextBox
+	local inputBox = script.Parent
 	
 	inputBox.FocusLost:Connect(function(enterPressed)
 		if not enterPressed then return end
 	
-		local nameInput = string.lower(inputBox.Text) -- hạ chữ thường để dễ so sánh
+		local nameInput = string.lower(inputBox.Text)
 		if nameInput == "" then return end
 	
-		-- tìm player theo partial name (viết 1 phần tên cũng được)
 		local target
 		for _, player in ipairs(Players:GetPlayers()) do
 			if string.find(string.lower(player.Name), nameInput) == 1 then
@@ -5799,12 +5756,12 @@ local script = G2L["f4"];
 		end
 	
 		if not target or not target.Character or not target.Character:FindFirstChild("HumanoidRootPart") then
-			Notify:Notify("Không tìm thấy người chơi!")
+			Notify:Notify("Player not found!")
 			return
 		end
 	
 		if not (LocalPlayer.Backpack:FindFirstChild("Knife") or LocalPlayer.Character:FindFirstChild("Knife")) then
-			Notify:Notify("Bạn không phải Murderer!")
+			Notify:Notify("You are not a Murderer!")
 			return
 		end
 	
@@ -5812,17 +5769,15 @@ local script = G2L["f4"];
 			LocalPlayer.Character.Humanoid:EquipTool(LocalPlayer.Backpack:FindFirstChild("Knife"))
 		end
 	
-		-- Teleport target lại gần
 		target.Character.HumanoidRootPart.CFrame = LocalPlayer.Character.HumanoidRootPart.CFrame + Vector3.new(0, 0, -2)
 	
-		-- Slash
 		local knife = LocalPlayer.Character:FindFirstChild("Knife")
 		if knife and knife:FindFirstChild("Stab") then
 			for i = 1, 3 do
 				knife.Stab:FireServer("Slash")
 				task.wait(0.1)
 			end
-			Notify:Notify("Đã kill "..target.Name.."!")
+			Notify:Notify("Killed "..target.Name)
 		end
 	end)
 	
@@ -5834,7 +5789,7 @@ local script = G2L["fc"];
 	local Players = game:GetService("Players")
 	local UserInputService = game:GetService("UserInputService")
 	local LocalPlayer = Players.LocalPlayer
-	local button = script.Parent -- Nút trên GUI của bạn
+	local button = script.Parent 
 	local Notify = require(script:FindFirstAncestorOfClass("ScreenGui"):WaitForChild("NotifyModule"))
 	
 	local silentAimEnabled = false
@@ -6830,5 +6785,16 @@ local script = G2L["1b5"];
 	
 end;
 task.spawn(C_1b5);
+-- StarterGui.ScreenGui.check
+local function C_1b6()
+local script = G2L["1b6"];
+	local player = game.Players.LocalPlayer
+	
+	task.wait(2)
+	if not game.PlaceId == 142823291 then
+		player:Kick("this is not mm2 gang")
+	end
+end;
+task.spawn(C_1b6);
 
 return G2L["1"], require;
