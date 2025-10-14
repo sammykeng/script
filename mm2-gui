@@ -3309,7 +3309,7 @@ G2L["197"]["Visible"] = false;
 G2L["197"]["BorderSizePixel"] = 0;
 G2L["197"]["BackgroundColor3"] = Color3.fromRGB(255, 255, 255);
 G2L["197"]["Size"] = UDim2.new(0, 250, 0, 140);
-G2L["197"]["Position"] = UDim2.new(0.8219, 0, 0.597, 0);
+G2L["197"]["Position"] = UDim2.new(0.82014, 0, 0.61797, 0);
 G2L["197"]["BorderColor3"] = Color3.fromRGB(0, 0, 0);
 G2L["197"]["Name"] = [[FrameNotify]];
 
@@ -3373,7 +3373,7 @@ G2L["19f"]["Visible"] = false;
 G2L["19f"]["BorderSizePixel"] = 0;
 G2L["19f"]["BackgroundColor3"] = Color3.fromRGB(255, 255, 255);
 G2L["19f"]["Size"] = UDim2.new(0, 250, 0, 140);
-G2L["19f"]["Position"] = UDim2.new(0.032, 0, -0.59868, 0);
+G2L["19f"]["Position"] = UDim2.new(0.02827, 0, 0.14017, 0);
 G2L["19f"]["BorderColor3"] = Color3.fromRGB(0, 0, 0);
 G2L["19f"]["Name"] = [[Two]];
 
@@ -3511,7 +3511,7 @@ G2L["1ad"]["Visible"] = false;
 G2L["1ad"]["BorderSizePixel"] = 0;
 G2L["1ad"]["BackgroundColor3"] = Color3.fromRGB(255, 255, 255);
 G2L["1ad"]["Size"] = UDim2.new(0, 250, 0, 140);
-G2L["1ad"]["Position"] = UDim2.new(0.032, 0, -0.59868, 0);
+G2L["1ad"]["Position"] = UDim2.new(0.02827, 0, 0.14017, 0);
 G2L["1ad"]["BorderColor3"] = Color3.fromRGB(0, 0, 0);
 G2L["1ad"]["Name"] = [[One]];
 
