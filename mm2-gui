@@ -3309,7 +3309,7 @@ G2L["197"]["Visible"] = false;
 G2L["197"]["BorderSizePixel"] = 0;
 G2L["197"]["BackgroundColor3"] = Color3.fromRGB(255, 255, 255);
 G2L["197"]["Size"] = UDim2.new(0, 250, 0, 140);
-G2L["197"]["Position"] = UDim2.new(0.81891, 0, 0.76313, 0);
+G2L["197"]["Position"] = UDim2.new(0.8219, 0, 0.597, 0);
 G2L["197"]["BorderColor3"] = Color3.fromRGB(0, 0, 0);
 G2L["197"]["Name"] = [[FrameNotify]];
 
@@ -3356,7 +3356,7 @@ G2L["19d"] = Instance.new("Frame", G2L["1"]);
 G2L["19d"]["BorderSizePixel"] = 0;
 G2L["19d"]["BackgroundColor3"] = Color3.fromRGB(255, 255, 255);
 G2L["19d"]["Size"] = UDim2.new(0, 268, 0, 157);
-G2L["19d"]["Position"] = UDim2.new(0.81286, 0, 0.74744, 0);
+G2L["19d"]["Position"] = UDim2.new(0.81373, 0, 0.58292, 0);
 G2L["19d"]["BorderColor3"] = Color3.fromRGB(0, 0, 0);
 G2L["19d"]["Name"] = [[notify]];
 G2L["19d"]["BackgroundTransparency"] = 1;
@@ -3373,7 +3373,7 @@ G2L["19f"]["Visible"] = false;
 G2L["19f"]["BorderSizePixel"] = 0;
 G2L["19f"]["BackgroundColor3"] = Color3.fromRGB(255, 255, 255);
 G2L["19f"]["Size"] = UDim2.new(0, 250, 0, 140);
-G2L["19f"]["Position"] = UDim2.new(0.032, 0, 0.051, 0);
+G2L["19f"]["Position"] = UDim2.new(0.032, 0, -0.59868, 0);
 G2L["19f"]["BorderColor3"] = Color3.fromRGB(0, 0, 0);
 G2L["19f"]["Name"] = [[Two]];
 
@@ -3511,7 +3511,7 @@ G2L["1ad"]["Visible"] = false;
 G2L["1ad"]["BorderSizePixel"] = 0;
 G2L["1ad"]["BackgroundColor3"] = Color3.fromRGB(255, 255, 255);
 G2L["1ad"]["Size"] = UDim2.new(0, 250, 0, 140);
-G2L["1ad"]["Position"] = UDim2.new(0.032, 0, 0.051, 0);
+G2L["1ad"]["Position"] = UDim2.new(0.032, 0, -0.59868, 0);
 G2L["1ad"]["BorderColor3"] = Color3.fromRGB(0, 0, 0);
 G2L["1ad"]["Name"] = [[One]];
 
@@ -3556,7 +3556,7 @@ G2L["1b2"]["Image"] = [[rbxassetid://111808052973225]];
 G2L["1b2"]["Size"] = UDim2.new(0, 50, 0, 49);
 G2L["1b2"]["BorderColor3"] = Color3.fromRGB(0, 0, 0);
 G2L["1b2"]["BackgroundTransparency"] = 1;
-G2L["1b2"]["Position"] = UDim2.new(0.4, 0, 0.51429, 0);
+G2L["1b2"]["Position"] = UDim2.new(0.4, 0, 0.45, 0);
 
 
 -- StarterGui.ScreenGui.notify.One.UIGradient
@@ -4136,7 +4136,7 @@ local script = G2L["58"];
 	local button = script.Parent
 	local Notify = require(script:FindFirstAncestorOfClass("ScreenGui"):WaitForChild("NotifyModule"))
 	
-	-- Lấy model lớn nhất (cao nhất) chứa part được raycast chạm
+	-- Lấy model lớn nhất chứa part được raycast chạm
 	local function getTopMostModel(instance)
 		local topModel = nil
 		while instance and instance ~= workspace do
@@ -4150,16 +4150,26 @@ local script = G2L["58"];
 	
 	-- Lấy model mà nhân vật đang đứng trên
 	local function getStandingModel()
-		local rayOrigin = HumanoidRootPart.Position
-		local rayDirection = Vector3.new(0, -6, 0)
+		local rayOrigin = HumanoidRootPart.Position + Vector3.new(0, 3, 0) -- bắn từ trên cao hơn đầu người
+		local rayDirection = Vector3.new(0, -10, 0) -- tăng khoảng cách ray xuống dưới
 		local raycastParams = RaycastParams.new()
 		raycastParams.FilterDescendantsInstances = {Character}
 		raycastParams.FilterType = Enum.RaycastFilterType.Blacklist
 	
 		local result = workspace:Raycast(rayOrigin, rayDirection, raycastParams)
+	
+		-- nếu không trúng gì, thử ray phụ ngắn hơn
+		if not result then
+			local altResult = workspace:Raycast(HumanoidRootPart.Position, Vector3.new(0, -5, 0), raycastParams)
+			if altResult then
+				result = altResult
+			end
+		end
+	
 		if result and result.Instance then
 			return getTopMostModel(result.Instance)
 		end
+	
 		return nil
 	end
 	
@@ -4167,7 +4177,7 @@ local script = G2L["58"];
 	local function teleportUpIfNotLobby()
 		local model = getStandingModel()
 		if not model then
-			Notify:Notify("⚠️ Không tìm thấy model nào dưới chân.")
+			Notify:Notify("⚠️ No Model found underfoot.")
 			return
 		end
 	
@@ -4176,16 +4186,14 @@ local script = G2L["58"];
 			return
 		end
 	
-		-- Teleport lên giữa + trên cùng model
+		-- Teleport lên giữa và trên cùng model
 		local cf, size = model:GetBoundingBox()
 		local newPos = cf.Position + Vector3.new(0, size.Y / 2 + 3, 0)
 		HumanoidRootPart.CFrame = CFrame.new(newPos)
+		Notify:Notify("✅ Teleported To the Safe Room")
 	end
 	
-	button.MouseButton1Click:Connect(function()
-		teleportUpIfNotLobby()
-	end)
-			
+	button.MouseButton1Click:Connect(teleportUpIfNotLobby)
 	
 end;
 task.spawn(C_58);
@@ -4257,69 +4265,31 @@ local function C_69()
 local script = G2L["69"];
 	local button = script.Parent
 	
-	local HTTPService = game:GetService("HttpService")
-	local TeleportService = game:GetService("TeleportService")
-	local StatsService = game:GetService("Stats")
+	button.MouseButton1Up:Connect(function()
+		local Player = game.Players.LocalPlayer
+		local Http = game:GetService("HttpService")
+		local TPS = game:GetService("TeleportService")
+		local Api = "https://games.roblox.com/v1/games/"
 	
-	local function fetchServersData(placeId, limit)
-		local url = string.format("https://games.roblox.com/v1/games/%d/servers/Public?limit=%d", placeId, limit)
-		local success, response = pcall(function()
-			return HTTPService:JSONDecode(game:HttpGet(url))
-		end)
-	
-		if success and response and response.data then
-			return response.data
+		local _place,_id = game.PlaceId, game.JobId
+		-- Asc for lowest player count, Desc for highest player count
+		local _servers = Api.._place.."/servers/Public?sortOrder=Asc&limit=10"
+		function ListServers(cursor)
+			local Raw = game:HttpGet(_servers .. ((cursor and "&cursor="..cursor) or ""))
+			return Http:JSONDecode(Raw)
 		end
 	
-		return nil
-	end
+		time_to_wait = 2 --seconds
 	
-	local function findLowestPingServer()
-		local placeId = game.PlaceId
-		local serverLimit = 100
-		local servers = fetchServersData(placeId, serverLimit)
-	
-		if not servers then
-			return nil
+		-- choose a random server and join every 2 minutes
+		while wait(time_to_wait) do
+			--freeze player before teleporting to prevent synapse crash?
+			Player.Character.HumanoidRootPart.Anchored = true
+			local Servers = ListServers()
+			local Server = Servers.data[math.random(1,#Servers.data)]
+			TPS:TeleportToPlaceInstance(_place, Server.id, Player)
 		end
-	
-		local lowestPingServer = servers[1]
-	
-		for _, server in pairs(servers) do
-			if server["ping"] < lowestPingServer["ping"] and server.maxPlayers > server.playing then
-				lowestPingServer = server
-			end
-		end
-	
-		return lowestPingServer
-	end
-	
-	button.MouseButton1Click:Connect(function()
-		print("Finding low ping server...")
-	
-		local lowestPingServer = findLowestPingServer()
-		if not lowestPingServer then
-			print("No available server found.")
-			return
-		end
-	
-		task.wait(5)
-	
-		local pingThreshold = 200
-		local serverStats = StatsService.Network.ServerStatsItem
-		local dataPing = serverStats["Data Ping"]:GetValueString()
-		local pingValue = tonumber(dataPing:match("(%d+)"))
-	
-		if pingValue and pingValue >= pingThreshold then
-			print("High ping detected, teleporting...")
-			TeleportService:TeleportToPlaceInstance(game.PlaceId, lowestPingServer.id)
-		else
-			print("Ping is good, staying on current server.")
-		end
-	
-		print("Done!")
 	end)
-
 end;
 task.spawn(C_69);
 -- StarterGui.ScreenGui.outline.main.ContainerFrame.PlayerTab.ScrollingFrame.fly.button.LocalScript
@@ -5331,6 +5301,7 @@ local script = G2L["c5"];
 	local button = script.Parent
 	local espEnabled = false
 	local gunConn
+	local Notify = require(script:FindFirstAncestorOfClass("ScreenGui"):WaitForChild("NotifyModule"))
 	
 	local function AddGunESP(obj)
 		local hl = Instance.new("Highlight")
@@ -5351,19 +5322,24 @@ local script = G2L["c5"];
 	
 	button.MouseButton1Click:Connect(function()
 		espEnabled = not espEnabled
+	
 		if espEnabled then
+			Notify:Notify("ESP GunDrop: ON")
 			RemoveGunESP()
+	
 			for _, d in pairs(workspace:GetDescendants()) do
 				if d.Name == "GunDrop" then
 					AddGunESP(d)
 				end
 			end
+	
 			gunConn = workspace.DescendantAdded:Connect(function(obj)
 				if obj.Name == "GunDrop" then
 					AddGunESP(obj)
 				end
 			end)
 		else
+			Notify:Notify("ESP GunDrop: OFF")
 			if gunConn then gunConn:Disconnect() end
 			RemoveGunESP()
 		end
@@ -6090,6 +6066,7 @@ local script = G2L["124"];
 	local Players = game:GetService("Players")
 	local LocalPlayer = Players.LocalPlayer
 	local PlayerGui = LocalPlayer:WaitForChild("PlayerGui")
+	local Notify = require(script:FindFirstAncestorOfClass("ScreenGui"):WaitForChild("NotifyModule"))
 	
 	-- Tạo ScreenCover 1 lần
 	local function createScreenCover()
@@ -6179,11 +6156,7 @@ local script = G2L["124"];
 			createScreenCover()
 			flingUntilDead(target)
 		else
-			game.StarterGui:SetCore("SendNotification", {
-				Title = "❌ Not Found",
-				Text = "No Murder found!",
-				Duration = 3
-			})
+			Notify:Notify("Murder not found!")
 		end
 	end)
 end;
