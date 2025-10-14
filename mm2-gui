@@ -4882,39 +4882,59 @@ local function C_b3()
 local script = G2L["b3"];
 	-- LocalScript đặt dưới button "MurdererESPButton"
 	local button = script.Parent
-	local LocalPlayer = game.Players.LocalPlayer
+	local Players = game:GetService("Players")
+	local LocalPlayer = Players.LocalPlayer
+	local CoreGui = game:GetService("CoreGui")
+	local Notify = require(script:FindFirstAncestorOfClass("ScreenGui"):WaitForChild("NotifyModule"))
+	
 	local espActive = false
 	local espObjects = {}
 	
-	local function removeESP()
-		for _, objs in pairs(espObjects) do
-			for _, obj in pairs(objs) do
-				if obj then obj:Destroy() end
+	-- 🧹 Xóa ESP của 1 người
+	local function removeESP(plr)
+		if espObjects[plr] then
+			for _, obj in ipairs(espObjects[plr]) do
+				obj:Destroy()
 			end
+			espObjects[plr] = nil
 		end
-		espObjects = {}
 	end
 	
-	local function addESP(character)
-		if not character or not character:FindFirstChild("HumanoidRootPart") then return end
-		if espObjects[character] then return end
+	-- 🧹 Xóa tất cả ESP
+	local function removeAllESP()
+		for _, objs in pairs(espObjects) do
+			for _, obj in ipairs(objs) do
+				obj:Destroy()
+			end
+		end
+		table.clear(espObjects)
+	end
+	
+	-- 🎯 Tạo ESP cho Murderer
+	local function addESP(plr)
+		if not plr.Character or espObjects[plr] then return end
+		local char = plr.Character
+		local hrp = char:FindFirstChild("HumanoidRootPart")
+		if not hrp then return end
 	
 		local color = Color3.fromRGB(255, 0, 0)
+	
 		local highlight = Instance.new("Highlight")
-		highlight.Adornee = character
+		highlight.Adornee = char
 		highlight.FillColor = color
 		highlight.OutlineColor = color
-		highlight.Parent = game.CoreGui
+		highlight.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+		highlight.Parent = CoreGui
 	
 		local billboard = Instance.new("BillboardGui")
-		billboard.Adornee = character:FindFirstChild("Head") or character:FindFirstChild("HumanoidRootPart")
-		billboard.Size = UDim2.new(0,100,0,40)
-		billboard.StudsOffset = Vector3.new(0,3,0)
+		billboard.Adornee = char:FindFirstChild("Head") or hrp
+		billboard.Size = UDim2.new(0, 100, 0, 40)
+		billboard.StudsOffset = Vector3.new(0, 3, 0)
 		billboard.AlwaysOnTop = true
-		billboard.Parent = game.CoreGui
+		billboard.Parent = CoreGui
 	
 		local text = Instance.new("TextLabel")
-		text.Size = UDim2.new(1,0,1,0)
+		text.Size = UDim2.new(1, 0, 1, 0)
 		text.BackgroundTransparency = 1
 		text.Text = "Murderer"
 		text.TextColor3 = color
@@ -4922,70 +4942,148 @@ local script = G2L["b3"];
 		text.TextScaled = true
 		text.Parent = billboard
 	
-		espObjects[character] = {highlight, billboard}
+		espObjects[plr] = {highlight, billboard}
 	end
 	
+	-- 🔍 Kiểm tra người chơi có Knife không
+	local function hasKnife(plr)
+		if not plr.Character then return false end
+		local bp = plr:FindFirstChild("Backpack")
+		return (bp and bp:FindFirstChild("Knife")) or plr.Character:FindFirstChild("Knife")
+	end
+	
+	-- 🔄 Cập nhật ESP khi có thay đổi
+	local function updateESP()
+		if not espActive then return end
+	
+		local murderers = {}
+		for _, plr in ipairs(Players:GetPlayers()) do
+			if plr ~= LocalPlayer and hasKnife(plr) then
+				table.insert(murderers, plr)
+				if not espObjects[plr] then
+					addESP(plr)
+				end
+			end
+		end
+	
+		-- ❌ Nếu không ai có Knife → xóa hết ESP
+		if #murderers == 0 then
+			removeAllESP()
+		else
+			-- Xóa ESP của ai không còn Knife nữa
+			for plr, _ in pairs(espObjects) do
+				if not table.find(murderers, plr) then
+					removeESP(plr)
+				end
+			end
+		end
+	end
+	
+	-- 👀 Theo dõi khi người chơi thay đổi trạng thái
+	local function trackPlayer(plr)
+		if plr == LocalPlayer then return end
+	
+		plr.CharacterAdded:Connect(function()
+			task.wait(0.5)
+			updateESP()
+		end)
+	
+		plr.CharacterRemoving:Connect(function()
+			removeESP(plr)
+			updateESP()
+		end)
+	
+		-- Theo dõi Backpack (nhặt hoặc bỏ Knife)
+		local bp = plr:WaitForChild("Backpack")
+		bp.ChildAdded:Connect(function(item)
+			if item.Name == "Knife" then updateESP() end
+		end)
+		bp.ChildRemoved:Connect(function(item)
+			if item.Name == "Knife" then updateESP() end
+		end)
+	end
+	
+	-- 🟢 Toggle Button
 	button.MouseButton1Click:Connect(function()
 		espActive = not espActive
 		if espActive then
-			print("Murderer ESP ON")
-			task.spawn(function()
-				while espActive do
-					removeESP()
-					for _,plr in pairs(game.Players:GetPlayers()) do
-						if plr ~= LocalPlayer and plr.Character then
-							local bp = plr:FindFirstChild("Backpack")
-							if (bp and bp:FindFirstChild("Knife")) or plr.Character:FindFirstChild("Knife") then
-								addESP(plr.Character)
-							end
-						end
-					end
-					task.wait(1)
-				end
-				removeESP()
+			Notify:Notify("Murderer ESP ON")
+			for _, plr in ipairs(Players:GetPlayers()) do
+				trackPlayer(plr)
+			end
+			updateESP()
+	
+			Players.PlayerAdded:Connect(function(plr)
+				trackPlayer(plr)
+				updateESP()
 			end)
+	
 		else
-			print("Murderer ESP OFF")
-			removeESP()
+			Notify:Notify("Murderer ESP OFF")
+			removeAllESP()
 		end
 	end)
-	
 end;
 task.spawn(C_b3);
 -- StarterGui.ScreenGui.outline.main.ContainerFrame.ESPTab.ScrollingFrame.espSheriff.button.sheriff
 local function C_b9()
 local script = G2L["b9"];
+	-- LocalScript trong GUI Button "SheriffButton"
 	local button = script.Parent
-	local LocalPlayer = game.Players.LocalPlayer
+	local Players = game:GetService("Players")
+	local LocalPlayer = Players.LocalPlayer
+	local CoreGui = game:GetService("CoreGui")
+	local Notify = require(script:FindFirstAncestorOfClass("ScreenGui"):WaitForChild("NotifyModule"))
+	
 	local espActive = false
 	local espObjects = {}
 	
-	local function removeESP()
-		for _, objs in pairs(espObjects) do
-			for _, obj in pairs(objs) do
-				if obj then obj:Destroy() end
+	-- 🧹 Xóa ESP của 1 người
+	local function removeESP(plr)
+		if espObjects[plr] then
+			for _, obj in ipairs(espObjects[plr]) do
+				obj:Destroy()
 			end
+			espObjects[plr] = nil
 		end
-		espObjects = {}
 	end
 	
-	local function addESP(character)
-		local color = Color3.fromRGB(0,170,255)
+	-- 🧹 Xóa tất cả ESP
+	local function removeAllESP()
+		for _, objs in pairs(espObjects) do
+			for _, obj in ipairs(objs) do
+				obj:Destroy()
+			end
+		end
+		table.clear(espObjects)
+	end
+	
+	-- 🎯 Tạo ESP cho Sheriff
+	local function addESP(plr)
+		if not plr.Character or espObjects[plr] then return end
+		local char = plr.Character
+		local hrp = char:FindFirstChild("HumanoidRootPart")
+		if not hrp then return end
+	
+		local color = Color3.fromRGB(0, 170, 255)
+	
 		local highlight = Instance.new("Highlight")
-		highlight.Adornee = character
+		highlight.Adornee = char
 		highlight.FillColor = color
 		highlight.OutlineColor = color
-		highlight.Parent = game.CoreGui
+		highlight.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+		highlight.FillTransparency = 0.5
+		highlight.Parent = CoreGui
 	
 		local billboard = Instance.new("BillboardGui")
-		billboard.Adornee = character:FindFirstChild("Head") or character:FindFirstChild("HumanoidRootPart")
-		billboard.Size = UDim2.new(0,100,0,40)
-		billboard.StudsOffset = Vector3.new(0,3,0)
+		billboard.Adornee = char:FindFirstChild("Head") or hrp
+		billboard.Size = UDim2.new(0, 100, 0, 40)
+		billboard.StudsOffset = Vector3.new(0, 3, 0)
 		billboard.AlwaysOnTop = true
-		billboard.Parent = game.CoreGui
+		billboard.Parent = CoreGui
 	
 		local text = Instance.new("TextLabel")
-		text.Size = UDim2.new(1,0,1,0)
+		text.Size = UDim2.new(1, 0, 1, 0)
 		text.BackgroundTransparency = 1
 		text.Text = "Sheriff"
 		text.TextColor3 = color
@@ -4993,31 +5091,85 @@ local script = G2L["b9"];
 		text.TextScaled = true
 		text.Parent = billboard
 	
-		espObjects[character] = {highlight, billboard}
+		espObjects[plr] = {highlight, billboard}
 	end
 	
+	-- 🔍 Kiểm tra player có Gun không
+	local function hasGun(plr)
+		if not plr.Character then return false end
+		local bp = plr:FindFirstChild("Backpack")
+		return (bp and bp:FindFirstChild("Gun")) or plr.Character:FindFirstChild("Gun")
+	end
+	
+	-- 🔄 Cập nhật ESP theo trạng thái Gun
+	local function updateESP()
+		if not espActive then return end
+	
+		local gunHolders = {}
+		for _, plr in ipairs(Players:GetPlayers()) do
+			if plr ~= LocalPlayer and hasGun(plr) then
+				table.insert(gunHolders, plr)
+				if not espObjects[plr] then
+					addESP(plr)
+				end
+			end
+		end
+	
+		-- Nếu không ai có súng thì xoá hết ESP
+		if #gunHolders == 0 then
+			removeAllESP()
+		else
+			-- Xóa ESP của ai không còn cầm súng nữa
+			for plr, _ in pairs(espObjects) do
+				if not table.find(gunHolders, plr) then
+					removeESP(plr)
+				end
+			end
+		end
+	end
+	
+	-- 🧠 Theo dõi player thay đổi
+	local function trackPlayer(plr)
+		if plr == LocalPlayer then return end
+	
+		plr.CharacterAdded:Connect(function()
+			plr.Character:WaitForChild("HumanoidRootPart", 5)
+			task.wait(0.2)
+			updateESP()
+		end)
+	
+		plr.CharacterRemoving:Connect(function()
+			removeESP(plr)
+			updateESP()
+		end)
+	
+		plr.Backpack.ChildAdded:Connect(function(item)
+			if item.Name == "Gun" then updateESP() end
+		end)
+		plr.Backpack.ChildRemoved:Connect(function(item)
+			if item.Name == "Gun" then updateESP() end
+		end)
+	end
+	
+	-- 🟢 Toggle Button
 	button.MouseButton1Click:Connect(function()
 		espActive = not espActive
 		if espActive then
-			print("Sheriff ESP ON")
-			task.spawn(function()
-				while espActive do
-					removeESP()
-					for _,plr in pairs(game.Players:GetPlayers()) do
-						if plr ~= LocalPlayer and plr.Character then
-							local bp = plr:FindFirstChild("Backpack")
-							if (bp and bp:FindFirstChild("Gun")) or plr.Character:FindFirstChild("Gun") then
-								addESP(plr.Character)
-							end
-						end
-					end
-					task.wait(1)
-				end
-				removeESP()
+			Notify:Notify("Sheriff ESP ON")
+	
+			for _, plr in ipairs(Players:GetPlayers()) do
+				trackPlayer(plr)
+			end
+	
+			updateESP()
+			Players.PlayerAdded:Connect(function(plr)
+				trackPlayer(plr)
+				updateESP()
 			end)
+	
 		else
-			print("Sheriff ESP OFF")
-			removeESP()
+			Notify:Notify("Sheriff ESP OFF")
+			removeAllESP()
 		end
 	end)
 	
@@ -5030,55 +5182,34 @@ local script = G2L["bf"];
 	local button = script.Parent
 	local Players = game:GetService("Players")
 	local LocalPlayer = Players.LocalPlayer
-	local workspace = game:GetService("Workspace")
+	local CoreGui = game:GetService("CoreGui")
+	local Notify = require(script:FindFirstAncestorOfClass("ScreenGui"):WaitForChild("NotifyModule"))
 	
-	-- ESP Container
-	local espInnocent = {}
 	local InnocentColor = Color3.fromRGB(0, 255, 0)
-	local LobbyModel = workspace:WaitForChild("Lobby")
+	local InnocentESPEnabled = false
+	local espInnocent = {}
 	
-	-- Function: kiểm tra có trong Lobby không
-	local function IsInLobby()
-		local character = LocalPlayer.Character
-		if not character then return false end
-		local hrp = character:FindFirstChild("HumanoidRootPart")
-		if not hrp then return false end
-	
-		local rayParams = RaycastParams.new()
-		rayParams.FilterDescendantsInstances = {character}
-		rayParams.FilterType = Enum.RaycastFilterType.Blacklist
-	
-		local result = workspace:Raycast(hrp.Position, Vector3.new(0, -6, 0), rayParams)
-		if result and result.Instance then
-			local ancestor = result.Instance:FindFirstAncestorWhichIsA("Model")
-			while ancestor do
-				if ancestor == LobbyModel then return true end
-				ancestor = ancestor.Parent
-			end
-		end
-		return false
-	
-	end
-	
-	local function AddESP(character)
-		if not character or espInnocent[character] then return end
-		local hrp = character:FindFirstChild("HumanoidRootPart")
+	-- 🟩 Tạo ESP cho người chơi
+	local function AddESP(plr)
+		if not plr.Character or espInnocent[plr] then return end
+		local char = plr.Character
+		local hrp = char:FindFirstChild("HumanoidRootPart")
 		if not hrp then return end
 	
 		local highlight = Instance.new("Highlight")
-		highlight.Adornee = character
+		highlight.Adornee = char
 		highlight.FillColor = InnocentColor
 		highlight.OutlineColor = InnocentColor
 		highlight.FillTransparency = 0.5
 		highlight.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
-		highlight.Parent = game.CoreGui
+		highlight.Parent = CoreGui
 	
 		local billboard = Instance.new("BillboardGui")
-		billboard.Adornee = character:FindFirstChild("Head") or hrp
+		billboard.Adornee = char:FindFirstChild("Head") or hrp
 		billboard.Size = UDim2.new(0, 100, 0, 40)
 		billboard.StudsOffset = Vector3.new(0, 3, 0)
 		billboard.AlwaysOnTop = true
-		billboard.Parent = game.CoreGui
+		billboard.Parent = CoreGui
 	
 		local text = Instance.new("TextLabel")
 		text.Size = UDim2.new(1, 0, 1, 0)
@@ -5089,48 +5220,91 @@ local script = G2L["bf"];
 		text.BackgroundTransparency = 1
 		text.Parent = billboard
 	
-		espInnocent[character] = {highlight, billboard}
-	
+		espInnocent[plr] = {highlight, billboard}
 	end
 	
-	-- Function: xóa ESP
-	local function RemoveAllESP()
-		for char, objs in pairs(espInnocent) do
-			for _, obj in ipairs(objs) do
-				if obj then obj:Destroy() end
+	-- 🔴 Xóa ESP
+	local function RemoveESP(plr)
+		if espInnocent[plr] then
+			for _, obj in ipairs(espInnocent[plr]) do
+				obj:Destroy()
 			end
+			espInnocent[plr] = nil
 		end
-		espInnocent = {}
+	end
+	
+	-- 🧠 Kiểm tra có phải Innocent
+	local function IsInnocent(plr)
+		if not plr.Character then return false end
+		local bp, char = plr:FindFirstChild("Backpack"), plr.Character
+		local hasKnife = (bp and bp:FindFirstChild("Knife")) or (char:FindFirstChild("Knife"))
+		local hasGun = (bp and bp:FindFirstChild("Gun")) or (char:FindFirstChild("Gun"))
+		return not (hasKnife or hasGun)
+	end
+	
+	-- 🌀 Cập nhật ESP cho player
+	local function UpdateESP(plr)
+		if InnocentESPEnabled then
+			if IsInnocent(plr) then
+				if not espInnocent[plr] then
+					AddESP(plr)
+				end
+			else
+				if espInnocent[plr] then
+					RemoveESP(plr)
+				end
+			end
+		else
+			RemoveESP(plr)
+		end
+	end
+	
+	-- 🔄 Theo dõi thay đổi của mỗi player
+	local function TrackPlayer(plr)
+		plr.CharacterAdded:Connect(function()
+			plr.Character:WaitForChild("HumanoidRootPart", 5)
+			task.wait(0.2)
+			UpdateESP(plr)
+		end)
+		plr.CharacterRemoving:Connect(function()
+			RemoveESP(plr)
+		end)
+	
+		-- Khi người chơi nhặt/đánh rơi tool
+		plr.Backpack.ChildAdded:Connect(function()
+			UpdateESP(plr)
+		end)
+		plr.Backpack.ChildRemoved:Connect(function()
+			UpdateESP(plr)
+		end)
 	end
 	
 	-- Toggle logic
-	local InnocentESPEnabled = false
-	
 	button.MouseButton1Click:Connect(function()
 		InnocentESPEnabled = not InnocentESPEnabled
 		if InnocentESPEnabled then
-			print("Innocent ESP ON")
-			task.spawn(function()
-				while InnocentESPEnabled do
-					if IsInLobby() then
-						RemoveAllESP()
-					else
-						for _, plr in ipairs(Players:GetPlayers()) do
-							if plr ~= LocalPlayer and plr.Character then
-								local bp, char = plr:FindFirstChild("Backpack"), plr.Character
-								if not ((bp and (bp:FindFirstChild("Knife") or bp:FindFirstChild("Gun"))) or
-									(char and (char:FindFirstChild("Knife") or char:FindFirstChild("Gun")))) then
-									AddESP(plr.Character)
-								end
-							end
-						end
-					end
-					task.wait(1)
+			Notify:Notify("Innocent ESP ON")
+	
+			-- Gán event cho tất cả người chơi hiện có
+			for _, plr in ipairs(Players:GetPlayers()) do
+				if plr ~= LocalPlayer then
+					TrackPlayer(plr)
+					UpdateESP(plr)
+				end
+			end
+	
+			-- Khi có người mới vào
+			Players.PlayerAdded:Connect(function(plr)
+				if plr ~= LocalPlayer then
+					TrackPlayer(plr)
+					UpdateESP(plr)
 				end
 			end)
 		else
-			print("Innocent ESP OFF")
-			RemoveAllESP()
+			Notify:Notify("Innocent ESP OFF")
+			for _, plr in ipairs(Players:GetPlayers()) do
+				RemoveESP(plr)
+			end
 		end
 	end)
 	
@@ -5186,58 +5360,110 @@ task.spawn(C_c5);
 -- StarterGui.ScreenGui.outline.main.ContainerFrame.ESPTab.ScrollingFrame.NotifyMurdSheriff.button.notify
 local function C_cb()
 local script = G2L["cb"];
-	
 	local button = script.Parent
 	local Players = game:GetService("Players")
 	local LocalPlayer = Players.LocalPlayer
 	local PlayerGui = LocalPlayer:WaitForChild("PlayerGui")
-	local notifEnabled = false
+	local TweenService = game:GetService("TweenService")
+	local Notify = require(script:FindFirstAncestorOfClass("ScreenGui"):WaitForChild("NotifyModule"))
 	
+	local notifEnabled = false
+	local lastMurderer, lastSheriff = nil, nil
+	
+	-- 🧩 Hàm hiện thông báo
 	local function showNotif(player, role, color, yOffset)
+		-- Tạo GUI cho thông báo
 		local gui = Instance.new("ScreenGui")
-		gui.Name = "Notif_"..role
+		gui.Name = "Notif_" .. role
 		gui.Parent = PlayerGui
+		gui.IgnoreGuiInset = true
 	
 		local frame = Instance.new("Frame")
-		frame.Size = UDim2.new(0, 200, 0, 50)
-		frame.Position = UDim2.new(1, -220, 1, -yOffset)
+		frame.Size = UDim2.new(0, 220, 0, 60)
+		frame.Position = UDim2.new(1, -240, 1, -yOffset)
 		frame.BackgroundColor3 = color
+		frame.BackgroundTransparency = 1
+		frame.BorderSizePixel = 0
 		frame.Parent = gui
 	
+		-- Lấy avatar người chơi
+		local thumbType = Enum.ThumbnailType.HeadShot
+		local thumbSize = Enum.ThumbnailSize.Size100x100
+		local content = Players:GetUserThumbnailAsync(player.UserId, thumbType, thumbSize)
+	
+		local img = Instance.new("ImageLabel")
+		img.Size = UDim2.new(0, 50, 0, 50)
+		img.Position = UDim2.new(0, 5, 0.5, -25)
+		img.Image = content
+		img.BackgroundTransparency = 1
+		img.ImageTransparency = 1
+		img.Parent = frame
+	
+		local uicorner = Instance.new("UICorner")
+		uicorner.CornerRadius = UDim.new(1, 0)
+		uicorner.Parent = img
+	
 		local txt = Instance.new("TextLabel")
-		txt.Size = UDim2.new(1,0,1,0)
-		txt.Text = role..": "..player.Name
-		txt.TextColor3 = Color3.new(1,1,1)
+		txt.Size = UDim2.new(1, -65, 1, 0)
+		txt.Position = UDim2.new(0, 60, 0, 0)
+		txt.Text = role .. ": " .. player.Name
+		txt.TextColor3 = Color3.new(1, 1, 1)
 		txt.BackgroundTransparency = 1
+		txt.TextScaled = true
+		txt.Font = Enum.Font.GothamBold
+		txt.TextTransparency = 1
 		txt.Parent = frame
 	
-		task.delay(4, function()
-			if gui then gui:Destroy() end
-		end)
+		-- Animation hiện
+		TweenService:Create(frame, TweenInfo.new(0.3), {BackgroundTransparency = 0.15}):Play()
+		TweenService:Create(txt, TweenInfo.new(0.3), {TextTransparency = 0}):Play()
+		TweenService:Create(img, TweenInfo.new(0.3), {ImageTransparency = 0}):Play()
+	
+		-- Giữ 3 giây rồi ẩn
+		task.wait(3)
+		TweenService:Create(frame, TweenInfo.new(0.3), {BackgroundTransparency = 1}):Play()
+		TweenService:Create(txt, TweenInfo.new(0.3), {TextTransparency = 1}):Play()
+		TweenService:Create(img, TweenInfo.new(0.3), {ImageTransparency = 1}):Play()
+		task.wait(0.3)
+		gui:Destroy()
 	end
 	
+	-- 🧠 Hàm kiểm tra vai trò mới
+	local function checkRoles()
+		for _, plr in pairs(Players:GetPlayers()) do
+			if plr ~= LocalPlayer then
+				-- Murderer
+				if plr.Backpack:FindFirstChild("Knife") or (plr.Character and plr.Character:FindFirstChild("Knife")) then
+					if lastMurderer ~= plr then
+						lastMurderer = plr
+						showNotif(plr, "Murderer", Color3.fromRGB(200, 50, 50), 200)
+					end
+				end
+				-- Sheriff
+				if plr.Backpack:FindFirstChild("Gun") or (plr.Character and plr.Character:FindFirstChild("Gun")) then
+					if lastSheriff ~= plr then
+						lastSheriff = plr
+						showNotif(plr, "Sheriff", Color3.fromRGB(50, 100, 200), 140)
+					end
+				end
+			end
+		end
+	end
+	
+	-- 🖱 Khi nhấn nút bật / tắt
 	button.MouseButton1Click:Connect(function()
 		notifEnabled = not notifEnabled
 		if notifEnabled then
+			Notify:Notify("Notifications: ON")
 			task.spawn(function()
 				while notifEnabled do
-					for _, plr in pairs(Players:GetPlayers()) do
-						if plr ~= LocalPlayer then
-							if plr.Backpack:FindFirstChild("Knife") or (plr.Character and plr.Character:FindFirstChild("Knife")) then
-								showNotif(plr,"Murderer",Color3.fromRGB(200,50,50),200)
-							end
-							if plr.Backpack:FindFirstChild("Gun") or (plr.Character and plr.Character:FindFirstChild("Gun")) then
-								showNotif(plr,"Sheriff",Color3.fromRGB(50,100,200),140)
-							end
-						end
-					end
-					task.wait(6)
+					checkRoles()
+					task.wait(2) -- kiểm tra mỗi 2 giây để phát hiện thay đổi nhanh
 				end
 			end)
 		else
-			for _, gui in pairs(PlayerGui:GetChildren()) do
-				if gui.Name:find("Notif_") then gui:Destroy() end
-			end
+			Notify:Notify("Notifications: OFF")
+			lastMurderer, lastSheriff = nil, nil
 		end
 	end)
 	
@@ -5251,17 +5477,14 @@ local script = G2L["d1"];
 	local Workspace = game:GetService("Workspace")
 	local notifEnabled = false
 	local conn
+	local Notify = require(script:FindFirstAncestorOfClass("ScreenGui"):WaitForChild("NotifyModule"))
 	
 	button.MouseButton1Click:Connect(function()
 		notifEnabled = not notifEnabled
 		if notifEnabled then
 			conn = Workspace.DescendantAdded:Connect(function(d)
 				if d.Name == "GunDrop" then
-					game.StarterGui:SetCore("SendNotification",{
-						Title="Gun Dropped!",
-						Text="Go pick it up!",
-						Duration=3
-					})
+					Notify:Notify("Gun Drop Go Pick It!!")
 				end
 			end)
 		else
