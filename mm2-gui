@@ -4255,33 +4255,52 @@ task.spawn(C_66);
 -- StarterGui.ScreenGui.outline.main.ContainerFrame.InfoTab.Hop.LocalScript
 local function C_69()
 local script = G2L["69"];
-	local button = script.Parent
+	local HTTPService = game:GetService("HttpService")
+	local TeleportService = game:GetService("TeleportService")
+	local StatsService = game:GetService("Stats")
 	
-	button.MouseButton1Up:Connect(function()
-		local Player = game.Players.LocalPlayer
-		local Http = game:GetService("HttpService")
-		local TPS = game:GetService("TeleportService")
-		local Api = "https://games.roblox.com/v1/games/"
+	local function fetchServersData(placeId, limit)
+	    local url = string.format("https://games.roblox.com/v1/games/%d/servers/Public?limit=%d", placeId, limit)
+	    local success, response = pcall(function()
+	        return HTTPService:JSONDecode(game:HttpGet(url))
+	    end)
 	
-		local _place,_id = game.PlaceId, game.JobId
-		-- Asc for lowest player count, Desc for highest player count
-		local _servers = Api.._place.."/servers/Public?sortOrder=Asc&limit=10"
-		function ListServers(cursor)
-			local Raw = game:HttpGet(_servers .. ((cursor and "&cursor="..cursor) or ""))
-			return Http:JSONDecode(Raw)
-		end
+	    if success and response and response.data then
+	        return response.data
+	    end
 	
-		time_to_wait = 2 --seconds
+	    return nil
+	end
 	
-		-- choose a random server and join every 2 minutes
-		while wait(time_to_wait) do
-			--freeze player before teleporting to prevent synapse crash?
-			Player.Character.HumanoidRootPart.Anchored = true
-			local Servers = ListServers()
-			local Server = Servers.data[math.random(1,#Servers.data)]
-			TPS:TeleportToPlaceInstance(_place, Server.id, Player)
-		end
-	end)
+	local placeId = game.PlaceId
+	local serverLimit = 100
+	local servers = fetchServersData(placeId, serverLimit)
+	
+	if not servers then
+	    return
+	end
+	
+	local lowestPingServer = servers[1]
+	
+	for _, server in pairs(servers) do
+	    if server["ping"] < lowestPingServer["ping"] and server.maxPlayers > server.playing then
+	        lowestPingServer = server
+	    end
+	end
+	
+	local commonLoadTime = 5
+	task.wait(commonLoadTime)
+	
+	local pingThreshold = 100
+	local serverStats = StatsService.Network.ServerStatsItem
+	local dataPing = serverStats["Data Ping"]:GetValueString()
+	local pingValue = tonumber(dataPing:match("(%d+)"))
+	
+	if pingValue >= pingThreshold then
+	    TeleportService:TeleportToPlaceInstance(placeId, lowestPingServer.id)
+	else
+	   	-- Good ping
+	end
 end;
 task.spawn(C_69);
 -- StarterGui.ScreenGui.outline.main.ContainerFrame.PlayerTab.ScrollingFrame.fly.button.LocalScript
