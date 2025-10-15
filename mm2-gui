@@ -4228,6 +4228,7 @@ local script = G2L["5b"];
 		end
 	
 		if model.Name == "Lobby" or model:FindFirstAncestor("Lobby") then
+			Notify:Notify("You are in the Lobby")
 			return
 		end
 	
