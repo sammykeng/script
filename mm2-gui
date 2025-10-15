@@ -4181,7 +4181,6 @@ local script = G2L["5b"];
 	local LocalPlayer = Players.LocalPlayer
 	local Character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
 	local HumanoidRootPart = Character:WaitForChild("HumanoidRootPart")
-	local UserInputService = game:GetService("UserInputService")
 	local button = script.Parent
 	local Notify = require(script:FindFirstAncestorOfClass("ScreenGui"):WaitForChild("NotifyModule"))
 	
@@ -4199,17 +4198,16 @@ local script = G2L["5b"];
 	
 	-- Lấy model mà nhân vật đang đứng trên
 	local function getStandingModel()
-		local rayOrigin = HumanoidRootPart.Position + Vector3.new(0, 3, 0) -- bắn từ trên cao hơn đầu người
-		local rayDirection = Vector3.new(0, -10, 0) -- tăng khoảng cách ray xuống dưới
+		local rayOrigin = HumanoidRootPart.Position + Vector3.new(0, 3, 0)
+		local rayDirection = Vector3.new(0, -10, 0)
 		local raycastParams = RaycastParams.new()
 		raycastParams.FilterDescendantsInstances = {Character}
 		raycastParams.FilterType = Enum.RaycastFilterType.Blacklist
 	
 		local result = workspace:Raycast(rayOrigin, rayDirection, raycastParams)
 	
-		-- nếu không trúng gì, thử ray phụ ngắn hơn
 		if not result then
-			local altResult = workspace:Raycast(HumanoidRootPart.Position, Vector3.new(0, -5, 0), raycastParams)
+			local altResult = workspace:Raycast(HumanoidRootPart.Position, Vector3.new(0, -6, 0), raycastParams)
 			if altResult then
 				result = altResult
 			end
@@ -4218,7 +4216,6 @@ local script = G2L["5b"];
 		if result and result.Instance then
 			return getTopMostModel(result.Instance)
 		end
-	
 		return nil
 	end
 	
@@ -4230,20 +4227,20 @@ local script = G2L["5b"];
 			return
 		end
 	
-		-- Kiểm tra Lobby
 		if model.Name == "Lobby" or model:FindFirstAncestor("Lobby") then
 			return
 		end
 	
-		-- Teleport lên giữa và trên cùng model
 		local cf, size = model:GetBoundingBox()
 		local newPos = cf.Position + Vector3.new(0, size.Y / 2 + 3, 0)
-		HumanoidRootPart.CFrame = CFrame.new(newPos)
+	
+		-- Dịch chuyển nhân vật toàn bộ bằng PivotTo
+		Character:PivotTo(CFrame.new(newPos))
 		Notify:Notify("✅ Teleported To the Safe Room")
 	end
 	
 	button.MouseButton1Click:Connect(teleportUpIfNotLobby)
-	
+
 end;
 task.spawn(C_5b);
 -- StarterGui.ScreenGui.outline.main.ContainerFrame.InfoTab.Show
