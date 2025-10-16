@@ -6370,6 +6370,8 @@ local script = G2L["13c"];
 	local LocalPlayer = Players.LocalPlayer
 	local box = script.Parent
 	local RunService = game:GetService("RunService")
+	local Notify = require(script:FindFirstAncestorOfClass("ScreenGui"):WaitForChild("NotifyModule"))
+	
 	
 	-- Hàm tìm player theo tên (có hỗ trợ viết tắt)
 	local function getPlayerFromPartialName(name)
@@ -6405,30 +6407,30 @@ local script = G2L["13c"];
 		game.Debris:AddItem(bv, 0.1)
 	end
 	
-	-- Hàm tạo overlay đen
-	local function createOverlay()
-		local screenGui = Instance.new("ScreenGui")
-		screenGui.Name = "FlingOverlay"
-		screenGui.ResetOnSpawn = false
-		screenGui.Parent = LocalPlayer.PlayerGui
+	---- Hàm tạo overlay đen
+	--local function createOverlay()
+	--	local screenGui = Instance.new("ScreenGui")
+	--	screenGui.Name = "FlingOverlay"
+	--	screenGui.ResetOnSpawn = false
+	--	screenGui.Parent = LocalPlayer.PlayerGui
 	
-		local frame = Instance.new("Frame")
-		frame.Size = UDim2.new(1, 0, 1, 0)
-		frame.BackgroundColor3 = Color3.new(0, 0, 0)
-		frame.BackgroundTransparency = 0
-		frame.Parent = screenGui
+	--	local frame = Instance.new("Frame")
+	--	frame.Size = UDim2.new(1, 0, 1, 0)
+	--	frame.BackgroundColor3 = Color3.new(0, 0, 0)
+	--	frame.BackgroundTransparency = 0
+	--	frame.Parent = screenGui
 	
-		local label = Instance.new("TextLabel")
-		label.Size = UDim2.new(1, 0, 1, 0)
-		label.BackgroundTransparency = 1
-		label.Text = "Wait A bit, trying to fling.."
-		label.TextColor3 = Color3.new(1, 1, 1)
-		label.TextScaled = true
-		label.Font = Enum.Font.SourceSansBold
-		label.Parent = frame
+	--	local label = Instance.new("TextLabel")
+	--	label.Size = UDim2.new(1, 0, 1, 0)
+	--	label.BackgroundTransparency = 1
+	--	label.Text = "Wait A bit, trying to fling.."
+	--	label.TextColor3 = Color3.new(1, 1, 1)
+	--	label.TextScaled = true
+	--	label.Font = Enum.Font.SourceSansBold
+	--	label.Parent = frame
 	
-		return screenGui
-	end
+	--	return screenGui
+	--end
 	
 	-- Khi nhấn Enter trong TextBox
 	box.FocusLost:Connect(function(enterPressed)
@@ -6436,25 +6438,21 @@ local script = G2L["13c"];
 		local target = getPlayerFromPartialName(box.Text)
 		if target and target.Character and target.Character:FindFirstChild("Humanoid") then
 			-- tạo overlay
-			local overlay = createOverlay()
+			--local overlay = createOverlay()
 	
 			-- lặp fling cho tới khi target chết
 			local connection
 			connection = RunService.Heartbeat:Connect(function()
 				if not target.Character or not target.Character:FindFirstChild("Humanoid") then
 					-- target chết
-					if overlay then overlay:Destroy() end
+					--if overlay then overlay:Destroy() end
 					if connection then connection:Disconnect() end
 					return
 				end
 				flingTarget(target)
 			end)
 		else
-			game.StarterGui:SetCore("SendNotification", {
-				Title = "❌ Not Found",
-				Text = "No player named: " .. box.Text,
-				Duration = 3
-			})
+			Notify:Notify("No player named: " .. box.Text)		
 		end
 	end)
 end;
