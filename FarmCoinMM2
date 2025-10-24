@@ -1,0 +1,240 @@
+task.spawn(function()
+	local vu = game:GetService("VirtualUser")
+	local lp = game:GetService("Players").LocalPlayer
+	if getconnections then
+		for _, conn in pairs(getconnections(lp.Idled)) do
+			conn:Disable()
+		end
+	end
+	lp.Idled:Connect(function()
+		vu:CaptureController()
+		vu:ClickButton2(Vector2.new())
+	end)
+	print("[AntiAFK] ✅ Active")
+end)
+
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local TeleportService = game:GetService("TeleportService")
+local HttpService = game:GetService("HttpService")
+
+local Player = Players.LocalPlayer
+local Character = Player.Character or Player.CharacterAdded:Wait()
+local HumanoidRootPart = Character:WaitForChild("HumanoidRootPart")
+local PlayerGui = Player:WaitForChild("PlayerGui")
+
+local ORI_POS = Vector3.new(-4995.137, 308.962, -17.019)
+local FARM_ENABLED = true
+local FARM_RUNNING = false          -- <<--- debounce để chỉ 1 farm instance
+local NEARBY_RADIUS = 20
+local SPEED = 1
+local PLACE_ID = game.PlaceId
+local LAST_HOP = os.time()
+
+------------------------------------------------
+-- 🌍 Auto Server Hop (every 30 mins or low players)
+------------------------------------------------
+local function hopServer(reason)
+	print("⏭ Server Hop: " .. reason)
+	task.wait(2)
+
+	local success, servers = pcall(function()
+		return HttpService:JSONDecode(
+			game:HttpGet("https://games.roblox.com/v1/games/" .. PLACE_ID .. "/servers/Public?sortOrder=Asc&limit=100")
+		)
+	end)
+
+	if success and servers and servers.data then
+		local available = {}
+		for _, s in ipairs(servers.data) do
+			if s.playing < s.maxPlayers and s.id ~= game.JobId then
+				table.insert(available, s.id)
+			end
+		end
+		if #available > 0 then
+			local target = available[math.random(1, #available)]
+			TeleportService:TeleportToPlaceInstance(PLACE_ID, target, Player)
+		else
+			print("⚠️ No suitable server found — retrying later.")
+		end
+	else
+		print("⚠️ Failed to fetch server list.")
+	end
+end
+
+task.spawn(function()
+	while task.wait(60) do
+		local elapsed = os.time() - LAST_HOP
+		local playerCount = #Players:GetPlayers()
+
+		if playerCount <= 3 then
+			hopServer("Only " .. playerCount .. " players remain.")
+			LAST_HOP = os.time()
+		elseif elapsed >= 1800 then
+			hopServer("30 minutes elapsed.")
+			LAST_HOP = os.time()
+		end
+	end
+end)
+
+------------------------------------------------
+-- 🪙 Farm Logic (loop forever)
+------------------------------------------------
+local function isInRound()
+	local mainGui = PlayerGui:FindFirstChild("MainGUI")
+	if not mainGui then return false end
+	local gameGui = mainGui:FindFirstChild("Game")
+	if not gameGui then return false end
+	local earnedXP = gameGui:FindFirstChild("EarnedXP")
+	local timer = gameGui:FindFirstChild("Timer")
+	return (earnedXP and earnedXP.Visible) or (timer and timer.Visible)
+end
+
+local function findCoinContainer()
+	for _, model in ipairs(workspace:GetChildren()) do
+		if model:FindFirstChild("CoinContainer") then
+			local container = model.CoinContainer
+			if #container:GetChildren() > 0 then
+				for _, coin in ipairs(container:GetChildren()) do
+					if coin.Name == "Coin_Server" then
+						return container
+					end
+				end
+			end
+		end
+	end
+	return nil
+end
+
+local function resetCharacter()
+	print("💼 FullBag detected! Resetting character...")
+	if Player.Character then
+		Player.Character:BreakJoints()
+	end
+end
+
+local function isFullBag()
+	local mainGui = PlayerGui:FindFirstChild("MainGUI")
+	if not mainGui then return false end
+	local gameGui = mainGui:FindFirstChild("Game")
+	if not gameGui then return false end
+	local coinBags = gameGui:FindFirstChild("CoinBags")
+	if not coinBags then return false end
+	local frames = coinBags:FindFirstChild("Container") and coinBags.Container:GetChildren() or coinBags:GetChildren()
+	for _, frame in ipairs(frames) do
+		if frame:IsA("Frame") and frame:FindFirstChild("FullBagIcon") and frame.FullBagIcon.Visible then
+			return true
+		end
+	end
+	return false
+end
+
+local function getNearbyCoins(container, mainCoin)
+	local nearby = {}
+	if not container then return nearby end
+	for _, coin in ipairs(container:GetChildren()) do
+		if coin:IsA("BasePart") and coin ~= mainCoin then
+			local dist = (coin.Position - mainCoin.Position).Magnitude
+			if dist <= NEARBY_RADIUS then
+				table.insert(nearby, coin)
+			end
+		end
+	end
+	return nearby
+end
+
+local function startFarm()
+	if FARM_RUNNING then return end
+	FARM_RUNNING = true
+	print("🪙 startFarm: started")
+
+	if not isInRound() then
+		repeat task.wait(1) until isInRound()
+	end
+
+	local container
+	repeat
+		container = findCoinContainer()
+		if not container then task.wait(2) end
+	until container
+
+	while FARM_ENABLED do
+		if not Player.Character or not Player.Character:FindFirstChild("HumanoidRootPart") then
+			print("💀 Character missing — stopping farm loop.")
+			break
+		end
+
+		if not container or not container.Parent then
+			container = findCoinContainer()
+		end
+		if not container then
+			task.wait(1)
+			if not isInRound() then
+				print("🕹 Round ended.")
+				break
+			end
+			continue
+		end
+
+		if isFullBag() then
+			resetCharacter()
+			break -- 💡 break nhưng KHÔNG tắt FARM_ENABLED
+		end
+
+		if not isInRound() then
+			print("🕹 Round ended — waiting for next.")
+			break
+		end
+
+		local coins = container:GetChildren()
+		if #coins > 0 then
+			local hrp = Player.Character:FindFirstChild("HumanoidRootPart")
+			local mainCoin = coins[math.random(1, #coins)]
+			if hrp and mainCoin:IsA("BasePart") then
+				hrp.CFrame = CFrame.new(mainCoin.Position + Vector3.new(0, 5, 0))
+				task.wait(SPEED)
+				for _, coin in ipairs(getNearbyCoins(container, mainCoin)) do
+					if hrp and coin:IsA("BasePart") then
+						hrp.CFrame = CFrame.new(coin.Position + Vector3.new(0, 5, 0))
+						task.wait(SPEED)
+					end
+				end
+				if hrp then
+					hrp.CFrame = CFrame.new(ORI_POS)
+					task.wait(SPEED)
+				end
+			end
+		else
+			task.wait(1)
+		end
+
+		task.wait(0.25)
+	end
+
+	FARM_RUNNING = false
+	print("🪙 startFarm: stopped — waiting respawn/next round")
+end
+
+------------------------------------------------
+-- 🔁 Auto restart farm loop
+------------------------------------------------
+Player.CharacterAdded:Connect(function(char)
+	Character = char
+	HumanoidRootPart = char:WaitForChild("HumanoidRootPart")
+	task.wait(5)
+	if FARM_ENABLED then
+		task.spawn(startFarm)
+	end
+end)
+
+-- vòng loop chính đảm bảo farm luôn chạy
+task.spawn(function()
+	while true do
+		if not FARM_RUNNING and FARM_ENABLED and Player.Character and Player.Character:FindFirstChild("HumanoidRootPart") then
+			task.spawn(startFarm)
+		end
+		task.wait(5) -- check mỗi 5s
+	end
+end)
+
+print("🪙 Auto Farm started automatically and every 30 mins it will hop server to avoid getting kick from game")
