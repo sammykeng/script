@@ -3691,19 +3691,7 @@ G2L_MODULES[G2L["ba"]] = {
 			},
 			["Emote"] = {},
 		}
---[[
-{
-	walk: {string},
-	swimidle: {string},
-	swim: {string},
-	sit: {string},
-	run: {string},
-	jump: {string},
-	idle: {string},
-	fall: {string},
-	climb: {string}
-}
-]]
+
 		local System = script.Parent.System
 		local Settings = require(script.Parent.Settings)
 		local BundleAnimations = require(script.Parent.BundleAnimations)
