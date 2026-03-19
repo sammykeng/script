@@ -5562,7 +5562,7 @@ G2L_MODULES[G2L["fb"]] = {
 					WalkAnim = "http://www.roblox.com/asset/?id=10921283326",
 				},
 			},
-			["adidas Sports Animation Pack"] = {
+			["Adidas Sports Animation Pack"] = { -- changed name
 				run = {
 					RunAnim = "http://www.roblox.com/asset/?id=18537384940",
 				},
