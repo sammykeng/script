@@ -1,0 +1,142 @@
+-- LocalScript (đặt trong StarterPlayerScripts)
+
+local Players = game:GetService("Players")
+local player = Players.LocalPlayer
+local character = player.Character or player.CharacterAdded:Wait()
+local humanoid = character:WaitForChild("Humanoid", 10)
+
+-- Tạo ScreenGui
+local screenGui = Instance.new("ScreenGui")
+screenGui.Name = "AnimationIDDisplay"
+screenGui.ResetOnSpawn = false
+screenGui.Parent = player:WaitForChild("PlayerGui")
+
+-- Frame nền
+local mainFrame = Instance.new("Frame")
+mainFrame.Size = UDim2.new(0, 280, 0, 120)
+mainFrame.Position = UDim2.new(1, -300, 0, 30)
+mainFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 35)
+mainFrame.BorderSizePixel = 0
+mainFrame.BackgroundTransparency = 0.25
+mainFrame.Parent = screenGui
+
+local uiCorner = Instance.new("UICorner")
+uiCorner.CornerRadius = UDim.new(0, 10)
+uiCorner.Parent = mainFrame
+
+-- Asset ID label
+local assetLabel = Instance.new("TextLabel")
+assetLabel.Name = "AssetID"
+assetLabel.Size = UDim2.new(1, -20, 0, 40)
+assetLabel.Position = UDim2.new(0, 10, 0, 10)
+assetLabel.BackgroundTransparency = 1
+assetLabel.TextColor3 = Color3.fromRGB(200, 220, 255)
+assetLabel.TextStrokeTransparency = 0.6
+assetLabel.TextStrokeColor3 = Color3.fromRGB(0,0,0)
+assetLabel.Font = Enum.Font.Code
+assetLabel.TextSize = 16
+assetLabel.TextXAlignment = Enum.TextXAlignment.Left
+assetLabel.TextWrapped = true
+assetLabel.Text = "AssetId: (đang chờ...)"
+assetLabel.Parent = mainFrame
+
+-- Animation ID label
+local animLabel = Instance.new("TextLabel")
+animLabel.Name = "AnimationID"
+animLabel.Size = UDim2.new(1, -20, 0, 40)
+animLabel.Position = UDim2.new(0, 10, 0, 60)
+animLabel.BackgroundTransparency = 1
+animLabel.TextColor3 = Color3.fromRGB(180, 255, 200)
+animLabel.TextStrokeTransparency = 0.6
+animLabel.TextStrokeColor3 = Color3.fromRGB(0,0,0)
+animLabel.Font = Enum.Font.Code
+animLabel.TextSize = 16
+animLabel.TextXAlignment = Enum.TextXAlignment.Left
+animLabel.TextWrapped = true
+animLabel.Text = "AnimationId: (đang chờ...)"
+animLabel.Parent = mainFrame
+
+-- Hướng dẫn nhỏ
+local tipLabel = Instance.new("TextLabel")
+tipLabel.Size = UDim2.new(1, -20, 0, 20)
+tipLabel.Position = UDim2.new(0, 10, 1, -30)
+tipLabel.BackgroundTransparency = 1
+tipLabel.TextColor3 = Color3.fromRGB(150, 150, 170)
+tipLabel.Font = Enum.Font.SourceSans
+tipLabel.TextSize = 13
+tipLabel.Text = "Click để copy ID"
+tipLabel.TextXAlignment = Enum.TextXAlignment.Left
+tipLabel.Parent = mainFrame
+
+-- Hàm copy khi click
+local function makeCopyable(label)
+    label.Active = true  -- cho phép tương tác click
+    
+    label.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+            local text = label.Text
+            local id = text:match("rbxassetid://%d+")  -- lấy phần rbxassetid://...
+            
+            if id then
+                setclipboard(id)
+                -- Feedback: đổi màu tạm thời
+                local oldColor = label.TextColor3
+                label.TextColor3 = Color3.fromRGB(100, 255, 120)
+                label.Text = label.Text .. "  [COPIED!]"
+                task.wait(1.2)
+                label.TextColor3 = oldColor
+                label.Text = text  -- reset text
+            end
+        end
+    end)
+end
+
+makeCopyable(assetLabel)
+makeCopyable(animLabel)
+
+-- Cập nhật animation ID
+local function updateAnimationIds()
+    if not humanoid or not humanoid.Parent then return end
+    
+    local animator = humanoid:FindFirstChildOfClass("Animator")
+    if not animator then
+        animLabel.Text = "AnimationId: (không tìm thấy Animator)"
+        assetLabel.Text = "AssetId: —"
+        return
+    end
+    
+    local tracks = animator:GetPlayingAnimationTracks()
+    if #tracks == 0 then
+        animLabel.Text = "AnimationId: (không có animation đang chạy)"
+        assetLabel.Text = "AssetId: —"
+        return
+    end
+    
+    -- Lấy animation mới nhất
+    local track = tracks[#tracks]
+    local anim = track.Animation
+    
+    if anim and anim.AnimationId ~= "" then
+        local id = anim.AnimationId
+        animLabel.Text = "AnimationId: " .. id
+        assetLabel.Text = "AssetId: " .. id
+    else
+        animLabel.Text = "AnimationId: (không xác định)"
+        assetLabel.Text = "AssetId: —"
+    end
+end
+
+-- Event khi play animation mới
+humanoid.AnimationPlayed:Connect(updateAnimationIds)
+
+-- Update định kỳ (an toàn hơn vì đôi khi event miss)
+task.spawn(function()
+    while task.wait(1) do
+        updateAnimationIds()
+    end
+end)
+
+-- Update lần đầu sau khi load
+task.delay(1.5, updateAnimationIds)
+
+print("Animation ID Display đã load - click vào text để copy!")
