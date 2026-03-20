@@ -10,213 +10,213 @@ math.randomseed(tick())
 
 -- Helpers ------------------------------------------------
 local function normalizeArg(a)
-    -- convert Vector3 -> vector.create(...) if available (exploit environments)
-    local ok = false
-    if typeof and typeof(a) == "Vector3" then
-        ok = pcall(function() return vector.create end)
-        if ok then
-            local suc, v = pcall(vector.create, a.X, a.Y, a.Z)
-            if suc then return v end
-        end
-    end
-    return a
+	-- convert Vector3 -> vector.create(...) if available (exploit environments)
+	local ok = false
+	if typeof and typeof(a) == "Vector3" then
+		ok = pcall(function() return vector.create end)
+		if ok then
+			local suc, v = pcall(vector.create, a.X, a.Y, a.Z)
+			if suc then return v end
+		end
+	end
+	return a
 end
 
 local function safeFire(remote, ...)
-    if not remote then
-        warn("safeFire: remote is nil")
-        return
-    end
-    local args = {...}
-    for i = 1, #args do args[i] = normalizeArg(args[i]) end
-    local ok, err = pcall(function() remote:FireServer(unpack(args)) end)
-    if not ok then warn("safeFire failed:", err) end
+	if not remote then
+		warn("safeFire: remote is nil")
+		return
+	end
+	local args = {...}
+	for i = 1, #args do args[i] = normalizeArg(args[i]) end
+	local ok, err = pcall(function() remote:FireServer(unpack(args)) end)
+	if not ok then warn("safeFire failed:", err) end
 end
 
 local function safeInvoke(remote, ...)
-    if not remote then
-        warn("safeInvoke: remote is nil")
-        return nil
-    end
-    local args = {...}
-    for i = 1, #args do args[i] = normalizeArg(args[i]) end
-    local ok, res = pcall(function() return remote:InvokeServer(unpack(args)) end)
-    if not ok then
-        warn("safeInvoke failed:", res)
-        return nil
-    end
-    return res
+	if not remote then
+		warn("safeInvoke: remote is nil")
+		return nil
+	end
+	local args = {...}
+	for i = 1, #args do args[i] = normalizeArg(args[i]) end
+	local ok, res = pcall(function() return remote:InvokeServer(unpack(args)) end)
+	if not ok then
+		warn("safeInvoke failed:", res)
+		return nil
+	end
+	return res
 end
 
 local function requestReplicateToy(name)
-    local success, res = pcall(function()
-        local rems = ReplicatedStorage:WaitForChild("Remotes", 2)
-        if not rems then error("Remotes folder not found") end
-        local extras = rems:WaitForChild("Extras", 2)
-        if not extras then error("Extras not found") end
-        local replicate = extras:WaitForChild("ReplicateToy", 2)
-        if not replicate then error("ReplicateToy remote not found") end
-        return replicate:InvokeServer(name)
-    end)
-    if not success then
-        warn("requestReplicateToy failed:", res)
-        return false
-    end
-    return true
+	local success, res = pcall(function()
+		local rems = ReplicatedStorage:WaitForChild("Remotes", 2)
+		if not rems then error("Remotes folder not found") end
+		local extras = rems:WaitForChild("Extras", 2)
+		if not extras then error("Extras not found") end
+		local replicate = extras:WaitForChild("ReplicateToy", 2)
+		if not replicate then error("ReplicateToy remote not found") end
+		return replicate:InvokeServer(name)
+	end)
+	if not success then
+		warn("requestReplicateToy failed:", res)
+		return false
+	end
+	return true
 end
 
 -- Toy actions (you provided) ---------------------------
 local toyActions = {}
 
 toyActions["FakeBomb"] = function()
-    if not requestReplicateToy("FakeBomb") then return end
-    print("✅ Đã yêu cầu server spawn FakeBomb")
-    task.spawn(function()
-        for _ = 1, 50 do
-            task.wait(0.1)
-            local bomb = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("FakeBomb")
-            if bomb and bomb:FindFirstChild("Remote") then
-                print("📦 FakeBomb đã spawn")
-                task.wait(0.5)
-                local hrp = LocalPlayer.Character:WaitForChild("HumanoidRootPart")
-                local throwArgs = { hrp.CFrame * CFrame.new(0, 0, -2), 50 }
-                safeFire(bomb:FindFirstChild("Remote"), unpack(throwArgs))
-                print("💣 Đã ném FakeBomb")
-                break
-            end
-        end
-    end)
+	if not requestReplicateToy("FakeBomb") then return end
+	print("✅ Đã yêu cầu server spawn FakeBomb")
+	task.spawn(function()
+		for _ = 1, 50 do
+			task.wait(0.1)
+			local bomb = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("FakeBomb")
+			if bomb and bomb:FindFirstChild("Remote") then
+				print("📦 FakeBomb đã spawn")
+				task.wait(0.5)
+				local hrp = LocalPlayer.Character:WaitForChild("HumanoidRootPart")
+				local throwArgs = { hrp.CFrame * CFrame.new(0, 0, -2), 50 }
+				safeFire(bomb:FindFirstChild("Remote"), unpack(throwArgs))
+				print("💣 Đã ném FakeBomb")
+				break
+			end
+		end
+	end)
 end
 
 toyActions["BeachBall2023"] = function()
-    if not requestReplicateToy("BeachBall2023") then return end
-    print("✅ Đã yêu cầu server spawn BeachBall2023")
-    task.spawn(function()
-        for _ = 1, 50 do
-            task.wait(0.1)
-            local beachBall = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("BeachBall2023")
-            if beachBall then
-                print("🏐 BeachBall2023 đã spawn")
-                task.wait(0.5)
-                -- tìm remote trong nil instances (exploit-only)
-                local function getNil(name, class)
-                    if not getnilinstances then return nil end
-                    for _, v in next, getnilinstances() do
-                        if v.ClassName == class and v.Name == name then return v end
-                    end
-                end
-                local remote = getNil("Remote", "RemoteEvent")
-                if remote then
-                    local hrp = LocalPlayer.Character:WaitForChild("HumanoidRootPart")
-                    local targetPos = hrp.Position + hrp.CFrame.LookVector * 5
-                    safeFire(remote, Vector3.new(targetPos.X, targetPos.Y, targetPos.Z))
-                    print("🎯 Đã ném BeachBall2023")
-                else
-                    warn("❌ Không tìm thấy RemoteEvent cho BeachBall2023")
-                end
-                break
-            end
-        end
-    end)
+	if not requestReplicateToy("BeachBall2023") then return end
+	print("✅ Đã yêu cầu server spawn BeachBall2023")
+	task.spawn(function()
+		for _ = 1, 50 do
+			task.wait(0.1)
+			local beachBall = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("BeachBall2023")
+			if beachBall then
+				print("🏐 BeachBall2023 đã spawn")
+				task.wait(0.5)
+				-- tìm remote trong nil instances (exploit-only)
+				local function getNil(name, class)
+					if not getnilinstances then return nil end
+					for _, v in next, getnilinstances() do
+						if v.ClassName == class and v.Name == name then return v end
+					end
+				end
+				local remote = getNil("Remote", "RemoteEvent")
+				if remote then
+					local hrp = LocalPlayer.Character:WaitForChild("HumanoidRootPart")
+					local targetPos = hrp.Position + hrp.CFrame.LookVector * 5
+					safeFire(remote, Vector3.new(targetPos.X, targetPos.Y, targetPos.Z))
+					print("🎯 Đã ném BeachBall2023")
+				else
+					warn("❌ Không tìm thấy RemoteEvent cho BeachBall2023")
+				end
+				break
+			end
+		end
+	end)
 end
 
 toyActions["WaterBalloon2024"] = function()
-    if not requestReplicateToy("WaterBalloon2024") then return end
-    print("✅ Đã yêu cầu server spawn WaterBalloon2024")
-    task.spawn(function()
-        for _ = 1, 50 do
-            task.wait(0.1)
-            local balloon = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("WaterBalloon2024")
-            if balloon and balloon:FindFirstChild("Remote") then
-                print("💦 WaterBalloon2024 đã spawn")
-                task.wait(0.3)
-                local hrp = LocalPlayer.Character:WaitForChild("HumanoidRootPart")
-                local startPos = hrp.Position + hrp.CFrame.LookVector * 3
-                local endPos = startPos + Vector3.new(0, -3, 0)
-                safeFire(balloon:FindFirstChild("Remote"), startPos, endPos)
-                print("🎯 Đã ném WaterBalloon2024")
-                break
-            end
-        end
-    end)
+	if not requestReplicateToy("WaterBalloon2024") then return end
+	print("✅ Đã yêu cầu server spawn WaterBalloon2024")
+	task.spawn(function()
+		for _ = 1, 50 do
+			task.wait(0.1)
+			local balloon = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("WaterBalloon2024")
+			if balloon and balloon:FindFirstChild("Remote") then
+				print("💦 WaterBalloon2024 đã spawn")
+				task.wait(0.3)
+				local hrp = LocalPlayer.Character:WaitForChild("HumanoidRootPart")
+				local startPos = hrp.Position + hrp.CFrame.LookVector * 3
+				local endPos = startPos + Vector3.new(0, -3, 0)
+				safeFire(balloon:FindFirstChild("Remote"), startPos, endPos)
+				print("🎯 Đã ném WaterBalloon2024")
+				break
+			end
+		end
+	end)
 end
 
 toyActions["Fireflies"] = function()
-    if not requestReplicateToy("Fireflies") then return end
-    print("✅ Đã yêu cầu server spawn Fireflies")
-    task.spawn(function()
-        local char = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
-        local fireflies = char:WaitForChild("Fireflies", 5)
-        if fireflies then
-            local remote = fireflies:FindFirstChild("Remote")
-            if remote and remote:IsA("RemoteFunction") then
-                safeInvoke(remote, "Button1Down")
-                print("✨ Đã kích hoạt Fireflies")
-            else
-                warn("❌ Không tìm thấy RemoteFunction của Fireflies")
-            end
-        else
-            warn("❌ Không tìm thấy tool Fireflies")
-        end
-    end)
+	if not requestReplicateToy("Fireflies") then return end
+	print("✅ Đã yêu cầu server spawn Fireflies")
+	task.spawn(function()
+		local char = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
+		local fireflies = char:WaitForChild("Fireflies", 5)
+		if fireflies then
+			local remote = fireflies:FindFirstChild("Remote")
+			if remote and remote:IsA("RemoteFunction") then
+				safeInvoke(remote, "Button1Down")
+				print("✨ Đã kích hoạt Fireflies")
+			else
+				warn("❌ Không tìm thấy RemoteFunction của Fireflies")
+			end
+		else
+			warn("❌ Không tìm thấy tool Fireflies")
+		end
+	end)
 end
 
 toyActions["SandBucket2024"] = function()
-    if not requestReplicateToy("SandBucket2024") then return end
-    print("✅ Đã yêu cầu server spawn SandBucket2024")
-    task.spawn(function()
-        local char = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
-        local bucket = char:WaitForChild("SandBucket2024", 5)
-        if bucket then
-            -- collect candidate parts in Lobby build model
-            local allParts = {}
-            if workspace:FindFirstChild("Lobby") then
-                for _, obj in ipairs(workspace.Lobby:GetDescendants()) do
-                    if obj:IsA("BasePart") then table.insert(allParts, obj) end
-                end
-            else
-                for _, obj in ipairs(workspace:GetDescendants()) do
-                    if obj:IsA("BasePart") then table.insert(allParts, obj) end
-                end
-            end
-            if #allParts == 0 then warn("❌ Không tìm thấy part hợp lệ cho SandBucket2024"); return end
-            local targetPart = allParts[math.random(1, #allParts)]
-            local randomOffset = Vector3.new(math.random(-3,3), 0, math.random(-3,3))
-            local targetPos = targetPart.Position + randomOffset
-            local remote = bucket:FindFirstChildWhichIsA("RemoteEvent", true)
-            if remote then
-                safeFire(remote, targetPart, targetPos)
-                print(("🏖️ Đã sử dụng SandBucket2024 tại %s"):format(tostring(targetPos)))
-            else
-                warn("❌ Không tìm thấy RemoteEvent trong SandBucket2024")
-            end
-        else
-            warn("❌ Không tìm thấy tool SandBucket2024 trong nhân vật")
-        end
-    end)
+	if not requestReplicateToy("SandBucket2024") then return end
+	print("✅ Đã yêu cầu server spawn SandBucket2024")
+	task.spawn(function()
+		local char = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
+		local bucket = char:WaitForChild("SandBucket2024", 5)
+		if bucket then
+			-- collect candidate parts in Lobby build model
+			local allParts = {}
+			if workspace:FindFirstChild("Lobby") then
+				for _, obj in ipairs(workspace.Lobby:GetDescendants()) do
+					if obj:IsA("BasePart") then table.insert(allParts, obj) end
+				end
+			else
+				for _, obj in ipairs(workspace:GetDescendants()) do
+					if obj:IsA("BasePart") then table.insert(allParts, obj) end
+				end
+			end
+			if #allParts == 0 then warn("❌ Không tìm thấy part hợp lệ cho SandBucket2024"); return end
+			local targetPart = allParts[math.random(1, #allParts)]
+			local randomOffset = Vector3.new(math.random(-3,3), 0, math.random(-3,3))
+			local targetPos = targetPart.Position + randomOffset
+			local remote = bucket:FindFirstChildWhichIsA("RemoteEvent", true)
+			if remote then
+				safeFire(remote, targetPart, targetPos)
+				print(("🏖️ Đã sử dụng SandBucket2024 tại %s"):format(tostring(targetPos)))
+			else
+				warn("❌ Không tìm thấy RemoteEvent trong SandBucket2024")
+			end
+		else
+			warn("❌ Không tìm thấy tool SandBucket2024 trong nhân vật")
+		end
+	end)
 end
 
 toyActions["VolleyBall2025"] = function()
-    if not requestReplicateToy("VolleyBall2025") then return end
-    print("🏐 Đã yêu cầu server spawn VolleyBall2025")
-    task.spawn(function()
-        local char = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
-        local ball = char:WaitForChild("VolleyBall2025", 5)
-        if ball then
-            local hrp = char:WaitForChild("HumanoidRootPart")
-            local randomOffset = Vector3.new(math.random(-10,10), math.random(0,5), math.random(-10,10))
-            local targetPos = hrp.Position + randomOffset
-            local remote = ball:FindFirstChild("Remote")
-            if remote and remote:IsA("RemoteEvent") then
-                safeFire(remote, targetPos)
-                print(("✅ Đã ném VolleyBall2025 tới %s"):format(tostring(targetPos)))
-            else
-                warn("❌ Không tìm thấy RemoteEvent trong VolleyBall2025")
-            end
-        else
-            warn("❌ Không tìm thấy tool VolleyBall2025 trong nhân vật")
-        end
-    end)
+	if not requestReplicateToy("VolleyBall2025") then return end
+	print("🏐 Đã yêu cầu server spawn VolleyBall2025")
+	task.spawn(function()
+		local char = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
+		local ball = char:WaitForChild("VolleyBall2025", 5)
+		if ball then
+			local hrp = char:WaitForChild("HumanoidRootPart")
+			local randomOffset = Vector3.new(math.random(-10,10), math.random(0,5), math.random(-10,10))
+			local targetPos = hrp.Position + randomOffset
+			local remote = ball:FindFirstChild("Remote")
+			if remote and remote:IsA("RemoteEvent") then
+				safeFire(remote, targetPos)
+				print(("✅ Đã ném VolleyBall2025 tới %s"):format(tostring(targetPos)))
+			else
+				warn("❌ Không tìm thấy RemoteEvent trong VolleyBall2025")
+			end
+		else
+			warn("❌ Không tìm thấy tool VolleyBall2025 trong nhân vật")
+		end
+	end)
 end
 
 -- GUI + main logic -------------------------------------
@@ -225,178 +225,178 @@ local frame
 local toyListFrame
 
 local function printToys(toysFolder)
-    print("===== Toys In Backpack =====")
-    for _, item in ipairs(toysFolder:GetChildren()) do
-        print("- " .. item.Name)
-    end
+	print("===== Toys In Backpack =====")
+	for _, item in ipairs(toysFolder:GetChildren()) do
+		print("- " .. item.Name)
+	end
 end
 
 local function executeToyAction(toyName)
-    local fn = toyActions[toyName]
-    if fn then
-        local ok, err = pcall(fn)
-        if not ok then warn("Toy action errored:", err) end
-    else
-        -- fallback: try server replicate, else clone local toy
-        local ok = requestReplicateToy(toyName)
-        if ok then
-            print("Spawned toy via ReplicateToy:", toyName)
-        else
-            -- fallback to clone if exists in Backpack/Toys
-            local backpack = LocalPlayer:FindFirstChild("Backpack")
-            if backpack then
-                local toysFolder = backpack:FindFirstChild("Toys")
-                if toysFolder then
-                    local toy = toysFolder:FindFirstChild(toyName)
-                    if toy and toy:IsA("Tool") then
-                        local clone = toy:Clone()
-                        clone.Parent = LocalPlayer.Character
-                        print("Fallback clone spawned toy:", toyName)
-                    else
-                        warn("Không thể spawn toy:", toyName)
-                    end
-                end
-            end
-        end
-    end
+	local fn = toyActions[toyName]
+	if fn then
+		local ok, err = pcall(fn)
+		if not ok then warn("Toy action errored:", err) end
+	else
+		-- fallback: try server replicate, else clone local toy
+		local ok = requestReplicateToy(toyName)
+		if ok then
+			print("Spawned toy via ReplicateToy:", toyName)
+		else
+			-- fallback to clone if exists in Backpack/Toys
+			local backpack = LocalPlayer:FindFirstChild("Backpack")
+			if backpack then
+				local toysFolder = backpack:FindFirstChild("Toys")
+				if toysFolder then
+					local toy = toysFolder:FindFirstChild(toyName)
+					if toy and toy:IsA("Tool") then
+						local clone = toy:Clone()
+						clone.Parent = LocalPlayer.Character
+						print("Fallback clone spawned toy:", toyName)
+					else
+						warn("Không thể spawn toy:", toyName)
+					end
+				end
+			end
+		end
+	end
 end
 
 -- Fade util
 local function tweenFade(object, targetTransparency, duration)
-    for _, obj in ipairs(object:GetDescendants()) do
-        if obj:IsA("TextLabel") or obj:IsA("TextButton") or obj:IsA("TextBox") then
-            pcall(function()
-                TweenService:Create(obj, TweenInfo.new(duration), {
-                    TextTransparency = targetTransparency,
-                    BackgroundTransparency = targetTransparency
-                }):Play()
-            end)
-        elseif obj:IsA("Frame") or obj:IsA("ScrollingFrame") then
-            pcall(function()
-                TweenService:Create(obj, TweenInfo.new(duration), {
-                    BackgroundTransparency = targetTransparency
-                }):Play()
-            end)
-        end
-    end
-    pcall(function()
-        TweenService:Create(object, TweenInfo.new(duration), {
-            BackgroundTransparency = targetTransparency
-        }):Play()
-    end)
+	for _, obj in ipairs(object:GetDescendants()) do
+		if obj:IsA("TextLabel") or obj:IsA("TextButton") or obj:IsA("TextBox") then
+			pcall(function()
+				TweenService:Create(obj, TweenInfo.new(duration), {
+					TextTransparency = targetTransparency,
+					BackgroundTransparency = targetTransparency
+				}):Play()
+			end)
+		elseif obj:IsA("Frame") or obj:IsA("ScrollingFrame") then
+			pcall(function()
+				TweenService:Create(obj, TweenInfo.new(duration), {
+					BackgroundTransparency = targetTransparency
+				}):Play()
+			end)
+		end
+	end
+	pcall(function()
+		TweenService:Create(object, TweenInfo.new(duration), {
+			BackgroundTransparency = targetTransparency
+		}):Play()
+	end)
 end
 
 -- Input toggle
 UserInputService.InputBegan:Connect(function(input, gp)
-    if input.KeyCode == Enum.KeyCode.F and not UserInputService:GetFocusedTextBox() then
-        print("Người dùng đã nhấn F")
-        if frame then
-            guiVisible = not guiVisible
-            if guiVisible then
-                print("GUI đang hiện")
-                frame.Visible = true
-                tweenFade(frame, 0, 0.25)
-            else
-                print("GUI đang ẩn")
-                tweenFade(frame, 1, 0.25)
-                task.delay(0.25, function()
-                    if not guiVisible and frame then frame.Visible = false end
-                end)
-            end
-        end
-    end
+	if input.KeyCode == Enum.KeyCode.F and not UserInputService:GetFocusedTextBox() then
+		print("Người dùng đã nhấn F")
+		if frame then
+			guiVisible = not guiVisible
+			if guiVisible then
+				print("GUI đang hiện")
+				frame.Visible = true
+				tweenFade(frame, 0, 0.25)
+			else
+				print("GUI đang ẩn")
+				tweenFade(frame, 1, 0.25)
+				task.delay(0.25, function()
+					if not guiVisible and frame then frame.Visible = false end
+				end)
+			end
+		end
+	end
 end)
 
 -- Hàm cập nhật GUI toys dựa trên folder Toys mới
 local function updateToysGUI(toysFolder)
-    if not toyListFrame then return end
-    -- Xóa nút cũ
-    for _, child in ipairs(toyListFrame:GetChildren()) do
-        if child:IsA("TextButton") then
-            child:Destroy()
-        end
-    end
-    -- Tạo nút mới
-    for _, toy in ipairs(toysFolder:GetChildren()) do
-        if toy:IsA("Tool") then
-            local btn = Instance.new("TextButton")
-            btn.Size = UDim2.new(1,0,0,28)
-            btn.Text = toy.Name
-            btn.BackgroundColor3 = Color3.fromRGB(70,70,70)
-            btn.TextColor3 = Color3.new(1,1,1)
-            btn.Parent = toyListFrame
-            btn.MouseButton1Click:Connect(function()
-                print("Clicked toy:", toy.Name)
-                executeToyAction(toy.Name)
-            end)
-        end
-    end
+	if not toyListFrame then return end
+	-- Xóa nút cũ
+	for _, child in ipairs(toyListFrame:GetChildren()) do
+		if child:IsA("TextButton") then
+			child:Destroy()
+		end
+	end
+	-- Tạo nút mới
+	for _, toy in ipairs(toysFolder:GetChildren()) do
+		if toy:IsA("Tool") then
+			local btn = Instance.new("TextButton")
+			btn.Size = UDim2.new(1,0,0,28)
+			btn.Text = toy.Name
+			btn.BackgroundColor3 = Color3.fromRGB(70,70,70)
+			btn.TextColor3 = Color3.new(1,1,1)
+			btn.Parent = toyListFrame
+			btn.MouseButton1Click:Connect(function()
+				print("Clicked toy:", toy.Name)
+				executeToyAction(toy.Name)
+			end)
+		end
+	end
 end
 
 -- Sửa lại createGUI để dùng updateToysGUI
 local function createGUI(toysFolder)
-    local screenGui = Instance.new("ScreenGui")
-    screenGui.Name = "ToyDuplicatorGUI"
-    screenGui.ResetOnSpawn = false
-    screenGui.Parent = LocalPlayer:WaitForChild("PlayerGui")
+	local screenGui = Instance.new("ScreenGui")
+	screenGui.Name = "ToyDuplicatorGUI"
+	screenGui.ResetOnSpawn = false
+	screenGui.Parent = LocalPlayer:WaitForChild("PlayerGui")
 
-    frame = Instance.new("Frame")
-    frame.Size = UDim2.new(0, 300, 0, 260)
-    frame.Position = UDim2.new(0.4, 0, 0.3, 0)
-    frame.BackgroundColor3 = Color3.fromRGB(40,40,40)
-    frame.Active = true
-    frame.Draggable = true
-    frame.Parent = screenGui
+	frame = Instance.new("Frame")
+	frame.Size = UDim2.new(0, 300, 0, 260)
+	frame.Position = UDim2.new(0.4, 0, 0.3, 0)
+	frame.BackgroundColor3 = Color3.fromRGB(40,40,40)
+	frame.Active = true
+	frame.Draggable = true
+	frame.Parent = screenGui
 
-    local title = Instance.new("TextLabel", frame)
-    title.Size = UDim2.new(1,0,0,24)
-    title.Position = UDim2.new(0,0,0,0)
-    title.BackgroundColor3 = Color3.fromRGB(60,60,60)
-    title.Text = "Spawn Toy MM2 Script"
-    title.TextColor3 = Color3.new(1,1,1)
-    title.Font = Enum.Font.SourceSansBold
-    title.TextScaled = true
+	local title = Instance.new("TextLabel", frame)
+	title.Size = UDim2.new(1,0,0,24)
+	title.Position = UDim2.new(0,0,0,0)
+	title.BackgroundColor3 = Color3.fromRGB(60,60,60)
+	title.Text = "Spawn Toy MM2 Script"
+	title.TextColor3 = Color3.new(1,1,1)
+	title.Font = Enum.Font.SourceSansBold
+	title.TextScaled = true
 
-    toyListFrame = Instance.new("ScrollingFrame", frame)
-    toyListFrame.Position = UDim2.new(0,10,0,30)
-    toyListFrame.Size = UDim2.new(1,-20,1,-40)
-    toyListFrame.BackgroundColor3 = Color3.fromRGB(30,30,30)
-    toyListFrame.BorderSizePixel = 0
-    toyListFrame.ScrollBarThickness = 6
-    toyListFrame.CanvasSize = UDim2.new(0,0,0,0)
+	toyListFrame = Instance.new("ScrollingFrame", frame)
+	toyListFrame.Position = UDim2.new(0,10,0,30)
+	toyListFrame.Size = UDim2.new(1,-20,1,-40)
+	toyListFrame.BackgroundColor3 = Color3.fromRGB(30,30,30)
+	toyListFrame.BorderSizePixel = 0
+	toyListFrame.ScrollBarThickness = 6
+	toyListFrame.CanvasSize = UDim2.new(0,0,0,0)
 
-    local layout = Instance.new("UIListLayout", toyListFrame)
-    layout.SortOrder = Enum.SortOrder.LayoutOrder
-    layout.Padding = UDim.new(0,4)
-    layout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
-        toyListFrame.CanvasSize = UDim2.new(0,0,0, layout.AbsoluteContentSize.Y + 8)
-    end)
+	local layout = Instance.new("UIListLayout", toyListFrame)
+	layout.SortOrder = Enum.SortOrder.LayoutOrder
+	layout.Padding = UDim.new(0,4)
+	layout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+		toyListFrame.CanvasSize = UDim2.new(0,0,0, layout.AbsoluteContentSize.Y + 8)
+	end)
 
-    -- Kết nối sự kiện khi toysFolder thay đổi
-    toysFolder.ChildAdded:Connect(function() updateToysGUI(toysFolder) end)
-    toysFolder.ChildRemoved:Connect(function() updateToysGUI(toysFolder) end)
+	-- Kết nối sự kiện khi toysFolder thay đổi
+	toysFolder.ChildAdded:Connect(function() updateToysGUI(toysFolder) end)
+	toysFolder.ChildRemoved:Connect(function() updateToysGUI(toysFolder) end)
 
-    -- Tạo danh sách nút ban đầu
-    updateToysGUI(toysFolder)
+	-- Tạo danh sách nút ban đầu
+	updateToysGUI(toysFolder)
 end
 
 -- Setup ban đầu
 local function setup()
-    local backpack = LocalPlayer:WaitForChild("Backpack")
-    local toysFolder = backpack:WaitForChild("Toys")
-    printToys(toysFolder)
-    createGUI(toysFolder)
+	local backpack = LocalPlayer:WaitForChild("Backpack")
+	local toysFolder = backpack:WaitForChild("Toys")
+	printToys(toysFolder)
+	createGUI(toysFolder)
 end
 
 setup()
 
 -- Khi nhân vật thay đổi (reset hoặc spawn mới), cập nhật lại toysFolder và cập nhật GUI
 LocalPlayer.CharacterAdded:Connect(function()
-    task.wait(1)
-    local backpack = LocalPlayer:WaitForChild("Backpack")
-    local toysFolder = backpack:WaitForChild("Toys")
-    printToys(toysFolder)
-    updateToysGUI(toysFolder)
+	task.wait(1)
+	local backpack = LocalPlayer:WaitForChild("Backpack")
+	local toysFolder = backpack:WaitForChild("Toys")
+	printToys(toysFolder)
+	updateToysGUI(toysFolder)
 end)
 
 -- Bong bóng hình ảnh to dần, bật/tắt bằng phím L, có âm thanh
@@ -546,8 +546,8 @@ G2L["b"]["BackgroundTransparency"] = 1; -- Đảm bảo hiển thị màu nền
 local bgGradient = Instance.new("UIGradient", G2L["b"]);
 bgGradient.Rotation = 90; -- Chuyển màu từ trên xuống
 bgGradient.Color = ColorSequence.new({
-    ColorSequenceKeypoint.new(0, Color3.fromRGB(0, 200, 200)), -- Aqua Blue (trên cùng)
-    ColorSequenceKeypoint.new(1, Color3.fromRGB(0, 120, 160))  -- Ocean Blue (dưới cùng)
+	ColorSequenceKeypoint.new(0, Color3.fromRGB(0, 200, 200)), -- Aqua Blue (trên cùng)
+	ColorSequenceKeypoint.new(1, Color3.fromRGB(0, 120, 160))  -- Ocean Blue (dưới cùng)
 });
 
 -- Thêm UICorner cho khung GUI chính để làm mềm các góc
@@ -4092,19 +4092,7 @@ G2L_MODULES[G2L["ba"]] = {
 			},
 			["Emote"] = {},
 		}
---[[
-{
-	walk: {string},
-	swimidle: {string},
-	swim: {string},
-	sit: {string},
-	run: {string},
-	jump: {string},
-	idle: {string},
-	fall: {string},
-	climb: {string}
-}
-]]
+
 		local System = script.Parent.System
 		local Settings = require(script.Parent.Settings)
 		local BundleAnimations = require(script.Parent.BundleAnimations)
@@ -5133,9 +5121,8 @@ G2L_MODULES[G2L["ba"]] = {
 	end;
 };
 G2L_MODULES[G2L["fb"]] = {
-    Closure = function()
-        local script = G2L["fb"] -- add animation pack here
-        local BA_ = {
+	Closure = function()
+		local BA_ = {
 			["Catwalk Glam Animation"] = {
 				climb = {
 					ClimbAnim = "http://www.roblox.com/asset/?id=119377220967554",
@@ -5443,6 +5430,36 @@ G2L_MODULES[G2L["fb"]] = {
 				},
 				run = {
 					run = "http://www.roblox.com/asset/?id=3236836670",
+				},
+			},
+			["Adidas Aura Animation Package"] = {
+				climb = {
+					ClimbAnim = "rbxassetid://97824616490448",
+				},
+				fall = {
+					FallAnim = "rbxassetid://95603166884636",
+				},
+				jump = {
+					JumpAnim = "rbxassetid://109996626521204",
+				},
+				swim = {
+					Swim = "rbxassetid://134530128383903",
+				},
+				swimidle = {
+					SwimIdle = "rbxassetid://94922130551805",
+				},
+				idle = {
+					Animation2 = "rbxassetid://114191137265065",
+					Animation1 = "rbxassetid://110211186840347",
+				},
+				pose = {
+					StylishPose = "rbxassetid://99129837931148",
+				},
+				walk = {
+					walk = "rbxassetid://83842218823011",
+				},
+				run = {
+					run = "rbxassetid://118320322718866",
 				},
 			},
 			["NFL Animation Pack"] = {
@@ -5892,6 +5909,36 @@ G2L_MODULES[G2L["fb"]] = {
 					WalkAnim = "http://www.roblox.com/asset/?id=92072849924640",
 				},
 			},
+			["Amazon Unboxed Aniamtion Pack"] = {
+				climb = {
+					ClimbAnim = "rbxassetid://121145883950231",
+				},
+				fall = {
+					FallAnim = "rbxassetid://94788218468396",
+				},
+				jump = {
+					JumpAnim = "rbxassetid://121454505477205",
+				},
+				idle = {
+					Animation2 = "rbxassetid://138183121662404",
+					Animation1 = "rbxassetid://98281136301627",
+				},
+				pose = {
+					StylishPose = "rbxassetid://133117300343405",
+				},
+				run = {
+					RunAnim = "rbxassetid://134824450619865",
+				},
+				swim = {
+					Swim = "rbxassetid://105962919001086",
+				},
+				swimidle = {
+					SwimIdle = "rbxassetid://129126268464847",
+				},
+				walk = {
+					WalkAnim = "rbxassetid://90478085024465",
+				},
+			},
 			["No-Boundaries Animation"] = {
 				climb = {
 					ClimbAnim = "http://www.roblox.com/asset/?id=18747060903",
@@ -6160,34 +6207,64 @@ G2L_MODULES[G2L["fb"]] = {
 				},
 			},
 			["Adidas Community"] = {
-  				climb = {
-    				ClimbAnim = "rbxassetid://88763136693023",
-  				},
-  				fall = {
-   					FallAnim = "rbxassetid://98600215928904",
-  				},
-  				idle = {
-    				Animation2 = "rbxassetid://102357151005774",
-    				Animation1 = "rbxassetid://122257458498464",
- 				},
-				pose = {
-					StylishPose = "rbxassetid://89262795687364"--
+				climb = {
+					ClimbAnim = "rbxassetid://88763136693023",
 				},
-  				jump = {
-    				JumpAnim = "rbxassetid://75290611992385",--
-  				},
-  				run = {
-    				RunAnim = "rbxassetid://82598234841035",--
-  				},
-  				swim = {
-    				Swim = "rbxassetid://133308483266208",--
-  				},
-  				swimidle = {
-    				SwimIdle = "rbxassetid://109346520324160",--
-  				},
-  				walk = {
-  		  			WalkAnim = "rbxassetid://122150855457006",--
-  				},
+				fall = {
+					FallAnim = "rbxassetid://98600215928904",
+				},
+				idle = {
+					Animation2 = "rbxassetid://102357151005774",
+					Animation1 = "rbxassetid://122257458498464",
+				},
+				pose = {
+					StylishPose = "rbxassetid://89262795687364"
+				},
+				jump = {
+					JumpAnim = "rbxassetid://75290611992385",
+				},
+				run = {
+					RunAnim = "rbxassetid://82598234841035",
+				},
+				swim = {
+					Swim = "rbxassetid://133308483266208",--
+				},
+				swimidle = {
+					SwimIdle = "rbxassetid://109346520324160",
+				},
+				walk = {
+					WalkAnim = "rbxassetid://122150855457006",
+				},
+			},
+			["Glow Motion"] = {
+				climb = {
+					ClimbAnim = "rbxassetid://108236155509584",
+				},
+				fall = {
+					FallAnim = "rbxassetid://98070939608691",
+				},
+				idle = {
+					Animation2 = "rbxassetid://96439737641086",
+					Animation1 = "rbxassetid://137764781910579",
+				},
+				pose = {
+					StylishPose = "rbxassetid://131893941540791"
+				},
+				jump = {
+					JumpAnim = "rbxassetid://74159004634379",
+				},
+				run = {
+					RunAnim = "rbxassetid://101925097435036",
+				},
+				swim = {
+					Swim = "rbxassetid://112946194103503",
+				},
+				swimidle = {
+					SwimIdle = "rbxassetid://112946194103503",
+				},
+				walk = {
+					WalkAnim = "rbxassetid://85809016093530",
+				},
 			},
 		}
 		return BA_
@@ -6234,7 +6311,8 @@ G2L_MODULES[G2L["fc"]] = {
 };
 G2L_MODULES[G2L["fd"]] = {-- add emote here
 	Closure = function()
-		local script = G2L["fd"];return {--[[animationId, assetId]]
+		local script = G2L["fd"];return {--animationId, assetId
+			["Low Cortisol"] = {126604285933607, 126604285933607},
 			["Salute"] = {10714389988, 3360689775},
 			["Applaud"] = {10713966026, 5915779043},
 			["Tilt"] = {10714338461, 3360692915},
@@ -6254,130 +6332,130 @@ G2L_MODULES[G2L["fd"]] = {-- add emote here
 			["Yungblud Happier Jump"] = {15609995579, 15610015346},
 			["Baby Queen - Face Frame"] = {14352340648, 14353421343},
 			["Chappell Roan HOT TO GO!"] = {85267023718407, 79312439851071},
-	["Baby Queen - Strut"] = {14352362059, 14353425085},
-	["Godlike"] = {10714347256, 3823158750},
-	["Mae Stephens - Piano Hands"] = {16553163212, 16553249658},
-	["Alo Yoga Pose - Lotus Position"] = {12507085924, 12507097350},
-	["d4vd - Backflip"] = {15693621070, 15694504637},
-	["Skibidi Toilet - Titan Speakerman Laser Spin"] = {134283166482394, 103102322875221},
-	["Elton John - Heart Shuffle"] = {17748314784, 17748346932},
-	["Cuco - Levitate"] = {15698404340, 15698511500},
-	["Hero Landing"] = {10714360164, 5104377791},
-	["Cha-Cha"] = {10714018192, 3696764866},
-	["Air Guitar"] = {10713959108, 3696761354},
-	["Quiet Waves"] = {10714390497, 7466046574},
-	["BURBERRY LOLA ATTITUDE - HYDRO"] = {10147823318, 10147926081},
-	["BURBERRY LOLA ATTITUDE - BLOOM"] = {10714007154, 10147919199},
-	["Superhero Reveal"] = {10714355069, 3696759798},
-	["Heisman Pose"] = {10714357129, 3696763549},
-	["High Wave"] = {10714362852, 5915776835},
-	["BURBERRY LOLA ATTITUDE - REFLEX"] = {10714010337, 10147921916},
-	["BURBERRY LOLA ATTITUDE - NIMBUS"] = {10147821284, 10147924028},
-	["Bored"] = {10713992055, 5230661597},
-	["Elton John - Heart Skip"] = {11309255148, 11309263077},
-	["Cower"] = {4940563117, 4940597758},
-	["Baby Dance"] = {10713983178, 4272484885},
-	["BURBERRY LOLA ATTITUDE - GEM"] = {10714008655, 10147916560},
-	["Celebrate"] = {10714016223, 3994127840},
-	["V Pose - Tommy Hilfiger"] = {10214319518, 10214418283},
-	["Frosty Flair - Tommy Hilfiger"] = {10214311282, 10214406616},
-	["BLACKPINK Pink Venom - Get em Get em Get em"] = {14548619594, 14548709888},
-	["Haha"] = {10714350889, 4102315500},
-	["Greatest"] = {10714349037, 3762654854},
-	["Line Dance"] = {10714383856, 4049646104},
-	["Elton John - Rock Out"] = {11753474067, 11753545334},
-	["Old Town Road Dance - Lil Nas X (LNX)"] = {10714391240, 5938394742},
-	["Show Dem Wrists - KSI"] = {10714377090, 7202898984},
-	["Confused"] = {4940561610, 4940592718},
-	["Sad"] = {10714392876, 4849502101},
-	["The Zabb"] = {129470135909814, 71389516735424},
-	["Mae Stephens – Arm Wave"] = {16584481352, 16584496781},
-	["TMNT Dance"] = {18665811005, 18665886405},
-	["Team USA Breaking Emote"] = {18526288497, 18526338976},
-	["Flex Walk"] = {15505459811, 15506506103},
-	["Hide/fly Glitch"] = {139664439112695 , 77536221090796},
-	["Speed Glitch"] = {87058607990254, 79127989560307},
-	["Hide Body"] = {123297186701468, 117450501566142},
-	["Fake Death MM2 (troll)"] = {125540494666177, 134639711848867},
-	["Cursed Floating Rotating Head"] = {75477044393593, 96927087453178},
-	["/e fly"] = {91133306449431, 93511411593120},
-}
-end;
+			["Baby Queen - Strut"] = {14352362059, 14353425085},
+			["Godlike"] = {10714347256, 3823158750},
+			["Mae Stephens - Piano Hands"] = {16553163212, 16553249658},
+			["Alo Yoga Pose - Lotus Position"] = {12507085924, 12507097350},
+			["d4vd - Backflip"] = {15693621070, 15694504637},
+			["Skibidi Toilet - Titan Speakerman Laser Spin"] = {134283166482394, 103102322875221},
+			["Elton John - Heart Shuffle"] = {17748314784, 17748346932},
+			["Cuco - Levitate"] = {15698404340, 15698511500},
+			["Hero Landing"] = {10714360164, 5104377791},
+			["Cha-Cha"] = {10714018192, 3696764866},
+			["Air Guitar"] = {10713959108, 3696761354},
+			["Quiet Waves"] = {10714390497, 7466046574},
+			["BURBERRY LOLA ATTITUDE - HYDRO"] = {10147823318, 10147926081},
+			["BURBERRY LOLA ATTITUDE - BLOOM"] = {10714007154, 10147919199},
+			["Superhero Reveal"] = {10714355069, 3696759798},
+			["Heisman Pose"] = {10714357129, 3696763549},
+			["High Wave"] = {10714362852, 5915776835},
+			["BURBERRY LOLA ATTITUDE - REFLEX"] = {10714010337, 10147921916},
+			["BURBERRY LOLA ATTITUDE - NIMBUS"] = {10147821284, 10147924028},
+			["Bored"] = {10713992055, 5230661597},
+			["Elton John - Heart Skip"] = {11309255148, 11309263077},
+			["Cower"] = {4940563117, 4940597758},
+			["Baby Dance"] = {10713983178, 4272484885},
+			["BURBERRY LOLA ATTITUDE - GEM"] = {10714008655, 10147916560},
+			["Celebrate"] = {10714016223, 3994127840},
+			["V Pose - Tommy Hilfiger"] = {10214319518, 10214418283},
+			["Frosty Flair - Tommy Hilfiger"] = {10214311282, 10214406616},
+			["BLACKPINK Pink Venom - Get em Get em Get em"] = {14548619594, 14548709888},
+			["Haha"] = {10714350889, 4102315500},
+			["Greatest"] = {10714349037, 3762654854},
+			["Line Dance"] = {10714383856, 4049646104},
+			["Elton John - Rock Out"] = {11753474067, 11753545334},
+			["Old Town Road Dance - Lil Nas X (LNX)"] = {10714391240, 5938394742},
+			["Show Dem Wrists - KSI"] = {10714377090, 7202898984},
+			["Confused"] = {4940561610, 4940592718},
+			["Sad"] = {10714392876, 4849502101},
+			["The Zabb"] = {129470135909814, 71389516735424},
+			["Mae Stephens – Arm Wave"] = {16584481352, 16584496781},
+			["TMNT Dance"] = {18665811005, 18665886405},
+			["Team USA Breaking Emote"] = {18526288497, 18526338976},
+			["Flex Walk"] = {15505459811, 15506506103},
+			["Hide/fly Glitch"] = {139664439112695 , 77536221090796},
+			["Speed Glitch"] = {87058607990254, 79127989560307},
+			["Hide Body"] = {123297186701468, 117450501566142},
+			["Fake Death MM2 (troll)"] = {125540494666177, 134639711848867},
+			["Cursed Floating Rotating Head"] = {75477044393593, 96927087453178},
+			["/e fly"] = {91133306449431, 93511411593120},
+		}
+	end;
 };
 G2L_MODULES[G2L["fe"]] = {
-Closure = function()
-    local script = G2L["fe"];return {
-	3360689775,
-	5915779043,
-	3360692915,
-	3576968026,
-	3360686498,
-	3576686446,
-	3576823880,
-	3716636630,
-	4646306583,
-	4849499887,
-	3696757129,
-	4689362868,
-	3576717965,
-	5917570207,
-	139021427684680,
-	14353423348,
-	15610015346,
-	14353421343,
-	79312439851071,
-	14353425085,
-	3823158750,
-	16553249658,
-	12507097350,
-	15694504637,
-	103102322875221,
-	17748346932,
-	15698511500,
-	5104377791,
-	3696764866,
-	3696761354,
-	7466046574,
-	10147926081,
-	10147919199,
-	3696759798,
-	3696763549,
-	5915776835,
-	10147921916,
-	10147924028,
-	5230661597,
-	11309263077,
-	4940597758,
-	4272484885,
-	10147916560,
-	3994127840,
-	10214418283,
-	10214406616,
-	14548709888,
-	4102315500,
-	3762654854,
-	4049646104,
-	11753545334,
-	5938394742,
-	7202898984,
-	4940592718,
-	4849502101,
-	71389516735424,
-	16584496781,
-	18665886405,
-	18526338976
-}
+	Closure = function()
+		local script = G2L["fe"];return {
+			3360689775,
+			5915779043,
+			3360692915,
+			3576968026,
+			3360686498,
+			3576686446,
+			3576823880,
+			3716636630,
+			4646306583,
+			4849499887,
+			3696757129,
+			4689362868,
+			3576717965,
+			5917570207,
+			139021427684680,
+			14353423348,
+			15610015346,
+			14353421343,
+			79312439851071,
+			14353425085,
+			3823158750,
+			16553249658,
+			12507097350,
+			15694504637,
+			103102322875221,
+			17748346932,
+			15698511500,
+			5104377791,
+			3696764866,
+			3696761354,
+			7466046574,
+			10147926081,
+			10147919199,
+			3696759798,
+			3696763549,
+			5915776835,
+			10147921916,
+			10147924028,
+			5230661597,
+			11309263077,
+			4940597758,
+			4272484885,
+			10147916560,
+			3994127840,
+			10214418283,
+			10214406616,
+			14548709888,
+			4102315500,
+			3762654854,
+			4049646104,
+			11753545334,
+			5938394742,
+			7202898984,
+			4940592718,
+			4849502101,
+			71389516735424,
+			16584496781,
+			18665886405,
+			18526338976
+		}
 
-end;
+	end;
 };
 -- StarterGui.NORESETDELETE.Motiona
 local function C_1()
-local script = G2L["1"];
+	local script = G2L["1"];
 	-- Made by BeemzZy
 	-- Motiona | Release Date: 29/11/2024
 	-- [Open Source]
 	local Players = require(script.System.Constants).Services.Players
-	
+
 	local Player = Players.LocalPlayer
 	local Mouse = Player:GetMouse()
 	local Camera = function ()
@@ -6389,9 +6467,9 @@ local script = G2L["1"];
 		return char and char:FindFirstChild("Humanoid") and char:FindFirstChild("HumanoidRootPart") and char:FindFirstChild("Head") and char.Humanoid.Parent
 	end
 	local System = script.System
-	
+
 	-- Exports
-	
+
 	-- Values
 	local Settings = require(script.Settings)
 	local Constants = require(System.Constants)
@@ -6408,10 +6486,10 @@ local script = G2L["1"];
 	local Animate = require(script.Animate)
 	local BundleAnimations = require(script.BundleAnimations)
 	local Emotes = require(script.Emotes)
-	
+
 	local OriginalAnimations = nil
 	local OriginalEmotes = nil
-	
+
 	-- Local-Functions
 	local function Update ()
 		local Character = Character()
@@ -6421,28 +6499,28 @@ local script = G2L["1"];
 			if AnimateInstance and AnimateInstance:IsA("LocalScript") and not Claimed then
 				local IsOriginalAnimationsExist = (OriginalAnimations and true) or false
 				local IsOriginalEmotesExist = (OriginalEmotes and true) or false
-				
+
 				-- Updates Original Animation
 				OriginalAnimations = Operators.Get.Animations(AnimateInstance)
 				BundleAnimations["Original Animation Pack"] = OriginalAnimations
-				
+
 				if not IsOriginalAnimationsExist then -- only run once.
 					Animate:Update(OriginalAnimations)
 				end
 				if not IsOriginalEmotesExist then
 					local slot = {}
 					local emoteSlots = {}
-					
+
 					local humanoidDescription: HumanoidDescription = Character.Humanoid.HumanoidDescription
 					local frameSlots = MainGUI.UI.Background.CustomEmotesSet.Frame.ScrollingFrame
-					
+
 					local emoteSet = humanoidDescription:GetEmotes()
 					local emoteFormat = {}
-					
+
 					for i,v in pairs(emoteSet) do
 						table.insert(emoteSlots, i)
 					end
-					
+
 					for i = 1, #frameSlots:GetChildren() do
 						local slotFrame = frameSlots:FindFirstChild("slot"..i)
 						if slotFrame and emoteSlots[i] then
@@ -6456,12 +6534,12 @@ local script = G2L["1"];
 							slotFrame.TextBox.Text = emoteName
 						end
 					end
-					
+
 					OriginalEmotes = {emoteSet, emoteSlots}
 				else
 					local humanoidDescription: HumanoidDescription = Character.Humanoid.HumanoidDescription
 					local frameSlots = MainGUI.UI.Background.CustomEmotesSet.Frame.ScrollingFrame
-					
+
 					local emoteTable, emoteOrder = Animate:GetCurrentEmoteTable()
 					if emoteTable and emoteOrder then
 						Animate:SetEmote(Character, emoteTable, emoteOrder)
@@ -6469,13 +6547,13 @@ local script = G2L["1"];
 						Animate:SetEmote(Character, OriginalEmotes[1], OriginalEmotes[2])
 					end
 				end
-				
+
 				-- Automatically Set Motiona Animation.
 				Animate:New(Character)
 			end
 		end
 	end
-	
+
 	local function Render ()
 		-- Update Function Handler
 		if not Settings.Debounces.Update.Debounce then
@@ -6486,7 +6564,7 @@ local script = G2L["1"];
 			Update()
 		end
 		--
-		
+
 		-- Loops
 		for i, data: any in pairs(RenderLoops) do
 			if data and data[1] and data[2] then
@@ -6501,18 +6579,18 @@ local script = G2L["1"];
 			end
 		end
 	end
-	
+
 	-- Inputs
 	Inputs.Add(false, Settings.Booleans.End.Key, "Began", "EndKey", function ()
 		Settings.Booleans.End.Value = true
 		Settings.Booleans.End.EndSignal:Fire()
 	end)
-	
+
 	-- Connections
 	-- -- Manual Setup
 	-- Operators.Bind("Render", Enum.RenderPriority.First.Value, Render)
 	Operators.Connect("Render", GameService.RunService.RenderStepped, Render)
-	
+
 	-- ---- v
 	do -- Automatic Setup
 		for serviceName: string, serviceSignals: {} in pairs(Operators.Services) do
@@ -6529,17 +6607,17 @@ local script = G2L["1"];
 			end
 		end
 	end
-	
+
 	-- Setup
 	MainGUI.Setup()
-	
+
 	-- Done
 	print("\n				"..script.Name .. ' has been successfully loaded.')
-	
+
 	-- Waiting For End Signal
 	Settings.Booleans.End.EndSignal.Event:Wait()
 	if Settings.Booleans.PrintOutTables.Value then print(Settings, Constants, Operators, Connections, Binds, RenderLoops, WhileLoops, GameService) end
-	
+
 	-- Ending
 	-- Disconnecting Functions
 	do
@@ -6570,7 +6648,7 @@ local script = G2L["1"];
 			Operators.Functions.LogResult(wloopName, success, result, "Ended")
 		end
 	end
-	
+
 	print("\n				"..script.Name .. ' has successfully ended.')
 	script:Remove()
 	return
