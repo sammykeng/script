@@ -1,0 +1,306 @@
+local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/liebertsx/Tora-Library/main/src/librarynew", true))()
+local Window = Library:CreateWindow("Ftap PVP")
+local StarterGui = game:GetService("StarterGui")
+local function Notify(title, text, duration)
+    StarterGui:SetCore("SendNotification", {
+        Title = title,
+        Text = text,
+        Duration = duration or 2
+    })
+end
+local Players = game:GetService("Players")
+local Workspace = game:GetService("Workspace")
+local RunService = game:GetService("RunService")
+local UserInputService = game:GetService("UserInputService")
+local Debris = game:GetService("Debris")
+
+local plr = Players.LocalPlayer
+local LocalPlayer = Players.LocalPlayer
+local camera = workspace.CurrentCamera
+
+local superFlingEnabled = false
+local flingStrength = 890
+local originalFlingStrength = flingStrength
+
+local SilentAim = false
+local aiming = false
+local currentTarget = nil
+local highlight = nil
+
+local revengeTarget = nil
+local revengeHighlight = nil
+local revengeLocking = false
+local RevengeEnabled = false
+
+local antiGrabEnabled = false
+local AirGrabEnabled = false
+local airGrabCustomMode = false
+local usingCustomPower = false
+
+local PS = game:GetService("Players")
+local Player = PS.LocalPlayer
+local Character = Player.Character or Player.CharacterAdded:Wait()
+
+local RS = game:GetService("ReplicatedStorage")
+local CE = RS:WaitForChild("CharacterEvents")
+local StruggleEvent = CE:WaitForChild("Struggle")
+
+local R = game:GetService("RunService")
+local BeingHeld = Player:WaitForChild("IsHeld")
+
+local UIS = game:GetService("UserInputService")
+
+local FLING_VELOCITY_NAME = "FlingVelocity"
+
+local FGPenabled = false
+local Config = {
+    Toggle = Enum.KeyCode.Seven,
+    Unload = Enum.KeyCode.Eight,
+    Working = false
+}
+
+local Cooldown = false
+local ScriptNotify = RS.GamepassEvents.FurtherReachBoughtNotifier
+local Activator = RS.MenuToys.LimitedTimeToyEvent
+local DiedHandle
+
+function SetSilentAim(state)
+    SilentAim = state
+    print("Silent Aim toggled:", state)
+    if not state then
+        aiming = false
+        currentTarget = nil
+        if highlight then
+            highlight:Destroy()
+            highlight = nil
+        end
+    end
+end
+
+local function getClosestPlayerToCenter()
+    local closest = nil
+    local shortest = math.huge
+    for _, plr in pairs(Players:GetPlayers()) do
+        if plr ~= LocalPlayer and plr.Character and plr.Character:FindFirstChild("Torso") then
+            local torso = plr.Character.Torso
+            local screenPos, onScreen = camera:WorldToViewportPoint(torso.Position)
+            if onScreen then
+                local dist = (Vector2.new(screenPos.X, screenPos.Y)
+                - Vector2.new(camera.ViewportSize.X/2, camera.ViewportSize.Y/2)).Magnitude
+                if dist < shortest then
+                    shortest = dist
+                    closest = plr
+                end
+            end
+        end
+    end
+    if closest then
+        print("Target found:", closest.Name)
+    end
+    return closest
+end
+
+local function updateHighlight(target)
+    if highlight then
+        highlight:Destroy()
+        highlight = nil
+    end
+    if target and target.Character then
+        highlight = Instance.new("Highlight")
+        highlight.FillColor = Color3.fromRGB(255,0,0)
+        highlight.OutlineColor = Color3.fromRGB(255,255,255)
+        highlight.Parent = target.Character
+    end
+end
+
+Window:AddToggle({
+    text = "Super Fling",
+    flag = "SuperFling",
+    callback = function(state)
+        superFlingEnabled = state
+        print("Super Fling:", state)
+    end,
+})
+
+Window:AddSlider({
+    text = "Fling Strength",
+    flag = "FlingStrength",
+    min = 0,
+    max = 1000,
+    value = flingStrength,
+    callback = function(value)
+        flingStrength = value
+        print("Fling Strength set to:", value)
+    end,
+})
+
+Window:AddToggle({
+    text = "Silent Aim",
+    flag = "SilentAim",
+    callback = function(state)
+        SetSilentAim(state)
+    end
+})
+
+Window:AddToggle({
+    text = "Anti Grab",
+    flag = "anti-Grab",
+    callback = function(state)
+        antiGrabEnabled = state
+        print("Anti Grab:", state)
+    end
+})
+
+Window:AddToggle({
+    text = "Farther Reach",
+    flag = "FGP",
+    callback = function(state)
+        FGPenabled = state
+        print("Farther Reach:", state)
+    end
+})
+
+Window:AddToggle({
+    text = "Air Grab fling power",
+    flag = "Air-Grab",
+    callback = function(state)
+        AirGrabEnabled = state
+        print("Air Grab Enabled:", state)
+    end
+})
+
+Library:Init()
+
+Workspace.ChildAdded:Connect(function(child)
+    if child.Name == "GrabParts" then
+        print("GrabParts detected")
+        local success, grabPart = pcall(function()
+            return child:WaitForChild("GrabPart", 2)
+            :WaitForChild("WeldConstraint", 2).Part1
+        end)
+        if not success or not grabPart then
+            print("Failed to get grabPart")
+            return
+        end
+
+        local bodyVelocity = Instance.new("BodyVelocity")
+        bodyVelocity.Name = FLING_VELOCITY_NAME
+        bodyVelocity.Parent = grabPart
+
+        local connection
+        connection = child:GetPropertyChangedSignal("Parent"):Connect(function()
+            if child.Parent == nil then
+                local isRightMouseHeld = UserInputService:IsMouseButtonPressed(Enum.UserInputType.MouseButton2)
+
+                local humanoid = plr.Character and plr.Character:FindFirstChild("Humanoid")
+                local inAir = humanoid and humanoid.FloorMaterial == Enum.Material.Air
+
+                print("Trigger check | SuperFling:", superFlingEnabled, "| RightMouse:", isRightMouseHeld, "| AirGrab:", AirGrabEnabled, "| InAir:", inAir)
+
+                if superFlingEnabled and (isRightMouseHeld or (AirGrabEnabled and inAir)) then
+                    print("FLING ACTIVATED with power:", flingStrength)
+                    bodyVelocity.MaxForce = Vector3.new(math.huge, math.huge, math.huge)
+                    bodyVelocity.Velocity = Workspace.CurrentCamera.CFrame.LookVector * flingStrength
+                else
+                    print("FLING NOT TRIGGERED")
+                    bodyVelocity.MaxForce = Vector3.zero
+                end
+
+                Debris:AddItem(bodyVelocity, 1)
+
+                if connection then
+                    connection:Disconnect()
+                end
+            end
+        end)
+    end
+end)
+
+UserInputService.InputBegan:Connect(function(input, gp)
+    if gp then return end
+    if not SilentAim then return end
+    if input.KeyCode == Enum.KeyCode.Q then
+        aiming = true
+        print("Aiming started")
+    end
+end)
+
+UserInputService.InputEnded:Connect(function(input)
+    if input.KeyCode == Enum.KeyCode.Q then
+        aiming = false
+        print("Aiming stopped")
+    end
+end)
+
+RunService.RenderStepped:Connect(function()
+    if not SilentAim then return end
+    local target = getClosestPlayerToCenter()
+    currentTarget = target
+    updateHighlight(target)
+
+    if aiming and currentTarget and currentTarget.Character then
+        local torso = currentTarget.Character:FindFirstChild("Torso")
+        if torso then
+            camera.CFrame = CFrame.new(camera.CFrame.Position, torso.Position)
+        end
+    end
+end)
+
+workspace.DescendantAdded:Connect(function(v)
+    if not antiGrabEnabled then return end
+    if v:IsA("Explosion") then
+        v.BlastPressure = 0
+        print("Explosion neutralized")
+    end
+end)
+
+BeingHeld.Changed:Connect(function(C)
+    if not antiGrabEnabled then return end
+    if C == true then
+        print("Player is being held, triggering anti-grab")
+        local char = Player.Character
+        if BeingHeld.Value == true then
+            local Event
+            Event = R.RenderStepped:Connect(function()
+                if BeingHeld.Value == true then
+                    char["HumanoidRootPart"].AssemblyLinearVelocity = Vector3.new()
+                    StruggleEvent:FireServer(Player)
+                else
+                    print("Released from grab")
+                    Event:Disconnect()
+                end
+            end)
+        end
+    end
+end)
+
+UserInputService.InputBegan:Connect(function(input)
+    if input.KeyCode == Enum.KeyCode.F then
+        if not AirGrabEnabled then
+            Notify("Air Grab", "Air Grab is OFF", 2)
+            return
+        end
+
+        superFlingEnabled = true
+
+        if not airGrabCustomMode then
+            originalFlingStrength = flingStrength
+            airGrabCustomMode = true
+            usingCustomPower = true
+            flingStrength = 250
+
+            Notify("Air Grab", "Activated (Power: 250)", 2)
+            return
+        end
+
+        usingCustomPower = not usingCustomPower
+
+        if usingCustomPower then
+            flingStrength = 250
+            Notify("Air Grab", "Power set to 250", 2)
+        else
+            flingStrength = originalFlingStrength
+            Notify("Air Grab", "Power restored", 2)
+        end
+    end
+end)
