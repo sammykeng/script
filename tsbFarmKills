@@ -354,7 +354,10 @@ local function C_f()
 local script = G2L["f"];
 	local ts = game:GetService("TeleportService")
 	local p = game:GetService("Players").LocalPlayer
-	ts:TeleportToPlaceInstance(game.PlaceId, game.JobId, p)
+	local button = script.Parent
+	button.MouseButton1Up:Connect(function()
+		ts:TeleportToPlaceInstance(game.PlaceId, game.JobId, p)
+	end)
 end;
 task.spawn(C_f);
 -- StarterGui.ScreenGui.Frame.count.LocalScript
