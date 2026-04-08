@@ -1,0 +1,494 @@
+local G2L = {};
+
+-- StarterGui.ScreenGui
+G2L["1"] = Instance.new("ScreenGui", game:GetService("Players").LocalPlayer:WaitForChild("PlayerGui"));
+G2L["1"]["ZIndexBehavior"] = Enum.ZIndexBehavior.Sibling;
+
+
+-- StarterGui.ScreenGui.Frame
+G2L["2"] = Instance.new("Frame", G2L["1"]);
+G2L["2"]["BorderSizePixel"] = 0;
+G2L["2"]["BackgroundColor3"] = Color3.fromRGB(31, 31, 31);
+G2L["2"]["Size"] = UDim2.new(0, 349, 0, 465);
+G2L["2"]["Position"] = UDim2.new(0.33047, 0, 0.13334, 0);
+G2L["2"]["BorderColor3"] = Color3.fromRGB(0, 0, 0);
+
+
+-- StarterGui.ScreenGui.Frame.UICorner
+G2L["3"] = Instance.new("UICorner", G2L["2"]);
+
+
+
+-- StarterGui.ScreenGui.Frame.ImageLabel
+G2L["4"] = Instance.new("ImageLabel", G2L["2"]);
+G2L["4"]["Active"] = true;
+G2L["4"]["BorderSizePixel"] = 0;
+G2L["4"]["BackgroundColor3"] = Color3.fromRGB(255, 255, 255);
+-- [ERROR] cannot convert ImageContent, please report to "https://github.com/uniquadev/GuiToLuaConverter/issues"
+G2L["4"]["Image"] = [[rbxassetid://134993470914129]];
+G2L["4"]["Size"] = UDim2.new(0, 155, 0, 152);
+G2L["4"]["BorderColor3"] = Color3.fromRGB(0, 0, 0);
+G2L["4"]["Position"] = UDim2.new(0.27794, 0, 0.08502, 0);
+
+
+-- StarterGui.ScreenGui.Frame.autoReset
+G2L["5"] = Instance.new("TextButton", G2L["2"]);
+G2L["5"]["BorderSizePixel"] = 0;
+G2L["5"]["TextSize"] = 14;
+G2L["5"]["TextColor3"] = Color3.fromRGB(0, 0, 0);
+G2L["5"]["BackgroundColor3"] = Color3.fromRGB(123, 61, 192);
+G2L["5"]["FontFace"] = Font.new([[rbxasset://fonts/families/FredokaOne.json]], Enum.FontWeight.Bold, Enum.FontStyle.Normal);
+G2L["5"]["Size"] = UDim2.new(0, 295, 0, 30);
+G2L["5"]["BorderColor3"] = Color3.fromRGB(0, 0, 0);
+G2L["5"]["Text"] = [[Auto Reset: OFF]];
+G2L["5"]["Name"] = [[autoReset]];
+G2L["5"]["Position"] = UDim2.new(0.07736, 0, 0.45344, 0);
+
+
+-- StarterGui.ScreenGui.Frame.autoReset.LocalScript
+G2L["6"] = Instance.new("LocalScript", G2L["5"]);
+
+
+
+-- StarterGui.ScreenGui.Frame.autoReset.UICorner
+G2L["7"] = Instance.new("UICorner", G2L["5"]);
+
+
+
+-- StarterGui.ScreenGui.Frame.SetSpawn
+G2L["8"] = Instance.new("TextButton", G2L["2"]);
+G2L["8"]["BorderSizePixel"] = 0;
+G2L["8"]["TextSize"] = 14;
+G2L["8"]["TextColor3"] = Color3.fromRGB(0, 0, 0);
+G2L["8"]["BackgroundColor3"] = Color3.fromRGB(123, 61, 192);
+G2L["8"]["FontFace"] = Font.new([[rbxasset://fonts/families/FredokaOne.json]], Enum.FontWeight.Bold, Enum.FontStyle.Normal);
+G2L["8"]["Size"] = UDim2.new(0, 295, 0, 30);
+G2L["8"]["BorderColor3"] = Color3.fromRGB(0, 0, 0);
+G2L["8"]["Text"] = [[Set Spawn]];
+G2L["8"]["Name"] = [[SetSpawn]];
+G2L["8"]["Position"] = UDim2.new(0.07736, 0, 0.54453, 0);
+
+
+-- StarterGui.ScreenGui.Frame.SetSpawn.LocalScript
+G2L["9"] = Instance.new("LocalScript", G2L["8"]);
+
+
+
+-- StarterGui.ScreenGui.Frame.SetSpawn.UICorner
+G2L["a"] = Instance.new("UICorner", G2L["8"]);
+
+
+
+-- StarterGui.ScreenGui.Frame.tp
+G2L["b"] = Instance.new("TextButton", G2L["2"]);
+G2L["b"]["BorderSizePixel"] = 0;
+G2L["b"]["TextSize"] = 14;
+G2L["b"]["TextColor3"] = Color3.fromRGB(0, 0, 0);
+G2L["b"]["BackgroundColor3"] = Color3.fromRGB(123, 61, 192);
+G2L["b"]["FontFace"] = Font.new([[rbxasset://fonts/families/FredokaOne.json]], Enum.FontWeight.Bold, Enum.FontStyle.Normal);
+G2L["b"]["Size"] = UDim2.new(0, 295, 0, 30);
+G2L["b"]["BorderColor3"] = Color3.fromRGB(0, 0, 0);
+G2L["b"]["Text"] = [[Set alt account]];
+G2L["b"]["Name"] = [[tp]];
+G2L["b"]["Position"] = UDim2.new(0.07736, 0, 0.63563, 0);
+
+
+-- StarterGui.ScreenGui.Frame.tp.LocalScript
+G2L["c"] = Instance.new("LocalScript", G2L["b"]);
+
+
+
+-- StarterGui.ScreenGui.Frame.tp.UICorner
+G2L["d"] = Instance.new("UICorner", G2L["b"]);
+
+
+
+-- StarterGui.ScreenGui.Frame.rejoin
+G2L["e"] = Instance.new("TextButton", G2L["2"]);
+G2L["e"]["BorderSizePixel"] = 0;
+G2L["e"]["TextSize"] = 14;
+G2L["e"]["TextColor3"] = Color3.fromRGB(0, 0, 0);
+G2L["e"]["BackgroundColor3"] = Color3.fromRGB(123, 61, 192);
+G2L["e"]["FontFace"] = Font.new([[rbxasset://fonts/families/FredokaOne.json]], Enum.FontWeight.Bold, Enum.FontStyle.Normal);
+G2L["e"]["Size"] = UDim2.new(0, 295, 0, 30);
+G2L["e"]["BorderColor3"] = Color3.fromRGB(0, 0, 0);
+G2L["e"]["Text"] = [[Rejoin]];
+G2L["e"]["Name"] = [[rejoin]];
+G2L["e"]["Position"] = UDim2.new(0.07736, 0, 0.72672, 0);
+
+
+-- StarterGui.ScreenGui.Frame.rejoin.LocalScript
+G2L["f"] = Instance.new("LocalScript", G2L["e"]);
+
+
+
+-- StarterGui.ScreenGui.Frame.rejoin.UICorner
+G2L["10"] = Instance.new("UICorner", G2L["e"]);
+
+
+
+-- StarterGui.ScreenGui.Frame.count
+G2L["11"] = Instance.new("TextButton", G2L["2"]);
+G2L["11"]["BorderSizePixel"] = 0;
+G2L["11"]["TextSize"] = 14;
+G2L["11"]["TextColor3"] = Color3.fromRGB(0, 0, 0);
+G2L["11"]["BackgroundColor3"] = Color3.fromRGB(123, 61, 192);
+G2L["11"]["FontFace"] = Font.new([[rbxasset://fonts/families/FredokaOne.json]], Enum.FontWeight.Bold, Enum.FontStyle.Normal);
+G2L["11"]["Size"] = UDim2.new(0, 295, 0, 30);
+G2L["11"]["BorderColor3"] = Color3.fromRGB(0, 0, 0);
+G2L["11"]["Text"] = [[Kills Count]];
+G2L["11"]["Name"] = [[count]];
+G2L["11"]["Position"] = UDim2.new(0.07736, 0, 0.81781, 0);
+
+
+-- StarterGui.ScreenGui.Frame.count.LocalScript
+G2L["12"] = Instance.new("LocalScript", G2L["11"]);
+
+
+
+-- StarterGui.ScreenGui.Frame.count.UICorner
+G2L["13"] = Instance.new("UICorner", G2L["11"]);
+
+
+
+-- StarterGui.ScreenGui.Frame.Hide
+G2L["14"] = Instance.new("TextButton", G2L["2"]);
+G2L["14"]["BorderSizePixel"] = 0;
+G2L["14"]["TextSize"] = 20;
+G2L["14"]["TextColor3"] = Color3.fromRGB(0, 0, 0);
+G2L["14"]["BackgroundColor3"] = Color3.fromRGB(150, 68, 198);
+G2L["14"]["FontFace"] = Font.new([[rbxasset://fonts/families/FredokaOne.json]], Enum.FontWeight.Bold, Enum.FontStyle.Normal);
+G2L["14"]["Size"] = UDim2.new(0, 30, 0, 30);
+G2L["14"]["BorderColor3"] = Color3.fromRGB(0, 0, 0);
+G2L["14"]["Text"] = [[-]];
+G2L["14"]["Name"] = [[Hide]];
+G2L["14"]["Position"] = UDim2.new(0.87393, 0, 0.01935, 0);
+
+
+-- StarterGui.ScreenGui.Frame.Hide.LocalScript
+G2L["15"] = Instance.new("LocalScript", G2L["14"]);
+
+
+
+-- StarterGui.ScreenGui.Frame.Hide.UICorner
+G2L["16"] = Instance.new("UICorner", G2L["14"]);
+
+
+
+-- StarterGui.ScreenGui.Frame.anti-afk
+G2L["17"] = Instance.new("TextButton", G2L["2"]);
+G2L["17"]["BorderSizePixel"] = 0;
+G2L["17"]["TextSize"] = 14;
+G2L["17"]["TextColor3"] = Color3.fromRGB(0, 0, 0);
+G2L["17"]["BackgroundColor3"] = Color3.fromRGB(123, 61, 192);
+G2L["17"]["FontFace"] = Font.new([[rbxasset://fonts/families/FredokaOne.json]], Enum.FontWeight.Bold, Enum.FontStyle.Normal);
+G2L["17"]["Size"] = UDim2.new(0, 295, 0, 30);
+G2L["17"]["BorderColor3"] = Color3.fromRGB(0, 0, 0);
+G2L["17"]["Text"] = [[Anti-AFK]];
+G2L["17"]["Name"] = [[anti-afk]];
+G2L["17"]["Position"] = UDim2.new(0.07736, 0, 0.90168, 0);
+
+
+-- StarterGui.ScreenGui.Frame.anti-afk.LocalScript
+G2L["18"] = Instance.new("LocalScript", G2L["17"]);
+
+
+
+-- StarterGui.ScreenGui.Frame.anti-afk.UICorner
+G2L["19"] = Instance.new("UICorner", G2L["17"]);
+
+
+
+-- StarterGui.ScreenGui.ImageButton
+G2L["1a"] = Instance.new("ImageButton", G2L["1"]);
+G2L["1a"]["BorderSizePixel"] = 0;
+G2L["1a"]["Visible"] = false;
+-- [ERROR] cannot convert ImageContent, please report to "https://github.com/uniquadev/GuiToLuaConverter/issues"
+G2L["1a"]["BackgroundColor3"] = Color3.fromRGB(255, 255, 255);
+G2L["1a"]["Image"] = [[rbxassetid://134993470914129]];
+G2L["1a"]["Size"] = UDim2.new(0, 62, 0, 61);
+G2L["1a"]["BorderColor3"] = Color3.fromRGB(0, 0, 0);
+G2L["1a"]["Position"] = UDim2.new(0.02, 0, 0.454, 0);
+
+
+-- StarterGui.ScreenGui.ImageButton.LocalScript
+G2L["1b"] = Instance.new("LocalScript", G2L["1a"]);
+
+
+
+-- StarterGui.ScreenGui.ImageButton.UICorner
+G2L["1c"] = Instance.new("UICorner", G2L["1a"]);
+
+
+
+-- StarterGui.ScreenGui.system
+G2L["1d"] = Instance.new("Frame", G2L["1"]);
+G2L["1d"]["Visible"] = false;
+G2L["1d"]["BorderSizePixel"] = 0;
+G2L["1d"]["BackgroundColor3"] = Color3.fromRGB(52, 37, 88);
+G2L["1d"]["Size"] = UDim2.new(0, 200, 0, 67);
+G2L["1d"]["Position"] = UDim2.new(0.07961, 0, 0.22997, 0);
+G2L["1d"]["BorderColor3"] = Color3.fromRGB(0, 0, 0);
+G2L["1d"]["Name"] = [[system]];
+
+
+-- StarterGui.ScreenGui.system.UICorner
+G2L["1e"] = Instance.new("UICorner", G2L["1d"]);
+
+
+
+-- StarterGui.ScreenGui.system.countKills
+G2L["1f"] = Instance.new("TextLabel", G2L["1d"]);
+G2L["1f"]["BorderSizePixel"] = 0;
+G2L["1f"]["TextSize"] = 14;
+G2L["1f"]["BackgroundColor3"] = Color3.fromRGB(255, 255, 255);
+G2L["1f"]["FontFace"] = Font.new([[rbxasset://fonts/families/FredokaOne.json]], Enum.FontWeight.Bold, Enum.FontStyle.Normal);
+G2L["1f"]["TextColor3"] = Color3.fromRGB(111, 72, 194);
+G2L["1f"]["BackgroundTransparency"] = 1;
+G2L["1f"]["Size"] = UDim2.new(0, 200, 0, 28);
+G2L["1f"]["BorderColor3"] = Color3.fromRGB(0, 0, 0);
+G2L["1f"]["Text"] = [[Gained: 0]];
+G2L["1f"]["Name"] = [[countKills]];
+
+
+-- StarterGui.ScreenGui.system.timer
+G2L["20"] = Instance.new("TextLabel", G2L["1d"]);
+G2L["20"]["BorderSizePixel"] = 0;
+G2L["20"]["TextSize"] = 14;
+G2L["20"]["BackgroundColor3"] = Color3.fromRGB(255, 255, 255);
+G2L["20"]["FontFace"] = Font.new([[rbxasset://fonts/families/FredokaOne.json]], Enum.FontWeight.Bold, Enum.FontStyle.Normal);
+G2L["20"]["TextColor3"] = Color3.fromRGB(111, 72, 194);
+G2L["20"]["BackgroundTransparency"] = 1;
+G2L["20"]["Size"] = UDim2.new(0, 200, 0, 28);
+G2L["20"]["BorderColor3"] = Color3.fromRGB(0, 0, 0);
+G2L["20"]["Text"] = [[time: 00:00]];
+G2L["20"]["Name"] = [[timer]];
+G2L["20"]["Position"] = UDim2.new(0, 0, 0.53731, 0);
+
+
+-- StarterGui.ScreenGui.Frame.autoReset.LocalScript
+local function C_6()
+local script = G2L["6"];
+	local Players = game:GetService("Players")
+	local player = Players.LocalPlayer
+	
+	local button = script.Parent
+	local autoReset = false
+	
+	local function resetCharacter()
+		local char = player.Character
+		if char and char:FindFirstChild("Humanoid") then
+			char.Humanoid.Health = 0
+		end
+	end
+	
+	task.spawn(function()
+		while true do
+			if autoReset then
+				resetCharacter()
+				task.wait(3)
+			else
+				task.wait(0.2)
+			end
+		end
+	end)
+	
+	button.MouseButton1Click:Connect(function()
+		autoReset = not autoReset
+	
+		if autoReset then
+			button.Text = "Auto Reset: ON"
+		else
+			button.Text = "Auto Reset: OFF"
+		end
+	end)
+end;
+task.spawn(C_6);
+-- StarterGui.ScreenGui.Frame.SetSpawn.LocalScript
+local function C_9()
+local script = G2L["9"];
+	local Players = game:GetService("Players")
+	local player = Players.LocalPlayer
+	
+	local button = script.Parent
+	local savedCFrame = nil
+	
+	button.MouseButton1Click:Connect(function()
+		local char = player.Character
+		if char and char:FindFirstChild("HumanoidRootPart") then
+			savedCFrame = char.HumanoidRootPart.CFrame
+		end
+	end)
+	
+	player.CharacterAdded:Connect(function(char)
+		if savedCFrame then
+			local hrp = char:WaitForChild("HumanoidRootPart")
+			task.wait(0.1)
+			hrp.CFrame = savedCFrame
+		end
+	end)
+end;
+task.spawn(C_9);
+-- StarterGui.ScreenGui.Frame.tp.LocalScript
+local function C_c()
+local script = G2L["c"];
+	local Players = game:GetService("Players")
+	local player = Players.LocalPlayer
+	
+	local button = script.Parent
+	
+	local targetPosition = Vector3.new(358.591, 439.511, 423.902)
+	
+	button.MouseButton1Click:Connect(function()
+		local char = player.Character or player.CharacterAdded:Wait()
+		local hrp = char:FindFirstChild("HumanoidRootPart")
+	
+		if hrp then
+			hrp.CFrame = CFrame.new(targetPosition)
+		end
+	end)
+end;
+task.spawn(C_c);
+-- StarterGui.ScreenGui.Frame.rejoin.LocalScript
+local function C_f()
+local script = G2L["f"];
+	local ts = game:GetService("TeleportService")
+	local p = game:GetService("Players").LocalPlayer
+	ts:TeleportToPlaceInstance(game.PlaceId, game.JobId, p)
+end;
+task.spawn(C_f);
+-- StarterGui.ScreenGui.Frame.count.LocalScript
+local function C_12()
+local script = G2L["12"];
+	local Players = game:GetService("Players")
+	local player = Players.LocalPlayer
+	
+	local button = script.Parent
+	local frame = button.Parent
+	
+	local system = frame:WaitForChild("system")
+	local countKillsLabel = system:WaitForChild("countKills")
+	local timerLabel = system:WaitForChild("timer")
+	
+	local counting = false
+	local seconds = 0
+	
+	-- Leaderstats
+	local leaderstats = player:WaitForChild("leaderstats")
+	local killsStat = leaderstats:WaitForChild("Kills")
+	
+	local startKills = 0
+	
+	system.Visible = false
+	
+	local function formatTime(sec)
+		local m = math.floor(sec / 60)
+		local s = sec % 60
+		return string.format("%02d:%02d", m, s)
+	end
+	
+	task.spawn(function()
+		while true do
+			if counting then
+				seconds += 1
+				timerLabel.Text = formatTime(seconds)
+				task.wait(1)
+			else
+				task.wait(0.2)
+			end
+		end
+	end)
+	
+	killsStat.Changed:Connect(function()
+		if counting then
+			local current = killsStat.Value - startKills
+			countKillsLabel.Text = "Kills: " .. current
+		end
+	end)
+	
+	button.MouseButton1Click:Connect(function()
+		counting = not counting
+	
+		if counting then
+			system.Visible = true
+			seconds = 0
+			startKills = killsStat.Value
+	
+			timerLabel.Text = "00:00"
+			countKillsLabel.Text = "Kills: 0"
+	
+			button.Text = "Counting: ON"
+		else
+			button.Text = "Counting: OFF"
+		end
+	end)
+end;
+task.spawn(C_12);
+-- StarterGui.ScreenGui.Frame.Hide.LocalScript
+local function C_15()
+local script = G2L["15"];
+	local button = script.Parent
+	local frame = script.Parent.Parent
+	local ImageButton = script.Parent.Parent.Parent.ImageButton
+	button.MouseButton1Click:Connect(function()
+		frame.Visible = false
+		ImageButton.Visible = true
+	end)
+end;
+task.spawn(C_15);
+-- StarterGui.ScreenGui.Frame.anti-afk.LocalScript
+local function C_18()
+local script = G2L["18"];
+	local Players = game:GetService("Players")
+	local VirtualUser = game:GetService("VirtualUser")
+	
+	local player = Players.LocalPlayer
+	local button = script.Parent
+	
+	local enabled = false
+	local connection = nil
+	
+	button.MouseButton1Click:Connect(function()
+		enabled = not enabled
+	
+		if enabled then
+			if getconnections then
+				for _, conn in pairs(getconnections(player.Idled)) do
+					conn:Disable()
+				end
+			end
+	
+			connection = player.Idled:Connect(function()
+				VirtualUser:CaptureController()
+				VirtualUser:ClickButton2(Vector2.new())
+			end)
+	
+			button.Text = "Anti-AFK: ON"
+			print("[AntiAFK] ✅ Active")
+	
+		else
+			if connection then
+				connection:Disconnect()
+				connection = nil
+			end
+	
+			button.Text = "Anti-AFK: OFF"
+			print("[AntiAFK] ❌ Disabled")
+		end
+	end)
+end;
+task.spawn(C_18);
+-- StarterGui.ScreenGui.ImageButton.LocalScript
+local function C_1b()
+local script = G2L["1b"];
+	local button = script.Parent
+	local frame = script.Parent.Parent.Frame
+	local ImageButton = script.Parent
+	button.MouseButton1Click:Connect(function()
+		frame.Visible = true
+		ImageButton.Visible = false
+	end)
+end;
+task.spawn(C_1b);
+
+return G2L["1"], require;
