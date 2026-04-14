@@ -920,42 +920,8 @@ task.spawn(C_19);
 -- StarterGui.ScreenGui.main.anti-afk.LocalScript
 local function C_1c()
 local script = G2L["1c"];
-	local Players = game:GetService("Players")
-	local VirtualUser = game:GetService("VirtualUser")
-	
-	local player = Players.LocalPlayer
-	local button = script.Parent
-	
-	local enabled = false
-	local connection = nil
-	
-	button.MouseButton1Click:Connect(function()
-		enabled = not enabled
-	
-		if enabled then
-			if getconnections then
-				for _, conn in pairs(getconnections(player.Idled)) do
-					conn:Disable()
-				end
-			end
-	
-			connection = player.Idled:Connect(function()
-				VirtualUser:CaptureController()
-				VirtualUser:ClickButton2(Vector2.new())
-			end)
-	
-			button.Text = "Anti-AFK: ON"
-			print("[AntiAFK] ✅ Active")
-	
-		else
-			if connection then
-				connection:Disconnect()
-				connection = nil
-			end
-	
-			button.Text = "Anti-AFK: OFF"
-			print("[AntiAFK] ❌ Disabled")
-		end
+	script.Parent.MouseButton1Click:Connect(function()
+		loadstring(game:HttpGet(‘https://raw.githubusercontent.com/sammykeng/script/refs/heads/main/AntiAfk'))()
 	end)
 end;
 task.spawn(C_1c);
@@ -1092,42 +1058,8 @@ task.spawn(C_2f);
 -- StarterGui.ScreenGui.alt.anti-afk.LocalScript
 local function C_32()
 local script = G2L["32"];
-	local Players = game:GetService("Players")
-	local VirtualUser = game:GetService("VirtualUser")
-	
-	local player = Players.LocalPlayer
-	local button = script.Parent
-	
-	local enabled = false
-	local connection = nil
-	
-	button.MouseButton1Click:Connect(function()
-		enabled = not enabled
-	
-		if enabled then
-			if getconnections then
-				for _, conn in pairs(getconnections(player.Idled)) do
-					conn:Disable()
-				end
-			end
-	
-			connection = player.Idled:Connect(function()
-				VirtualUser:CaptureController()
-				VirtualUser:ClickButton2(Vector2.new())
-			end)
-	
-			button.Text = "Anti-AFK: ON"
-			print("[AntiAFK] ✅ Active")
-	
-		else
-			if connection then
-				connection:Disconnect()
-				connection = nil
-			end
-	
-			button.Text = "Anti-AFK: OFF"
-			print("[AntiAFK] ❌ Disabled")
-		end
+	script.Parent.MouseButton1Click:Connect(function()
+		loadstring(game:HttpGet(‘https://raw.githubusercontent.com/sammykeng/script/refs/heads/main/AntiAfk'))()
 	end)
 end;
 task.spawn(C_32);
