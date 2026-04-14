@@ -196,7 +196,7 @@ G2L["1a"] = Instance.new("UICorner", G2L["18"]);
 
 
 
--- StarterGui.ScreenGui.main.anti-afk
+-- StarterGui.ScreenGui.main.farm
 G2L["1b"] = Instance.new("TextButton", G2L["6"]);
 G2L["1b"]["BorderSizePixel"] = 0;
 G2L["1b"]["TextSize"] = 14;
@@ -205,165 +205,165 @@ G2L["1b"]["BackgroundColor3"] = Color3.fromRGB(123, 61, 192);
 G2L["1b"]["FontFace"] = Font.new([[rbxasset://fonts/families/FredokaOne.json]], Enum.FontWeight.Bold, Enum.FontStyle.Normal);
 G2L["1b"]["Size"] = UDim2.new(0, 295, 0, 30);
 G2L["1b"]["BorderColor3"] = Color3.fromRGB(0, 0, 0);
-G2L["1b"]["Text"] = [[Anti-AFK]];
-G2L["1b"]["Name"] = [[anti-afk]];
-G2L["1b"]["Position"] = UDim2.new(0.07736, 0, 0.90168, 0);
+G2L["1b"]["Text"] = [[Farm kills: OFF]];
+G2L["1b"]["Name"] = [[farm]];
+G2L["1b"]["Position"] = UDim2.new(0.07736, 0, 0.36097, 0);
 
 
--- StarterGui.ScreenGui.main.anti-afk.LocalScript
+-- StarterGui.ScreenGui.main.farm.LocalScript
 G2L["1c"] = Instance.new("LocalScript", G2L["1b"]);
 
 
 
--- StarterGui.ScreenGui.main.anti-afk.UICorner
+-- StarterGui.ScreenGui.main.farm.UICorner
 G2L["1d"] = Instance.new("UICorner", G2L["1b"]);
 
 
 
--- StarterGui.ScreenGui.main.farm
-G2L["1e"] = Instance.new("TextButton", G2L["6"]);
+-- StarterGui.ScreenGui.ImageButtonMain
+G2L["1e"] = Instance.new("ImageButton", G2L["1"]);
 G2L["1e"]["BorderSizePixel"] = 0;
-G2L["1e"]["TextSize"] = 14;
-G2L["1e"]["TextColor3"] = Color3.fromRGB(0, 0, 0);
-G2L["1e"]["BackgroundColor3"] = Color3.fromRGB(123, 61, 192);
-G2L["1e"]["FontFace"] = Font.new([[rbxasset://fonts/families/FredokaOne.json]], Enum.FontWeight.Bold, Enum.FontStyle.Normal);
-G2L["1e"]["Size"] = UDim2.new(0, 295, 0, 30);
+G2L["1e"]["Visible"] = false;
+G2L["1e"]["BackgroundColor3"] = Color3.fromRGB(255, 255, 255);
+G2L["1e"]["Image"] = [[rbxassetid://102984736581690]];
+G2L["1e"]["Size"] = UDim2.new(0, 62, 0, 61);
 G2L["1e"]["BorderColor3"] = Color3.fromRGB(0, 0, 0);
-G2L["1e"]["Text"] = [[Farm kills: OFF]];
-G2L["1e"]["Name"] = [[farm]];
-G2L["1e"]["Position"] = UDim2.new(0.07736, 0, 0.36097, 0);
+G2L["1e"]["Name"] = [[ImageButtonMain]];
+G2L["1e"]["Position"] = UDim2.new(0.02, 0, 0.454, 0);
 
 
--- StarterGui.ScreenGui.main.farm.LocalScript
+-- StarterGui.ScreenGui.ImageButtonMain.main
 G2L["1f"] = Instance.new("LocalScript", G2L["1e"]);
+G2L["1f"]["Name"] = [[main]];
 
 
-
--- StarterGui.ScreenGui.main.farm.UICorner
+-- StarterGui.ScreenGui.ImageButtonMain.UICorner
 G2L["20"] = Instance.new("UICorner", G2L["1e"]);
 
 
 
--- StarterGui.ScreenGui.ImageButtonMain
-G2L["21"] = Instance.new("ImageButton", G2L["1"]);
-G2L["21"]["BorderSizePixel"] = 0;
-G2L["21"]["Visible"] = false;
-G2L["21"]["BackgroundColor3"] = Color3.fromRGB(255, 255, 255);
-G2L["21"]["Image"] = [[rbxassetid://102984736581690]];
-G2L["21"]["Size"] = UDim2.new(0, 62, 0, 61);
-G2L["21"]["BorderColor3"] = Color3.fromRGB(0, 0, 0);
-G2L["21"]["Name"] = [[ImageButtonMain]];
-G2L["21"]["Position"] = UDim2.new(0.02, 0, 0.454, 0);
-
-
--- StarterGui.ScreenGui.ImageButtonMain.main
-G2L["22"] = Instance.new("LocalScript", G2L["21"]);
-G2L["22"]["Name"] = [[main]];
-
-
--- StarterGui.ScreenGui.ImageButtonMain.UICorner
-G2L["23"] = Instance.new("UICorner", G2L["21"]);
-
-
-
 -- StarterGui.ScreenGui.system
-G2L["24"] = Instance.new("Frame", G2L["1"]);
-G2L["24"]["Visible"] = false;
-G2L["24"]["BorderSizePixel"] = 0;
-G2L["24"]["BackgroundColor3"] = Color3.fromRGB(52, 37, 88);
-G2L["24"]["Size"] = UDim2.new(0, 200, 0, 67);
-G2L["24"]["Position"] = UDim2.new(0.07961, 0, 0.22997, 0);
-G2L["24"]["BorderColor3"] = Color3.fromRGB(0, 0, 0);
-G2L["24"]["Name"] = [[system]];
+G2L["21"] = Instance.new("Frame", G2L["1"]);
+G2L["21"]["Visible"] = false;
+G2L["21"]["BorderSizePixel"] = 0;
+G2L["21"]["BackgroundColor3"] = Color3.fromRGB(52, 37, 88);
+G2L["21"]["Size"] = UDim2.new(0, 200, 0, 67);
+G2L["21"]["Position"] = UDim2.new(0.07961, 0, 0.22997, 0);
+G2L["21"]["BorderColor3"] = Color3.fromRGB(0, 0, 0);
+G2L["21"]["Name"] = [[system]];
 
 
 -- StarterGui.ScreenGui.system.UICorner
-G2L["25"] = Instance.new("UICorner", G2L["24"]);
+G2L["22"] = Instance.new("UICorner", G2L["21"]);
 
 
 
 -- StarterGui.ScreenGui.system.countKills
-G2L["26"] = Instance.new("TextLabel", G2L["24"]);
-G2L["26"]["BorderSizePixel"] = 0;
-G2L["26"]["TextSize"] = 14;
-G2L["26"]["BackgroundColor3"] = Color3.fromRGB(255, 255, 255);
-G2L["26"]["FontFace"] = Font.new([[rbxasset://fonts/families/FredokaOne.json]], Enum.FontWeight.Bold, Enum.FontStyle.Normal);
-G2L["26"]["TextColor3"] = Color3.fromRGB(111, 72, 194);
-G2L["26"]["BackgroundTransparency"] = 1;
-G2L["26"]["Size"] = UDim2.new(0, 200, 0, 28);
-G2L["26"]["BorderColor3"] = Color3.fromRGB(0, 0, 0);
-G2L["26"]["Text"] = [[Gained: 0]];
-G2L["26"]["Name"] = [[countKills]];
+G2L["23"] = Instance.new("TextLabel", G2L["21"]);
+G2L["23"]["BorderSizePixel"] = 0;
+G2L["23"]["TextSize"] = 14;
+G2L["23"]["BackgroundColor3"] = Color3.fromRGB(255, 255, 255);
+G2L["23"]["FontFace"] = Font.new([[rbxasset://fonts/families/FredokaOne.json]], Enum.FontWeight.Bold, Enum.FontStyle.Normal);
+G2L["23"]["TextColor3"] = Color3.fromRGB(111, 72, 194);
+G2L["23"]["BackgroundTransparency"] = 1;
+G2L["23"]["Size"] = UDim2.new(0, 200, 0, 28);
+G2L["23"]["BorderColor3"] = Color3.fromRGB(0, 0, 0);
+G2L["23"]["Text"] = [[Gained: 0]];
+G2L["23"]["Name"] = [[countKills]];
 
 
 -- StarterGui.ScreenGui.system.timer
-G2L["27"] = Instance.new("TextLabel", G2L["24"]);
-G2L["27"]["BorderSizePixel"] = 0;
-G2L["27"]["TextSize"] = 14;
-G2L["27"]["BackgroundColor3"] = Color3.fromRGB(255, 255, 255);
-G2L["27"]["FontFace"] = Font.new([[rbxasset://fonts/families/FredokaOne.json]], Enum.FontWeight.Bold, Enum.FontStyle.Normal);
-G2L["27"]["TextColor3"] = Color3.fromRGB(111, 72, 194);
-G2L["27"]["BackgroundTransparency"] = 1;
-G2L["27"]["Size"] = UDim2.new(0, 200, 0, 28);
-G2L["27"]["BorderColor3"] = Color3.fromRGB(0, 0, 0);
-G2L["27"]["Text"] = [[time: 00:00]];
-G2L["27"]["Name"] = [[timer]];
-G2L["27"]["Position"] = UDim2.new(0, 0, 0.53731, 0);
+G2L["24"] = Instance.new("TextLabel", G2L["21"]);
+G2L["24"]["BorderSizePixel"] = 0;
+G2L["24"]["TextSize"] = 14;
+G2L["24"]["BackgroundColor3"] = Color3.fromRGB(255, 255, 255);
+G2L["24"]["FontFace"] = Font.new([[rbxasset://fonts/families/FredokaOne.json]], Enum.FontWeight.Bold, Enum.FontStyle.Normal);
+G2L["24"]["TextColor3"] = Color3.fromRGB(111, 72, 194);
+G2L["24"]["BackgroundTransparency"] = 1;
+G2L["24"]["Size"] = UDim2.new(0, 200, 0, 28);
+G2L["24"]["BorderColor3"] = Color3.fromRGB(0, 0, 0);
+G2L["24"]["Text"] = [[time: 00:00]];
+G2L["24"]["Name"] = [[timer]];
+G2L["24"]["Position"] = UDim2.new(0, 0, 0.53731, 0);
 
 
 -- StarterGui.ScreenGui.alt
-G2L["28"] = Instance.new("Frame", G2L["1"]);
-G2L["28"]["Visible"] = false;
-G2L["28"]["BorderSizePixel"] = 0;
-G2L["28"]["BackgroundColor3"] = Color3.fromRGB(31, 31, 31);
-G2L["28"]["Size"] = UDim2.new(0, 502, 0, 257);
-G2L["28"]["Position"] = UDim2.new(0.31064, 0, 0.28367, 0);
-G2L["28"]["BorderColor3"] = Color3.fromRGB(0, 0, 0);
-G2L["28"]["Name"] = [[alt]];
+G2L["25"] = Instance.new("Frame", G2L["1"]);
+G2L["25"]["Visible"] = false;
+G2L["25"]["BorderSizePixel"] = 0;
+G2L["25"]["BackgroundColor3"] = Color3.fromRGB(31, 31, 31);
+G2L["25"]["Size"] = UDim2.new(0, 502, 0, 257);
+G2L["25"]["Position"] = UDim2.new(0.31064, 0, 0.28367, 0);
+G2L["25"]["BorderColor3"] = Color3.fromRGB(0, 0, 0);
+G2L["25"]["Name"] = [[alt]];
 
 
 -- StarterGui.ScreenGui.alt.UICorner
-G2L["29"] = Instance.new("UICorner", G2L["28"]);
+G2L["26"] = Instance.new("UICorner", G2L["25"]);
 
 
 
 -- StarterGui.ScreenGui.alt.ImageLabel
-G2L["2a"] = Instance.new("ImageLabel", G2L["28"]);
-G2L["2a"]["Active"] = true;
-G2L["2a"]["BorderSizePixel"] = 0;
-G2L["2a"]["BackgroundColor3"] = Color3.fromRGB(255, 255, 255);
-G2L["2a"]["Image"] = [[rbxassetid://102984736581690]];
-G2L["2a"]["Size"] = UDim2.new(0, 197, 0, 257);
-G2L["2a"]["BorderColor3"] = Color3.fromRGB(0, 0, 0);
-G2L["2a"]["Position"] = UDim2.new(-0.00131, 0, 0, 0);
+G2L["27"] = Instance.new("ImageLabel", G2L["25"]);
+G2L["27"]["Active"] = true;
+G2L["27"]["BorderSizePixel"] = 0;
+G2L["27"]["BackgroundColor3"] = Color3.fromRGB(255, 255, 255);
+G2L["27"]["Image"] = [[rbxassetid://102984736581690]];
+G2L["27"]["Size"] = UDim2.new(0, 197, 0, 257);
+G2L["27"]["BorderColor3"] = Color3.fromRGB(0, 0, 0);
+G2L["27"]["Position"] = UDim2.new(-0.00131, 0, 0, 0);
 
 
 -- StarterGui.ScreenGui.alt.Hide
-G2L["2b"] = Instance.new("TextButton", G2L["28"]);
-G2L["2b"]["BorderSizePixel"] = 0;
-G2L["2b"]["TextSize"] = 20;
-G2L["2b"]["TextColor3"] = Color3.fromRGB(0, 0, 0);
-G2L["2b"]["BackgroundColor3"] = Color3.fromRGB(150, 68, 198);
-G2L["2b"]["FontFace"] = Font.new([[rbxasset://fonts/families/FredokaOne.json]], Enum.FontWeight.Bold, Enum.FontStyle.Normal);
-G2L["2b"]["Size"] = UDim2.new(0, 30, 0, 34);
-G2L["2b"]["BorderColor3"] = Color3.fromRGB(0, 0, 0);
-G2L["2b"]["Text"] = [[-]];
-G2L["2b"]["Name"] = [[Hide]];
-G2L["2b"]["Position"] = UDim2.new(-0.00107, 0, -0.00399, 0);
+G2L["28"] = Instance.new("TextButton", G2L["25"]);
+G2L["28"]["BorderSizePixel"] = 0;
+G2L["28"]["TextSize"] = 20;
+G2L["28"]["TextColor3"] = Color3.fromRGB(0, 0, 0);
+G2L["28"]["BackgroundColor3"] = Color3.fromRGB(150, 68, 198);
+G2L["28"]["FontFace"] = Font.new([[rbxasset://fonts/families/FredokaOne.json]], Enum.FontWeight.Bold, Enum.FontStyle.Normal);
+G2L["28"]["Size"] = UDim2.new(0, 30, 0, 34);
+G2L["28"]["BorderColor3"] = Color3.fromRGB(0, 0, 0);
+G2L["28"]["Text"] = [[-]];
+G2L["28"]["Name"] = [[Hide]];
+G2L["28"]["Position"] = UDim2.new(-0.00107, 0, -0.00399, 0);
 
 
 -- StarterGui.ScreenGui.alt.Hide.LocalScript
-G2L["2c"] = Instance.new("LocalScript", G2L["2b"]);
+G2L["29"] = Instance.new("LocalScript", G2L["28"]);
 
 
 
 -- StarterGui.ScreenGui.alt.Hide.UICorner
-G2L["2d"] = Instance.new("UICorner", G2L["2b"]);
+G2L["2a"] = Instance.new("UICorner", G2L["28"]);
 
 
 
 -- StarterGui.ScreenGui.alt.SetSpawn
-G2L["2e"] = Instance.new("TextButton", G2L["28"]);
+G2L["2b"] = Instance.new("TextButton", G2L["25"]);
+G2L["2b"]["BorderSizePixel"] = 0;
+G2L["2b"]["TextSize"] = 14;
+G2L["2b"]["TextColor3"] = Color3.fromRGB(0, 0, 0);
+G2L["2b"]["BackgroundColor3"] = Color3.fromRGB(123, 61, 192);
+G2L["2b"]["FontFace"] = Font.new([[rbxasset://fonts/families/FredokaOne.json]], Enum.FontWeight.Bold, Enum.FontStyle.Normal);
+G2L["2b"]["Size"] = UDim2.new(0, 295, 0, 34);
+G2L["2b"]["BorderColor3"] = Color3.fromRGB(0, 0, 0);
+G2L["2b"]["Text"] = [[Set Spawn]];
+G2L["2b"]["Name"] = [[SetSpawn]];
+G2L["2b"]["Position"] = UDim2.new(0.4107, 0, 0.16721, 0);
+
+
+-- StarterGui.ScreenGui.alt.SetSpawn.LocalScript
+G2L["2c"] = Instance.new("LocalScript", G2L["2b"]);
+
+
+
+-- StarterGui.ScreenGui.alt.SetSpawn.UICorner
+G2L["2d"] = Instance.new("UICorner", G2L["2b"]);
+
+
+
+-- StarterGui.ScreenGui.alt.autoreset
+G2L["2e"] = Instance.new("TextButton", G2L["25"]);
 G2L["2e"]["BorderSizePixel"] = 0;
 G2L["2e"]["TextSize"] = 14;
 G2L["2e"]["TextColor3"] = Color3.fromRGB(0, 0, 0);
@@ -371,23 +371,23 @@ G2L["2e"]["BackgroundColor3"] = Color3.fromRGB(123, 61, 192);
 G2L["2e"]["FontFace"] = Font.new([[rbxasset://fonts/families/FredokaOne.json]], Enum.FontWeight.Bold, Enum.FontStyle.Normal);
 G2L["2e"]["Size"] = UDim2.new(0, 295, 0, 34);
 G2L["2e"]["BorderColor3"] = Color3.fromRGB(0, 0, 0);
-G2L["2e"]["Text"] = [[Set Spawn]];
-G2L["2e"]["Name"] = [[SetSpawn]];
-G2L["2e"]["Position"] = UDim2.new(0.4107, 0, 0.16721, 0);
+G2L["2e"]["Text"] = [[Auto Reset: OFF]];
+G2L["2e"]["Name"] = [[autoreset]];
+G2L["2e"]["Position"] = UDim2.new(0.4107, 0, -0.00033, 0);
 
 
--- StarterGui.ScreenGui.alt.SetSpawn.LocalScript
+-- StarterGui.ScreenGui.alt.autoreset.LocalScript
 G2L["2f"] = Instance.new("LocalScript", G2L["2e"]);
 
 
 
--- StarterGui.ScreenGui.alt.SetSpawn.UICorner
+-- StarterGui.ScreenGui.alt.autoreset.UICorner
 G2L["30"] = Instance.new("UICorner", G2L["2e"]);
 
 
 
--- StarterGui.ScreenGui.alt.anti-afk
-G2L["31"] = Instance.new("TextButton", G2L["28"]);
+-- StarterGui.ScreenGui.alt.wall
+G2L["31"] = Instance.new("TextButton", G2L["25"]);
 G2L["31"]["BorderSizePixel"] = 0;
 G2L["31"]["TextSize"] = 14;
 G2L["31"]["TextColor3"] = Color3.fromRGB(0, 0, 0);
@@ -395,23 +395,23 @@ G2L["31"]["BackgroundColor3"] = Color3.fromRGB(123, 61, 192);
 G2L["31"]["FontFace"] = Font.new([[rbxasset://fonts/families/FredokaOne.json]], Enum.FontWeight.Bold, Enum.FontStyle.Normal);
 G2L["31"]["Size"] = UDim2.new(0, 295, 0, 34);
 G2L["31"]["BorderColor3"] = Color3.fromRGB(0, 0, 0);
-G2L["31"]["Text"] = [[Anti-AFK]];
-G2L["31"]["Name"] = [[anti-afk]];
-G2L["31"]["Position"] = UDim2.new(0.4107, 0, 0.86404, 0);
+G2L["31"]["Text"] = [[Wall]];
+G2L["31"]["Name"] = [[wall]];
+G2L["31"]["Position"] = UDim2.new(0.4107, 0, 0.68906, 0);
 
 
--- StarterGui.ScreenGui.alt.anti-afk.LocalScript
+-- StarterGui.ScreenGui.alt.wall.LocalScript
 G2L["32"] = Instance.new("LocalScript", G2L["31"]);
 
 
 
--- StarterGui.ScreenGui.alt.anti-afk.UICorner
+-- StarterGui.ScreenGui.alt.wall.UICorner
 G2L["33"] = Instance.new("UICorner", G2L["31"]);
 
 
 
--- StarterGui.ScreenGui.alt.autoreset
-G2L["34"] = Instance.new("TextButton", G2L["28"]);
+-- StarterGui.ScreenGui.alt.tp
+G2L["34"] = Instance.new("TextButton", G2L["25"]);
 G2L["34"]["BorderSizePixel"] = 0;
 G2L["34"]["TextSize"] = 14;
 G2L["34"]["TextColor3"] = Color3.fromRGB(0, 0, 0);
@@ -419,23 +419,23 @@ G2L["34"]["BackgroundColor3"] = Color3.fromRGB(123, 61, 192);
 G2L["34"]["FontFace"] = Font.new([[rbxasset://fonts/families/FredokaOne.json]], Enum.FontWeight.Bold, Enum.FontStyle.Normal);
 G2L["34"]["Size"] = UDim2.new(0, 295, 0, 34);
 G2L["34"]["BorderColor3"] = Color3.fromRGB(0, 0, 0);
-G2L["34"]["Text"] = [[Auto Reset: OFF]];
-G2L["34"]["Name"] = [[autoreset]];
-G2L["34"]["Position"] = UDim2.new(0.4107, 0, -0.00033, 0);
+G2L["34"]["Text"] = [[Teleport]];
+G2L["34"]["Name"] = [[tp]];
+G2L["34"]["Position"] = UDim2.new(0.4107, 0, 0.33864, 0);
 
 
--- StarterGui.ScreenGui.alt.autoreset.LocalScript
+-- StarterGui.ScreenGui.alt.tp.LocalScript
 G2L["35"] = Instance.new("LocalScript", G2L["34"]);
 
 
 
--- StarterGui.ScreenGui.alt.autoreset.UICorner
+-- StarterGui.ScreenGui.alt.tp.UICorner
 G2L["36"] = Instance.new("UICorner", G2L["34"]);
 
 
 
--- StarterGui.ScreenGui.alt.wall
-G2L["37"] = Instance.new("TextButton", G2L["28"]);
+-- StarterGui.ScreenGui.alt.rejoin
+G2L["37"] = Instance.new("TextButton", G2L["25"]);
 G2L["37"]["BorderSizePixel"] = 0;
 G2L["37"]["TextSize"] = 14;
 G2L["37"]["TextColor3"] = Color3.fromRGB(0, 0, 0);
@@ -443,164 +443,116 @@ G2L["37"]["BackgroundColor3"] = Color3.fromRGB(123, 61, 192);
 G2L["37"]["FontFace"] = Font.new([[rbxasset://fonts/families/FredokaOne.json]], Enum.FontWeight.Bold, Enum.FontStyle.Normal);
 G2L["37"]["Size"] = UDim2.new(0, 295, 0, 34);
 G2L["37"]["BorderColor3"] = Color3.fromRGB(0, 0, 0);
-G2L["37"]["Text"] = [[Wall]];
-G2L["37"]["Name"] = [[wall]];
-G2L["37"]["Position"] = UDim2.new(0.4107, 0, 0.68906, 0);
+G2L["37"]["Text"] = [[Rejoin]];
+G2L["37"]["Name"] = [[rejoin]];
+G2L["37"]["Position"] = UDim2.new(0.4107, 0, 0.50229, 0);
 
 
--- StarterGui.ScreenGui.alt.wall.LocalScript
+-- StarterGui.ScreenGui.alt.rejoin.LocalScript
 G2L["38"] = Instance.new("LocalScript", G2L["37"]);
 
 
 
--- StarterGui.ScreenGui.alt.wall.UICorner
+-- StarterGui.ScreenGui.alt.rejoin.UICorner
 G2L["39"] = Instance.new("UICorner", G2L["37"]);
 
 
 
--- StarterGui.ScreenGui.alt.tp
-G2L["3a"] = Instance.new("TextButton", G2L["28"]);
+-- StarterGui.ScreenGui.ImageButtonAlt
+G2L["3a"] = Instance.new("ImageButton", G2L["1"]);
 G2L["3a"]["BorderSizePixel"] = 0;
-G2L["3a"]["TextSize"] = 14;
-G2L["3a"]["TextColor3"] = Color3.fromRGB(0, 0, 0);
-G2L["3a"]["BackgroundColor3"] = Color3.fromRGB(123, 61, 192);
-G2L["3a"]["FontFace"] = Font.new([[rbxasset://fonts/families/FredokaOne.json]], Enum.FontWeight.Bold, Enum.FontStyle.Normal);
-G2L["3a"]["Size"] = UDim2.new(0, 295, 0, 34);
+G2L["3a"]["Visible"] = false;
+G2L["3a"]["BackgroundColor3"] = Color3.fromRGB(255, 255, 255);
+G2L["3a"]["Image"] = [[rbxassetid://102984736581690]];
+G2L["3a"]["Size"] = UDim2.new(0, 62, 0, 61);
 G2L["3a"]["BorderColor3"] = Color3.fromRGB(0, 0, 0);
-G2L["3a"]["Text"] = [[Teleport]];
-G2L["3a"]["Name"] = [[tp]];
-G2L["3a"]["Position"] = UDim2.new(0.4107, 0, 0.33864, 0);
+G2L["3a"]["Name"] = [[ImageButtonAlt]];
+G2L["3a"]["Position"] = UDim2.new(0.02, 0, 0.454, 0);
 
 
--- StarterGui.ScreenGui.alt.tp.LocalScript
+-- StarterGui.ScreenGui.ImageButtonAlt.alt
 G2L["3b"] = Instance.new("LocalScript", G2L["3a"]);
+G2L["3b"]["Name"] = [[alt]];
 
 
-
--- StarterGui.ScreenGui.alt.tp.UICorner
+-- StarterGui.ScreenGui.ImageButtonAlt.UICorner
 G2L["3c"] = Instance.new("UICorner", G2L["3a"]);
 
 
 
--- StarterGui.ScreenGui.alt.rejoin
-G2L["3d"] = Instance.new("TextButton", G2L["28"]);
-G2L["3d"]["BorderSizePixel"] = 0;
-G2L["3d"]["TextSize"] = 14;
-G2L["3d"]["TextColor3"] = Color3.fromRGB(0, 0, 0);
-G2L["3d"]["BackgroundColor3"] = Color3.fromRGB(123, 61, 192);
-G2L["3d"]["FontFace"] = Font.new([[rbxasset://fonts/families/FredokaOne.json]], Enum.FontWeight.Bold, Enum.FontStyle.Normal);
-G2L["3d"]["Size"] = UDim2.new(0, 295, 0, 34);
-G2L["3d"]["BorderColor3"] = Color3.fromRGB(0, 0, 0);
-G2L["3d"]["Text"] = [[Rejoin]];
-G2L["3d"]["Name"] = [[rejoin]];
-G2L["3d"]["Position"] = UDim2.new(0.4107, 0, 0.50229, 0);
-
-
--- StarterGui.ScreenGui.alt.rejoin.LocalScript
-G2L["3e"] = Instance.new("LocalScript", G2L["3d"]);
-
-
-
--- StarterGui.ScreenGui.alt.rejoin.UICorner
-G2L["3f"] = Instance.new("UICorner", G2L["3d"]);
-
-
-
--- StarterGui.ScreenGui.ImageButtonAlt
-G2L["40"] = Instance.new("ImageButton", G2L["1"]);
-G2L["40"]["BorderSizePixel"] = 0;
-G2L["40"]["Visible"] = false;
-G2L["40"]["BackgroundColor3"] = Color3.fromRGB(255, 255, 255);
-G2L["40"]["Image"] = [[rbxassetid://102984736581690]];
-G2L["40"]["Size"] = UDim2.new(0, 62, 0, 61);
-G2L["40"]["BorderColor3"] = Color3.fromRGB(0, 0, 0);
-G2L["40"]["Name"] = [[ImageButtonAlt]];
-G2L["40"]["Position"] = UDim2.new(0.02, 0, 0.454, 0);
-
-
--- StarterGui.ScreenGui.ImageButtonAlt.alt
-G2L["41"] = Instance.new("LocalScript", G2L["40"]);
-G2L["41"]["Name"] = [[alt]];
-
-
--- StarterGui.ScreenGui.ImageButtonAlt.UICorner
-G2L["42"] = Instance.new("UICorner", G2L["40"]);
-
-
-
 -- StarterGui.ScreenGui.choose
-G2L["43"] = Instance.new("Frame", G2L["1"]);
-G2L["43"]["BorderSizePixel"] = 0;
-G2L["43"]["BackgroundColor3"] = Color3.fromRGB(31, 31, 31);
-G2L["43"]["Size"] = UDim2.new(0, 331, 0, 179);
-G2L["43"]["Position"] = UDim2.new(0.33883, 0, 0.34856, 0);
-G2L["43"]["BorderColor3"] = Color3.fromRGB(0, 0, 0);
-G2L["43"]["Name"] = [[choose]];
+G2L["3d"] = Instance.new("Frame", G2L["1"]);
+G2L["3d"]["BorderSizePixel"] = 0;
+G2L["3d"]["BackgroundColor3"] = Color3.fromRGB(31, 31, 31);
+G2L["3d"]["Size"] = UDim2.new(0, 331, 0, 179);
+G2L["3d"]["Position"] = UDim2.new(0.33883, 0, 0.34856, 0);
+G2L["3d"]["BorderColor3"] = Color3.fromRGB(0, 0, 0);
+G2L["3d"]["Name"] = [[choose]];
 
 
 -- StarterGui.ScreenGui.choose.UICorner
-G2L["44"] = Instance.new("UICorner", G2L["43"]);
+G2L["3e"] = Instance.new("UICorner", G2L["3d"]);
 
 
 
 -- StarterGui.ScreenGui.choose.TextButton
-G2L["45"] = Instance.new("TextButton", G2L["43"]);
-G2L["45"]["BorderSizePixel"] = 0;
-G2L["45"]["TextSize"] = 14;
-G2L["45"]["TextColor3"] = Color3.fromRGB(0, 0, 0);
-G2L["45"]["BackgroundColor3"] = Color3.fromRGB(107, 56, 173);
-G2L["45"]["FontFace"] = Font.new([[rbxasset://fonts/families/FredokaOne.json]], Enum.FontWeight.Bold, Enum.FontStyle.Normal);
-G2L["45"]["Size"] = UDim2.new(0, 128, 0, 50);
-G2L["45"]["BorderColor3"] = Color3.fromRGB(0, 0, 0);
-G2L["45"]["Text"] = [[On Main Account]];
-G2L["45"]["Position"] = UDim2.new(0.04834, 0, 0.53073, 0);
+G2L["3f"] = Instance.new("TextButton", G2L["3d"]);
+G2L["3f"]["BorderSizePixel"] = 0;
+G2L["3f"]["TextSize"] = 14;
+G2L["3f"]["TextColor3"] = Color3.fromRGB(0, 0, 0);
+G2L["3f"]["BackgroundColor3"] = Color3.fromRGB(107, 56, 173);
+G2L["3f"]["FontFace"] = Font.new([[rbxasset://fonts/families/FredokaOne.json]], Enum.FontWeight.Bold, Enum.FontStyle.Normal);
+G2L["3f"]["Size"] = UDim2.new(0, 128, 0, 50);
+G2L["3f"]["BorderColor3"] = Color3.fromRGB(0, 0, 0);
+G2L["3f"]["Text"] = [[On Main Account]];
+G2L["3f"]["Position"] = UDim2.new(0.04834, 0, 0.53073, 0);
 
 
 -- StarterGui.ScreenGui.choose.TextButton.LocalScript
-G2L["46"] = Instance.new("LocalScript", G2L["45"]);
+G2L["40"] = Instance.new("LocalScript", G2L["3f"]);
 
 
 
 -- StarterGui.ScreenGui.choose.TextButton.UICorner
-G2L["47"] = Instance.new("UICorner", G2L["45"]);
+G2L["41"] = Instance.new("UICorner", G2L["3f"]);
 
 
 
 -- StarterGui.ScreenGui.choose.TextButton
-G2L["48"] = Instance.new("TextButton", G2L["43"]);
-G2L["48"]["BorderSizePixel"] = 0;
-G2L["48"]["TextSize"] = 14;
-G2L["48"]["TextColor3"] = Color3.fromRGB(0, 0, 0);
-G2L["48"]["BackgroundColor3"] = Color3.fromRGB(107, 56, 173);
-G2L["48"]["FontFace"] = Font.new([[rbxasset://fonts/families/FredokaOne.json]], Enum.FontWeight.Bold, Enum.FontStyle.Normal);
-G2L["48"]["Size"] = UDim2.new(0, 128, 0, 50);
-G2L["48"]["BorderColor3"] = Color3.fromRGB(0, 0, 0);
-G2L["48"]["Text"] = [[On Alt Account]];
-G2L["48"]["Position"] = UDim2.new(0.56798, 0, 0.53073, 0);
+G2L["42"] = Instance.new("TextButton", G2L["3d"]);
+G2L["42"]["BorderSizePixel"] = 0;
+G2L["42"]["TextSize"] = 14;
+G2L["42"]["TextColor3"] = Color3.fromRGB(0, 0, 0);
+G2L["42"]["BackgroundColor3"] = Color3.fromRGB(107, 56, 173);
+G2L["42"]["FontFace"] = Font.new([[rbxasset://fonts/families/FredokaOne.json]], Enum.FontWeight.Bold, Enum.FontStyle.Normal);
+G2L["42"]["Size"] = UDim2.new(0, 128, 0, 50);
+G2L["42"]["BorderColor3"] = Color3.fromRGB(0, 0, 0);
+G2L["42"]["Text"] = [[On Alt Account]];
+G2L["42"]["Position"] = UDim2.new(0.56798, 0, 0.53073, 0);
 
 
 -- StarterGui.ScreenGui.choose.TextButton.LocalScript
-G2L["49"] = Instance.new("LocalScript", G2L["48"]);
+G2L["43"] = Instance.new("LocalScript", G2L["42"]);
 
 
 
 -- StarterGui.ScreenGui.choose.TextButton.UICorner
-G2L["4a"] = Instance.new("UICorner", G2L["48"]);
+G2L["44"] = Instance.new("UICorner", G2L["42"]);
 
 
 
 -- StarterGui.ScreenGui.choose.TextLabel
-G2L["4b"] = Instance.new("TextLabel", G2L["43"]);
-G2L["4b"]["BorderSizePixel"] = 0;
-G2L["4b"]["TextSize"] = 14;
-G2L["4b"]["BackgroundColor3"] = Color3.fromRGB(255, 255, 255);
-G2L["4b"]["FontFace"] = Font.new([[rbxasset://fonts/families/FredokaOne.json]], Enum.FontWeight.Bold, Enum.FontStyle.Normal);
-G2L["4b"]["TextColor3"] = Color3.fromRGB(84, 60, 182);
-G2L["4b"]["BackgroundTransparency"] = 1;
-G2L["4b"]["Size"] = UDim2.new(0, 200, 0, 50);
-G2L["4b"]["BorderColor3"] = Color3.fromRGB(0, 0, 0);
-G2L["4b"]["Text"] = [[What Account You're On?]];
-G2L["4b"]["Position"] = UDim2.new(0.1994, 0, 0.14525, 0);
+G2L["45"] = Instance.new("TextLabel", G2L["3d"]);
+G2L["45"]["BorderSizePixel"] = 0;
+G2L["45"]["TextSize"] = 14;
+G2L["45"]["BackgroundColor3"] = Color3.fromRGB(255, 255, 255);
+G2L["45"]["FontFace"] = Font.new([[rbxasset://fonts/families/FredokaOne.json]], Enum.FontWeight.Bold, Enum.FontStyle.Normal);
+G2L["45"]["TextColor3"] = Color3.fromRGB(84, 60, 182);
+G2L["45"]["BackgroundTransparency"] = 1;
+G2L["45"]["Size"] = UDim2.new(0, 200, 0, 50);
+G2L["45"]["BorderColor3"] = Color3.fromRGB(0, 0, 0);
+G2L["45"]["Text"] = [[What Account You're On?]];
+G2L["45"]["Position"] = UDim2.new(0.1994, 0, 0.14525, 0);
 
 
 -- StarterGui.ScreenGui.draggable
@@ -915,17 +867,9 @@ local script = G2L["19"];
 	end)
 end;
 task.spawn(C_19);
--- StarterGui.ScreenGui.main.anti-afk.LocalScript
+-- StarterGui.ScreenGui.main.farm.LocalScript
 local function C_1c()
 local script = G2L["1c"];
-	script.Parent.MouseButton1Click:Connect(function()
-		loadstring(game:HttpGet(‘https://raw.githubusercontent.com/sammykeng/script/refs/heads/main/AntiAfk'))()
-	end)
-end;
-task.spawn(C_1c);
--- StarterGui.ScreenGui.main.farm.LocalScript
-local function C_1f()
-local script = G2L["1f"];
 	local Players = game:GetService("Players")
 	local player = Players.LocalPlayer
 	
@@ -978,10 +922,10 @@ local script = G2L["1f"];
 		end
 	end)
 end;
-task.spawn(C_1f);
+task.spawn(C_1c);
 -- StarterGui.ScreenGui.ImageButtonMain.main
-local function C_22()
-local script = G2L["22"];
+local function C_1f()
+local script = G2L["1f"];
 	local button = script.Parent
 	local frame = script.Parent.Parent.main
 	local ImageButton = script.Parent.Parent.ImageButtonMain
@@ -990,10 +934,10 @@ local script = G2L["22"];
 		ImageButton.Visible = false
 	end)
 end;
-task.spawn(C_22);
+task.spawn(C_1f);
 -- StarterGui.ScreenGui.alt.Hide.LocalScript
-local function C_2c()
-local script = G2L["2c"];
+local function C_29()
+local script = G2L["29"];
 	local button = script.Parent
 	local frame = script.Parent.Parent
 	local ImageButton = script.Parent.Parent.Parent.ImageButtonAlt
@@ -1002,10 +946,10 @@ local script = G2L["2c"];
 		ImageButton.Visible = true
 	end)
 end;
-task.spawn(C_2c);
+task.spawn(C_29);
 -- StarterGui.ScreenGui.alt.SetSpawn.LocalScript
-local function C_2f()
-local script = G2L["2f"];
+local function C_2c()
+local script = G2L["2c"];
 	local Players = game:GetService("Players")
 	local player = Players.LocalPlayer
 	local button = script.Parent
@@ -1052,18 +996,10 @@ local script = G2L["2f"];
 	end
 	
 end;
-task.spawn(C_2f);
--- StarterGui.ScreenGui.alt.anti-afk.LocalScript
-local function C_32()
-local script = G2L["32"];
-	script.Parent.MouseButton1Click:Connect(function()
-		loadstring(game:HttpGet(‘https://raw.githubusercontent.com/sammykeng/script/refs/heads/main/AntiAfk'))()
-	end)
-end;
-task.spawn(C_32);
+task.spawn(C_2c);
 -- StarterGui.ScreenGui.alt.autoreset.LocalScript
-local function C_35()
-local script = G2L["35"];
+local function C_2f()
+local script = G2L["2f"];
 	local Players = game:GetService("Players")
 	local player = Players.LocalPlayer
 	
@@ -1107,10 +1043,10 @@ local script = G2L["35"];
 		end
 	end)
 end;
-task.spawn(C_35);
+task.spawn(C_2f);
 -- StarterGui.ScreenGui.alt.wall.LocalScript
-local function C_38()
-local script = G2L["38"];
+local function C_32()
+local script = G2L["32"];
 	local button = script.Parent
 	local Players = game:GetService("Players")
 	local player = Players.LocalPlayer
@@ -1129,10 +1065,10 @@ local script = G2L["38"];
 		part.Parent = workspace
 	end)
 end;
-task.spawn(C_38);
+task.spawn(C_32);
 -- StarterGui.ScreenGui.alt.tp.LocalScript
-local function C_3b()
-local script = G2L["3b"];
+local function C_35()
+local script = G2L["35"];
 	local Players = game:GetService("Players")
 	local player = Players.LocalPlayer
 	
@@ -1149,10 +1085,10 @@ local script = G2L["3b"];
 		end
 	end)
 end;
-task.spawn(C_3b);
+task.spawn(C_35);
 -- StarterGui.ScreenGui.alt.rejoin.LocalScript
-local function C_3e()
-local script = G2L["3e"];
+local function C_38()
+local script = G2L["38"];
 	local ts = game:GetService("TeleportService")
 	local p = game:GetService("Players").LocalPlayer
 	local button = script.Parent
@@ -1160,10 +1096,10 @@ local script = G2L["3e"];
 		ts:TeleportToPlaceInstance(game.PlaceId, game.JobId, p)
 	end)
 end;
-task.spawn(C_3e);
+task.spawn(C_38);
 -- StarterGui.ScreenGui.ImageButtonAlt.alt
-local function C_41()
-local script = G2L["41"];
+local function C_3b()
+local script = G2L["3b"];
 	local button = script.Parent
 	local frame = script.Parent.Parent.alt
 	local ImageButton = script.Parent.Parent.ImageButtonAlt
@@ -1172,10 +1108,10 @@ local script = G2L["41"];
 		ImageButton.Visible = false
 	end)
 end;
-task.spawn(C_41);
+task.spawn(C_3b);
 -- StarterGui.ScreenGui.choose.TextButton.LocalScript
-local function C_46()
-local script = G2L["46"];
+local function C_40()
+local script = G2L["40"];
 	local button = script.Parent
 	local main = script.Parent.Parent.Parent.main
 	local choose = script.Parent.Parent.Parent.choose
@@ -1190,10 +1126,10 @@ local script = G2L["46"];
 		KeepGuiAlt:Destroy()
 	end)
 end;
-task.spawn(C_46);
+task.spawn(C_40);
 -- StarterGui.ScreenGui.choose.TextButton.LocalScript
-local function C_49()
-local script = G2L["49"];
+local function C_43()
+local script = G2L["43"];
 	local button = script.Parent
 	local main = script.Parent.Parent.Parent.main
 	local choose = script.Parent.Parent.Parent.choose
@@ -1210,6 +1146,6 @@ local script = G2L["49"];
 		KeepGuiMain:Destroy()
 	end)
 end;
-task.spawn(C_49);
+task.spawn(C_43);
 
 return G2L["1"], require;
