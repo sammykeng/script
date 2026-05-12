@@ -14,12 +14,22 @@ local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
 local Debris = game:GetService("Debris")
 
+local circle = Drawing.new("Circle")
+circle.Visible = true
+circle.Color = Color3.fromRGB(255,255,255)
+circle.Thickness = 2
+circle.NumSides = 100
+circle.Filled = false
+circle.Transparency = 0.5
+circle.Radius = 100
+
+local SilentAimFov = 100
 local plr = Players.LocalPlayer
 local LocalPlayer = Players.LocalPlayer
 local camera = workspace.CurrentCamera
 
 local superFlingEnabled = false
-local flingStrength = 890
+local flingStrength = 581
 local originalFlingStrength = flingStrength
 
 local SilentAim = false
@@ -64,6 +74,8 @@ local ScriptNotify = RS.GamepassEvents.FurtherReachBoughtNotifier
 local Activator = RS.MenuToys.LimitedTimeToyEvent
 local DiedHandle
 
+local currentFov = camera.FieldOfView
+
 function SetSilentAim(state)
     SilentAim = state
     print("Silent Aim toggled:", state)
@@ -79,24 +91,33 @@ end
 
 local function getClosestPlayerToCenter()
     local closest = nil
-    local shortest = math.huge
+    local shortest = SilentAimFov
+
+    local center = UserInputService:GetMouseLocation()
+
     for _, plr in pairs(Players:GetPlayers()) do
-        if plr ~= LocalPlayer and plr.Character and plr.Character:FindFirstChild("Torso") then
-            local torso = plr.Character.Torso
-            local screenPos, onScreen = camera:WorldToViewportPoint(torso.Position)
-            if onScreen then
-                local dist = (Vector2.new(screenPos.X, screenPos.Y)
-                - Vector2.new(camera.ViewportSize.X/2, camera.ViewportSize.Y/2)).Magnitude
-                if dist < shortest then
-                    shortest = dist
-                    closest = plr
+        if plr ~= LocalPlayer and plr.Character then
+            local torso = plr.Character:FindFirstChild("Torso")
+            local humanoid = plr.Character:FindFirstChild("Humanoid")
+
+            if torso and humanoid and humanoid.Health > 0 then
+                local screenPos, onScreen = camera:WorldToViewportPoint(torso.Position)
+
+                if onScreen then
+                    local dist = (
+                        Vector2.new(screenPos.X, screenPos.Y)
+                        - Vector2.new(center.X, center.Y)
+                    ).Magnitude
+
+                    if dist < shortest then
+                        shortest = dist
+                        closest = plr
+                    end
                 end
             end
         end
     end
-    if closest then
-        print("Target found:", closest.Name)
-    end
+
     return closest
 end
 
@@ -167,6 +188,30 @@ Window:AddToggle({
         AirGrabEnabled = state
         print("Air Grab Enabled:", state)
     end
+})
+
+Window:AddSlider({
+	text = "Fov",
+	min = 70,
+	max = 170,
+	value = currentFov,
+	callback = function(v)
+		currentFov = v
+		camera.FieldOfView = v
+		print("FOV set to:", v)
+	end
+})
+
+Window:AddSlider({
+	text = "Silent Aim Fov",
+	min = 50,
+	max = 500,
+	value = SilentAimFov,
+	callback = function(v)
+		SilentAimFov = v
+		circle.Radius = v
+		print("Silent Aim FOV:", v)
+	end
 })
 
 Library:Init()
@@ -303,4 +348,51 @@ UserInputService.InputBegan:Connect(function(input)
             Notify("Air Grab", "Power restored", 2)
         end
     end
+end)
+
+RunService.RenderStepped:Connect(function()
+	if camera.FieldOfView ~= currentFov then
+		camera.FieldOfView = currentFov
+	end
+end)
+
+local oldIndex
+oldIndex = hookmetamethod(game, "__index", function(self, key)
+    if not checkcaller()
+    and SilentAim
+    and self == camera
+    and key == "CFrame" then
+
+        local traceback = debug.traceback()
+
+        if traceback:find("GrabController")
+        and traceback:find("mouseOneClicked") then
+
+            local target = currentTarget
+
+            if target
+            and target.Character
+            and target.Character:FindFirstChild("Head") then
+
+                local head = target.Character.Head
+                local realCFrame = oldIndex(self, "CFrame")
+
+                return CFrame.new(
+                    realCFrame.Position,
+                    head.Position
+                )
+            end
+        end
+    end
+
+    return oldIndex(self, key)
+end)
+
+RunService.RenderStepped:Connect(function()
+    local mousePos = UserInputService:GetMouseLocation()
+
+    circle.Position = Vector2.new(mousePos.X, mousePos.Y)
+
+    circle.Visible = SilentAim
+    circle.Radius = SilentAimFov
 end)
